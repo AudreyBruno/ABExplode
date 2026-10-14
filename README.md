@@ -40,6 +40,11 @@ App WPF (.NET 8) com:
     + workers (física, colisão, IA). Nota = FPS da simulação. Ryzen 7 7700X ≈ 290 FPS.
   - *Memória e carregamento* (`MemoryBench.cs`): latência e banda da RAM; carregamento de mapa (pacote de 512 MB + mil arquivos de 64 KB)
     lido sem cache do Windows, com passada prévia para o antivírus e 8 threads. Arquivos temporários apagados no final.
+  - *Disco* (`DiskBench.cs`): leitura e escrita sequencial (1 MB) e aleatória 4K (QD1 e QD32), sem cache do Windows
+    (`FILE_FLAG_NO_BUFFERING`), em arquivo temporário de 512 MB / 1 GB / 4 GB na unidade escolhida; apagado no final. Histórico dos últimos resultados.
+- **RESET OC** (`MainWindow.Oc.cs`, `OcCheck.cs`): ajuste de limite de energia e travamento de clock da GPU NVIDIA (via NVML) com botão de restaurar,
+  e **verificação de estabilidade** de overclock (CPU, GPU ou ambos; 5/15/30 min) com limites de segurança de temperatura, leitura de erros
+  de hardware (WHEA, reset de driver de vídeo), veredito, histórico e guia de BIOS conforme a placa-mãe e a CPU.
 - **RESET OTIMIZA** (`Optimizer.cs`, `WindowsTweaks.cs`): um botão que limpa a memória em espera (como o ISLC) e enxuga a RAM dos
   processos, e fecha os programas marcados (pré-marca só os seguros: OneDrive, Teams, Widgets, Adobe...; programas com janela são
   fechados sem forçar). Ajustes do Windows com interruptor e "Restaurar originais": plano Alto desempenho, Modo de Jogo, desativar
@@ -47,10 +52,17 @@ App WPF (.NET 8) com:
   **USB e portas COM** (`UsbCleaner.cs`): lista e remove registros de dispositivos USB/seriais ausentes ("fantasmas" de Arduino,
   ESP32, CH340, FTDI, CP210x...) e libera os números COM presos no ComDB, com backup para desfazer. Resolve a IDE do Arduino
   não achar a placa ou a porta ir para COM20+.
+- **Saúde dos discos (S.M.A.R.T.)** (`DiskHealth.cs`, `MainWindow.Disks.cs`): página própria com um cartão por disco físico —
+  veredito (Bom/Atenção/Ruim) com os motivos, temperatura, horas ligado, ciclos, desgaste do SSD, setores realocados, erros de leitura/escrita
+  e previsão de falha. Fontes: Windows Storage (MSFT_PhysicalDisk, MSFT_StorageReliabilityCounter) e MSStorageDriver_FailurePredictStatus.
+- **Relatório exportável** (`ReportBuilder.cs`): botão **EXPORTAR RELATÓRIO** em Sistema. Gera um arquivo HTML (com a marca RESET) ou JSON
+  com as informações do sistema, RAM por módulo, discos e saúde dos discos.
+- **RAM detalhada**: resumo (capacidade, canais, tipo DDR4/DDR5/LPDDR5, velocidade) e, por módulo, fabricante, part number, formato,
+  voltagem, clock configurado e localização do slot.
 
 ## Interface
-- Visual preto e branco minimalista. Três abas no topo: **RESET EXPLODE** (menu lateral com Sistema · Sensores · Placa de vídeo ·
-  Jogos · Gargalo · Overlay · Stress test), **RESET OTIMIZA** e **RESETBENCH** (tela inteira).
+- Visual preto e branco minimalista. Quatro abas no topo: **RESET EXPLODE** (menu lateral com Sistema · Sensores · Placa de vídeo ·
+  Discos · Jogos · Gargalo · Overlay · Stress test), **RESET OTIMIZA**, **RESETBENCH** (tela inteira) e **RESET OC**.
 - Leitura ao vivo de temperatura e carga da CPU e da GPU sempre visível no menu.
 - Sensores com busca e filtros por tipo (chips); tema em `Theme.xaml`.
 
@@ -79,8 +91,17 @@ sem caminhos do seu usuário) + `LEIA-ME.txt`. No outro PC só é preciso instal
 ## Observações
 - Se algum sensor não aparecer, depende do suporte da biblioteca à sua placa-mãe.
 
-## Próximas fases
-2. ~~Stress test com limite de temperatura~~ ✔
-3. Benchmarks
-4. Relatórios (HTML/CSV/JSON) e gráficos
-5. Leitura direta de SPD / Super I/O
+## Já feito
+- ✔ Informações do sistema, sensores, placa de vídeo, jogos, gargalo, overlay
+- ✔ Stress test com limite de temperatura (CPU, RAM, GPU)
+- ✔ Benchmarks: CPU, GPU, simulação, memória e **disco**
+- ✔ Saúde dos discos (S.M.A.R.T.)
+- ✔ Relatório exportável (HTML/JSON)
+- ✔ RESET OC (limite de energia, clock e verificação de estabilidade)
+
+## Próximas ideias
+- Relatório em CSV e com gráficos
+- Comparar resultados de benchmark entre PCs / histórico de relatórios
+- Leitura direta de SPD / Super I/O
+- Alertas de temperatura e saúde de disco em segundo plano
+- Versão com instalador e assinatura digital
