@@ -1,0 +1,17 @@
+# Build
+bin/
+obj/
+publish/
+ResetExplode-dist/
+*.exe
+*.dll
+*.pdb
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Local
+*.log
