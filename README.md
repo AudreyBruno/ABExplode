@@ -133,3 +133,7 @@ Ao criar uma tag (`git tag v0.12` e `git push --tags`), também sai uma release 
 - RESET INTEGRAÇÃO: perfis salvos, efeitos por jogo, SDKs nativos da MSI/ASUS/Gigabyte se forem liberados
 - Alertas de temperatura, bateria e saúde de disco em segundo plano
 - Versão com instalador e assinatura digital
+
+## Licença
+
+MIT — veja o arquivo [LICENSE](LICENSE).
