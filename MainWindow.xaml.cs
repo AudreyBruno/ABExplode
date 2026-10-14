@@ -217,6 +217,7 @@ public partial class MainWindow : Window
         _explodePage = (string)((FrameworkElement)sender).Tag;
         ShowPage(_explodePage);
         if (_explodePage == "PageDisks") RefreshDiskHealth();
+        if (_explodePage == "PageEnergy") RefreshEnergy();
     }
 
     /// <summary>Abas superiores: RESET EXPLODE (com menu lateral), RESET OTIMIZA, RESETBENCH e RESET OC (tela cheia).</summary>
@@ -234,7 +235,7 @@ public partial class MainWindow : Window
 
     private void ShowPage(string name)
     {
-        foreach (var p in new FrameworkElement[] { PageSystem, PageSensors, PageGpu, PageGames, PageBottleneck, PageOverlay, PageBench, PageOptimize, PageOc, PageDisks, PageStress })
+        foreach (var p in new FrameworkElement[] { PageSystem, PageSensors, PageGpu, PageGames, PageBottleneck, PageOverlay, PageBench, PageOptimize, PageOc, PageDisks, PageEnergy, PageNet, PageStress })
             p.Visibility = p.Name == name ? Visibility.Visible : Visibility.Collapsed;
     }
 

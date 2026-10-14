@@ -59,10 +59,16 @@ App WPF (.NET 8) com:
   com as informações do sistema, RAM por módulo, discos e saúde dos discos.
 - **RAM detalhada**: resumo (capacidade, canais, tipo DDR4/DDR5/LPDDR5, velocidade) e, por módulo, fabricante, part number, formato,
   voltagem, clock configurado e localização do slot.
+- **Energia** (`BatteryInfo.cs`, `MainWindow.Net.cs`): bateria de notebook com desgaste (capacidade atual × de projeto), ciclos de carga, estado,
+  autonomia, tensão e potência, com veredito; fonte de energia (tomada/bateria), plano de energia do Windows e consumo dos sensores de CPU e GPU.
+  Em PC de mesa mostra só o cartão de energia.
+- **Rede** (`NetworkTest.cs`): diagnóstico de lag em ~30 s — latência, jitter e perda de pacotes até o roteador e até a internet (1.1.1.1 e 8.8.8.8),
+  tempo de DNS, velocidade de download/upload (servidor público speed.cloudflare.com) e latência sob carga (bufferbloat). O veredito aponta se o
+  problema está na rede local (Wi-Fi/cabo/roteador), no provedor ou se a conexão está estável.
 
 ## Interface
 - Visual preto e branco minimalista. Quatro abas no topo: **RESET EXPLODE** (menu lateral com Sistema · Sensores · Placa de vídeo ·
-  Discos · Jogos · Gargalo · Overlay · Stress test), **RESET OTIMIZA**, **RESETBENCH** (tela inteira) e **RESET OC**.
+  Discos · Energia · Rede · Jogos · Gargalo · Overlay · Stress test), **RESET OTIMIZA**, **RESETBENCH** (tela inteira) e **RESET OC**.
 - Leitura ao vivo de temperatura e carga da CPU e da GPU sempre visível no menu.
 - Sensores com busca e filtros por tipo (chips); tema em `Theme.xaml`.
 
@@ -98,10 +104,11 @@ sem caminhos do seu usuário) + `LEIA-ME.txt`. No outro PC só é preciso instal
 - ✔ Saúde dos discos (S.M.A.R.T.)
 - ✔ Relatório exportável (HTML/JSON)
 - ✔ RESET OC (limite de energia, clock e verificação de estabilidade)
+- ✔ Energia (bateria e fonte) e Rede (latência, perda e velocidade)
 
 ## Próximas ideias
 - Relatório em CSV e com gráficos
 - Comparar resultados de benchmark entre PCs / histórico de relatórios
 - Leitura direta de SPD / Super I/O
-- Alertas de temperatura e saúde de disco em segundo plano
+- Alertas de temperatura, bateria e saúde de disco em segundo plano
 - Versão com instalador e assinatura digital

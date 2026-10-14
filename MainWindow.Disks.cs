@@ -162,6 +162,10 @@ public partial class MainWindow
             };
             var disks = await Task.Run(() => DiskHealth.Read(sensorsSnapshot));
             data.Disks.AddRange(disks.Select(d => new ReportDisk(d.Title, d.Meta, d.VerdictText, d.Reasons, d.Metrics)));
+            var power = await Task.Run(() => BatteryInfo.Read(sensorsSnapshot));
+            data.Power.AddRange(power.Select(d => new ReportDisk(d.Title, d.Meta, d.VerdictText, d.Reasons, d.Metrics)));
+            if (_lastNet != null)
+                data.Network.AddRange(_lastNet.Select(d => new ReportDisk(d.Title, d.Meta, d.VerdictText, d.Reasons, d.Metrics)));
 
             string text = json ? ReportBuilder.Json(data) : ReportBuilder.Html(data);
             await File.WriteAllTextAsync(path, text, new UTF8Encoding(true));

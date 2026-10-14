@@ -186,6 +186,18 @@
                                 <TextBlock Text="Discos" VerticalAlignment="Center"/>
                             </StackPanel>
                         </RadioButton>
+                        <RadioButton x:Name="NavEnergy" Style="{StaticResource NavItem}" Tag="PageEnergy" Checked="Nav_Checked">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE7E8;" FontFamily="{StaticResource Icons}" FontSize="15" Width="28" VerticalAlignment="Center"/>
+                                <TextBlock Text="Energia" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </RadioButton>
+                        <RadioButton x:Name="NavNet" Style="{StaticResource NavItem}" Tag="PageNet" Checked="Nav_Checked">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE839;" FontFamily="{StaticResource Icons}" FontSize="15" Width="28" VerticalAlignment="Center"/>
+                                <TextBlock Text="Rede" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </RadioButton>
                         <RadioButton x:Name="NavGames" Style="{StaticResource NavItem}" Tag="PageGames" Checked="Nav_Checked">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="&#xE7FC;" FontFamily="{StaticResource Icons}" FontSize="15" Width="28" VerticalAlignment="Center"/>
@@ -410,6 +422,50 @@
                         <TextBlock Foreground="{StaticResource Faint}" FontSize="11" TextWrapping="Wrap">
                             Os dados vêm do Windows (S.M.A.R.T. e API de armazenamento) e dos sensores do disco. Pendrives e alguns HDs externos
                             não informam saúde. O veredito é uma estimativa: faça backup de qualquer disco com aviso, não só dos críticos.
+                        </TextBlock>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ===== ENERGIA (bateria e fonte) ===== -->
+                <ScrollViewer x:Name="PageEnergy" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="36,30,36,30">
+                        <Grid Margin="0,0,0,20">
+                            <StackPanel Margin="0,0,160,0">
+                                <TextBlock Text="Energia" Style="{StaticResource H1}"/>
+                                <TextBlock x:Name="EnergyStatus" Text="Bateria, fonte de energia e consumo" Style="{StaticResource Sub}" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <Button x:Name="BtnEnergyRefresh" Style="{StaticResource OutlineButton}" Content="ATUALIZAR" Padding="18,9"
+                                    HorizontalAlignment="Right" VerticalAlignment="Top" Click="BtnEnergyRefresh_Click"/>
+                        </Grid>
+                        <ItemsControl x:Name="EnergyCards" ItemTemplate="{StaticResource CardTemplate}"/>
+                        <TextBlock Foreground="{StaticResource Faint}" FontSize="11" TextWrapping="Wrap">
+                            Os dados vêm do Windows (WMI). Alguns notebooks não informam ciclos de carga ou a capacidade de projeto.
+                            O consumo mostrado vem dos sensores de CPU e GPU, não da fonte (PSU) do PC.
+                        </TextBlock>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ===== REDE (diagnóstico de lag) ===== -->
+                <ScrollViewer x:Name="PageNet" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="36,30,36,30">
+                        <Grid Margin="0,0,0,20">
+                            <StackPanel Margin="0,0,160,0">
+                                <TextBlock Text="Rede" Style="{StaticResource H1}"/>
+                                <TextBlock Text="Descubra se o lag vem do seu PC, do Wi-Fi ou do provedor" Style="{StaticResource Sub}" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <Button x:Name="BtnNetTest" Style="{StaticResource PrimaryButton}" Content="TESTAR" Padding="22,9"
+                                    HorizontalAlignment="Right" VerticalAlignment="Top" Click="BtnNetTest_Click"/>
+                        </Grid>
+                        <Grid Height="3" Margin="0,0,0,8" Background="{StaticResource Line}">
+                            <Border Background="{StaticResource Fg}" RenderTransformOrigin="0,0.5">
+                                <Border.RenderTransform><ScaleTransform x:Name="NetProgress" ScaleX="0"/></Border.RenderTransform>
+                            </Border>
+                        </Grid>
+                        <TextBlock x:Name="NetStatus" Text="Pronto. O teste leva cerca de 30 segundos." Foreground="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,0,0,16"/>
+                        <ItemsControl x:Name="NetCards" ItemTemplate="{StaticResource CardTemplate}"/>
+                        <TextBlock Foreground="{StaticResource Faint}" FontSize="11" TextWrapping="Wrap">
+                            O teste envia pacotes de ping ao roteador e aos DNS públicos 1.1.1.1 e 8.8.8.8 e baixa/envia dados de teste do servidor público
+                            speed.cloudflare.com (cerca de 100 MB no total). Feche downloads, streaming e jogos antes para um resultado fiel.
                         </TextBlock>
                     </StackPanel>
                 </ScrollViewer>

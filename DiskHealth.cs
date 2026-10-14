@@ -14,7 +14,9 @@ public sealed class DiskHealthCard
     public string Meta { get; init; } = "";
     public string Serial { get; init; } = "";
     public DiskVerdict Verdict { get; init; } = DiskVerdict.Unknown;
-    public string VerdictText => Verdict switch
+    /// <summary>Texto do selo; quando vazio, usa o padrão de saúde de disco. (Também usado por Energia e Rede.)</summary>
+    public string? Label { get; init; }
+    public string VerdictText => Label ?? Verdict switch
     {
         DiskVerdict.Good => "SAUDÁVEL",
         DiskVerdict.Warning => "ATENÇÃO",

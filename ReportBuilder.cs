@@ -20,6 +20,8 @@ public sealed class ReportData
     public List<ReportNode> System { get; init; } = new();
     public List<ReportGpu> Gpus { get; init; } = new();
     public List<ReportDisk> Disks { get; init; } = new();
+    public List<ReportDisk> Power { get; init; } = new();
+    public List<ReportDisk> Network { get; init; } = new();
     public List<ReportSensor> Sensors { get; init; } = new();
     public List<ReportBench> Benchmarks { get; init; } = new();
 }
@@ -48,9 +50,32 @@ public static class ReportBuilder
             x.Name, x.Details, saude = x.Verdict, x.Reasons,
             metricas = x.Metrics.ToDictionary(m => m.Key, m => m.Value)
         }),
+        energia = d.Power.Select(x => new { x.Name, x.Details, estado = x.Verdict, x.Reasons, metricas = x.Metrics.ToDictionary(m => m.Key, m => m.Value) }),
+        rede = d.Network.Select(x => new { x.Name, x.Details, estado = x.Verdict, x.Reasons, metricas = x.Metrics.ToDictionary(m => m.Key, m => m.Value) }),
         sensores = d.Sensors,
         benchmarks = d.Benchmarks,
     }, new JsonSerializerOptions { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
+
+    private static void Section(StringBuilder sb, string title, List<ReportDisk> items)
+    {
+        if (items.Count == 0) return;
+        sb.Append($"<section><h2>{E(title)}</h2>");
+        foreach (var disk in items)
+        {
+            string cls = disk.Verdict switch { "SAUDÁVEL" or "ESTÁVEL" or "EM USO" => "ok", "SEM DADOS" => "na", _ => "bad" };
+            sb.Append($"<div class=\"card\"><div class=\"row\"><b>{E(disk.Name)}</b><span class=\"badge {cls}\">{E(disk.Verdict)}</span></div>");
+            if (disk.Details.Length > 0) sb.Append($"<p class=\"muted\">{E(disk.Details)}</p>");
+            sb.Append($"<p>{E(disk.Reasons)}</p>");
+            if (disk.Metrics.Count > 0)
+            {
+                sb.Append("<table>");
+                foreach (var m in disk.Metrics) sb.Append($"<tr><td class=\"k\">{E(m.Key)}</td><td>{E(m.Value)}</td></tr>");
+                sb.Append("</table>");
+            }
+            sb.Append("</div>");
+        }
+        sb.Append("</section>");
+    }
 
     private static string E(string? s) => WebUtility.HtmlEncode(s ?? "");
 
@@ -68,25 +93,9 @@ public static class ReportBuilder
         sb.Append("<p class=\"note\">Números de série foram omitidos deste relatório.</p>");
 
         // Resumo dos discos no topo (o que mais interessa de imediato)
-        if (d.Disks.Count > 0)
-        {
-            sb.Append("<section><h2>Saúde dos discos</h2>");
-            foreach (var disk in d.Disks)
-            {
-                string cls = disk.Verdict switch { "SAUDÁVEL" => "ok", "SEM DADOS" => "na", _ => "bad" };
-                sb.Append($"<div class=\"card\"><div class=\"row\"><b>{E(disk.Name)}</b><span class=\"badge {cls}\">{E(disk.Verdict)}</span></div>");
-                if (disk.Details.Length > 0) sb.Append($"<p class=\"muted\">{E(disk.Details)}</p>");
-                sb.Append($"<p>{E(disk.Reasons)}</p>");
-                if (disk.Metrics.Count > 0)
-                {
-                    sb.Append("<table>");
-                    foreach (var m in disk.Metrics) sb.Append($"<tr><td class=\"k\">{E(m.Key)}</td><td>{E(m.Value)}</td></tr>");
-                    sb.Append("</table>");
-                }
-                sb.Append("</div>");
-            }
-            sb.Append("</section>");
-        }
+        Section(sb, "Saúde dos discos", d.Disks);
+        Section(sb, "Bateria e energia", d.Power);
+        Section(sb, "Teste de rede", d.Network);
 
         if (d.System.Count > 0)
         {

@@ -542,4 +542,60 @@
         </Style.Triggers>
     </Style>
 
+    <!-- Cartão com selo de veredito, motivos e métricas (Energia, Rede) -->
+    <DataTemplate x:Key="CardTemplate">
+        <Border Style="{StaticResource CardBorder}" Margin="0,0,0,14">
+            <StackPanel>
+                <Grid>
+                    <StackPanel Margin="0,0,130,0">
+                        <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding Meta}" Foreground="{StaticResource Muted}" FontSize="12" Margin="0,3,0,0" TextWrapping="Wrap"/>
+                    </StackPanel>
+                    <Border HorizontalAlignment="Right" VerticalAlignment="Top" BorderBrush="{StaticResource Fg}" BorderThickness="1" Padding="12,4">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsAlert}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource Fg}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock Text="{Binding VerdictText}" FontSize="11" FontWeight="SemiBold">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="{StaticResource Fg}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsAlert}" Value="True">
+                                            <Setter Property="Foreground" Value="{StaticResource Ink}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Border>
+                </Grid>
+                <TextBlock Text="{Binding Reasons}" TextWrapping="Wrap" Margin="0,12,0,12"/>
+                <ItemsControl ItemsSource="{Binding Metrics}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="2"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Padding="0,8,16,8">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Key}" Foreground="{StaticResource Muted}" FontSize="11"/>
+                                    <TextBlock Text="{Binding Value}" FontFamily="{StaticResource Mono}" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+    </DataTemplate>
+
 </ResourceDictionary>
