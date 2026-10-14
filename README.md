@@ -71,10 +71,16 @@ App WPF (.NET 8) com:
   Logitech e outras, já que essas marcas não têm SDK público) e **Razer Chroma** (API REST do Synapse). Efeitos: cor fixa, respiração, arco-íris em onda,
   e cores que seguem a **temperatura da CPU/GPU** ou a **carga da CPU**, com brilho e velocidade. Ao devolver ou fechar, cada fabricante reassume as luzes.
   Para MSI/Gigabyte/ASUS: abra o OpenRGB com o servidor ligado e feche MSI Center, Armoury Crate e RGB Fusion.
+- **RESET JOGOS** (`GameLibrary.cs`, `GameLauncher.cs`, `Vdf.cs`, `MainWindow.Launcher.cs`): inicializador que **detecta os jogos instalados** (Steam, Epic Games, GOG,
+  Ubisoft Connect e `.exe` adicionados à mão) e guarda um **perfil por jogo**: prioridade do processo, plano de energia Alto desempenho só durante o jogo,
+  GPU dedicada e sem otimizações de tela cheia (por `.exe`, no registro do usuário), **menu de gráficos** (modo de janela, resolução, taxa de atualização e extras
+  convertidos em argumentos de inicialização no estilo Source/CS2, Unity ou Unreal) e **programas auxiliares** (ferramentas de terceiros que abrem antes do jogo
+  e fecham junto). Em jogos da Steam, um botão grava os argumentos nas **opções de inicialização** (`localconfig.vdf`, com backup, fechando a Steam antes).
+  O botão JOGAR aplica o perfil, inicia e desfaz o que for temporário quando o jogo fecha.
 
 ## Interface
-- Visual preto e branco minimalista. Cinco abas no topo: **RESET EXPLODE** (menu lateral com Sistema · Sensores · Placa de vídeo ·
-  Discos · Energia · Rede · Jogos · Gargalo · Overlay · Stress test), **RESET OTIMIZA**, **RESET BENCH** (tela inteira), **RESET OC** e **RESET INTEGRAÇÃO**.
+- Visual preto e branco minimalista. Seis abas no topo: **RESET EXPLODE** (menu lateral com Sistema · Sensores · Placa de vídeo ·
+  Discos · Energia · Rede · Jogos · Gargalo · Overlay · Stress test), **RESET OTIMIZA**, **RESET BENCH** (tela inteira), **RESET OC**, **RESET INTEGRAÇÃO** e **RESET JOGOS**.
 - Leitura ao vivo de temperatura e carga da CPU e da GPU sempre visível no menu.
 - Sensores com busca e filtros por tipo (chips); tema em `Theme.xaml`.
 
@@ -117,6 +123,7 @@ Ao criar uma tag (`git tag v0.12` e `git push --tags`), também sai uma release 
 - ✔ RESET OC (limite de energia, clock e verificação de estabilidade)
 - ✔ Energia (bateria e fonte) e Rede (latência, perda e velocidade)
 - ✔ RESET INTEGRAÇÃO: iluminação Corsair iCUE, OpenRGB (MSI/Gigabyte/ASUS) e Razer Chroma (primeira versão, em teste)
+- ✔ RESET JOGOS: inicializador com detecção de jogos, perfil por jogo e opções de inicialização da Steam (primeira versão, em teste)
 
 ## Próximas ideias
 - Relatório em CSV e com gráficos

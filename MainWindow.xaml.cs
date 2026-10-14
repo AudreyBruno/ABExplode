@@ -151,6 +151,7 @@ public partial class MainWindow : Window
             _frames.Dispose();
             UnregisterHotKey(new System.Windows.Interop.WindowInteropHelper(this).Handle, HotkeyId);
             ShutdownInteg();
+            _launchCts?.Cancel();
             _monitor.Dispose();
         };
     }
@@ -221,7 +222,7 @@ public partial class MainWindow : Window
         if (_explodePage == "PageEnergy") RefreshEnergy();
     }
 
-    /// <summary>Abas superiores: RESET EXPLODE (com menu lateral), RESET OTIMIZA, RESET BENCH, RESET OC e RESET INTEGRAÇÃO (tela cheia).</summary>
+    /// <summary>Abas superiores: RESET EXPLODE (com menu lateral), RESET OTIMIZA, RESET BENCH, RESET OC e RESET INTEGRAÇÃO e RESET JOGOS (tela cheia).</summary>
     private void TopTab_Checked(object sender, RoutedEventArgs e)
     {
         if (PageSystem == null) return;
@@ -229,15 +230,16 @@ public partial class MainWindow : Window
         bool explode = tab == "explode";
         SideCol.Width = new GridLength(explode ? 230 : 0);
         Sidebar.Visibility = explode ? Visibility.Visible : Visibility.Collapsed;
-        ShowPage(tab switch { "optimize" => "PageOptimize", "bench" => "PageBench", "oc" => "PageOc", "integ" => "PageInteg", _ => _explodePage });
+        ShowPage(tab switch { "optimize" => "PageOptimize", "bench" => "PageBench", "oc" => "PageOc", "integ" => "PageInteg", "launcher" => "PageLauncher", _ => _explodePage });
         if (tab == "oc") { UpdateOcGpuState(); UpdateRecentErrors(); }
         if (tab == "integ") InitInteg();
+        if (tab == "launcher") InitLauncher();
         if (tab == "optimize") { RefreshApps(); UpdateRamStatus(); ScanUsb(); }
     }
 
     private void ShowPage(string name)
     {
-        foreach (var p in new FrameworkElement[] { PageSystem, PageSensors, PageGpu, PageGames, PageBottleneck, PageOverlay, PageBench, PageOptimize, PageOc, PageInteg, PageDisks, PageEnergy, PageNet, PageStress })
+        foreach (var p in new FrameworkElement[] { PageSystem, PageSensors, PageGpu, PageGames, PageBottleneck, PageOverlay, PageBench, PageOptimize, PageOc, PageInteg, PageLauncher, PageDisks, PageEnergy, PageNet, PageStress })
             p.Visibility = p.Name == name ? Visibility.Visible : Visibility.Collapsed;
     }
 
