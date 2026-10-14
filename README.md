@@ -81,6 +81,7 @@ App WPF (.NET 8) com:
 ## Interface
 - Visual preto e branco minimalista. Seis abas no topo: **RESET EXPLODE** (menu lateral com Sistema · Sensores · Placa de vídeo ·
   Discos · Energia · Rede · Jogos · Gargalo · Overlay · Stress test), **RESET OTIMIZA**, **RESET BENCH** (tela inteira), **RESET OC**, **RESET INTEGRAÇÃO** e **RESET JOGOS**.
+- Botão de **modo escuro/claro** no canto superior direito (`ThemeManager.cs`); a escolha fica salva. O overlay de jogos e os avisos de dispositivo ficam sempre escuros.
 - Leitura ao vivo de temperatura e carga da CPU e da GPU sempre visível no menu.
 - Sensores com busca e filtros por tipo (chips); tema em `Theme.xaml`.
 

@@ -20,6 +20,7 @@
     <Resource Include="Assets\logo.png" />
     <Resource Include="Assets\app.ico" />
     <Resource Include="Assets\logo-badge.png" />
+    <Resource Include="Assets\logo-dark.png" />
   </ItemGroup>
 
   <!-- iCUE SDK da Corsair (RESET INTEGRAÇÃO): se a DLL estiver em Native\, ela vai junto do .exe. Não é versionada no git. -->

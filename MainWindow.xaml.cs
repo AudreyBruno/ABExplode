@@ -79,6 +79,8 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        ThemeManager.Apply(_settings.LightTheme);
+        UpdateThemeButton();
         ShowPage("PageSystem");
 
         // Sistema
@@ -1591,7 +1593,7 @@ public partial class MainWindow : Window
         double yMin = 20, yMax = Math.Max(110, Math.Max(_tempLimit, _gpuTempLimit) + 10);
         double Y(double v) => top + plotH * (1 - (Math.Clamp(v, yMin, yMax) - yMin) / (yMax - yMin));
 
-        var gridBrush = new SolidColorBrush(Color.FromRgb(0x1C, 0x1C, 0x1C));
+        var gridBrush = (Brush)FindResource("Line");
         for (double v = yMin; v <= yMax; v += 20)
         {
             TempChart.Children.Add(new Line { X1 = left, X2 = w, Y1 = Y(v), Y2 = Y(v), Stroke = gridBrush });
@@ -1619,7 +1621,7 @@ public partial class MainWindow : Window
                 line.Points.Add(new Point(left + (offset + i) * step, Y(data[i])));
             if (fill)
             {
-                var area = new Polygon { Fill = new SolidColorBrush(Color.FromArgb(0x16, 0xFF, 0xFF, 0xFF)) };
+                var area = new Polygon { Fill = new SolidColorBrush(Color.FromArgb(0x16, ((SolidColorBrush)FindResource("Fg")).Color.R, ((SolidColorBrush)FindResource("Fg")).Color.G, ((SolidColorBrush)FindResource("Fg")).Color.B)) };
                 foreach (var p in line.Points) area.Points.Add(p);
                 area.Points.Add(new Point(line.Points[^1].X, top + plotH));
                 area.Points.Add(new Point(line.Points[0].X, top + plotH));

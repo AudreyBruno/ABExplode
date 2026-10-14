@@ -65,6 +65,9 @@ public sealed class AppSettings
     public Dictionary<string, GameProfile> GameProfiles { get; set; } = new();
     public List<CustomGame> CustomGames { get; set; } = new();
 
+    // Aparência
+    public bool LightTheme { get; set; }
+
     // Overlay
     public string OverlayCorner { get; set; } = "TL";
     public double OverlayScale { get; set; } = 1.0;

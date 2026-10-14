@@ -4,7 +4,7 @@
         xmlns:local="clr-namespace:ResetExplode"
         Title="RESET EXPLODE" Icon="Assets/app.ico" Width="1320" Height="840" MinWidth="1120" MinHeight="660"
         WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="CanResize"
-        Background="{StaticResource Bg}" Foreground="{StaticResource Fg}"
+        Background="{DynamicResource Bg}" Foreground="{DynamicResource Fg}"
         FontFamily="Segoe UI Variable Text, Segoe UI" FontSize="13"
         UseLayoutRounding="True" TextOptions.TextFormattingMode="Display">
 
@@ -17,13 +17,13 @@
         <!-- Linha da tela "Sistema": folha = chave/valor; grupo = título + filhos (recursivo) -->
         <DataTemplate DataType="{x:Type local:InfoNode}">
             <StackPanel>
-                <Border x:Name="leaf" BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1" Padding="0,10">
+                <Border x:Name="leaf" BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1" Padding="0,10">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="260"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="{Binding Header}" Foreground="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,0,16,0"/>
+                        <TextBlock Text="{Binding Header}" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,16,0"/>
                         <TextBlock Grid.Column="1" Text="{Binding Value}" TextWrapping="Wrap"/>
                     </Grid>
                 </Border>
@@ -42,9 +42,9 @@
 
         <!-- Placa de vídeo: campo (rótulo em cima, valor embaixo) e seção em cartão com 3 colunas -->
         <DataTemplate x:Key="GpuTile">
-            <Border BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1" Padding="0,10,18,10">
+            <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1" Padding="0,10,18,10">
                 <StackPanel>
-                    <TextBlock Text="{Binding Header}" Foreground="{StaticResource Muted}" FontSize="11"/>
+                    <TextBlock Text="{Binding Header}" Foreground="{DynamicResource Muted}" FontSize="11"/>
                     <TextBlock Text="{Binding Value}" FontSize="14" TextWrapping="Wrap" Margin="0,3,0,0"/>
                 </StackPanel>
             </Border>
@@ -67,7 +67,7 @@
         <!-- Linha "rótulo ........ valor" (KeyValuePair) -->
         <DataTemplate x:Key="KeyValueRow">
             <Grid Margin="0,3">
-                <TextBlock Text="{Binding Key}" Foreground="{StaticResource Muted}"/>
+                <TextBlock Text="{Binding Key}" Foreground="{DynamicResource Muted}"/>
                 <TextBlock Text="{Binding Value}" FontFamily="{StaticResource Mono}" HorizontalAlignment="Right"/>
             </Grid>
         </DataTemplate>
@@ -83,11 +83,11 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="{Binding Label}" Foreground="{StaticResource Muted}" Margin="0,0,12,0"/>
+                <TextBlock Text="{Binding Label}" Foreground="{DynamicResource Muted}" Margin="0,0,12,0"/>
                 <TextBlock Grid.Column="1" Text="{Binding Value}" FontFamily="{StaticResource Mono}" HorizontalAlignment="Right"
                            TextTrimming="CharacterEllipsis"/>
-                <Grid Grid.Row="1" Grid.ColumnSpan="2" Height="4" Margin="0,6,0,0" Background="{StaticResource Line}">
-                    <Border Background="{StaticResource Fg}" RenderTransformOrigin="0,0.5">
+                <Grid Grid.Row="1" Grid.ColumnSpan="2" Height="4" Margin="0,6,0,0" Background="{DynamicResource Line}">
+                    <Border Background="{DynamicResource Fg}" RenderTransformOrigin="0,0.5">
                         <Border.RenderTransform>
                             <ScaleTransform ScaleX="{Binding Fraction}"/>
                         </Border.RenderTransform>
@@ -100,14 +100,14 @@
             <Setter Property="FontFamily" Value="{StaticResource Mono}"/>
         </Style>
         <Style x:Key="MutedCell" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{StaticResource Muted}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Muted}"/>
         </Style>
         <Style x:Key="MutedMonoCell" TargetType="TextBlock" BasedOn="{StaticResource MonoCell}">
-            <Setter Property="Foreground" Value="{StaticResource Muted}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Muted}"/>
         </Style>
     </Window.Resources>
 
-    <Border x:Name="Root" BorderBrush="{StaticResource Line}" BorderThickness="1">
+    <Border x:Name="Root" BorderBrush="{DynamicResource Line}" BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="44"/>
@@ -119,9 +119,9 @@
             </Grid.ColumnDefinitions>
 
             <!-- ===== Barra de título com as abas superiores ===== -->
-            <Border Grid.ColumnSpan="2" Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1"/>
+            <Border Grid.ColumnSpan="2" Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1"/>
             <StackPanel Grid.ColumnSpan="2" Orientation="Horizontal" Margin="22,0,0,0" HorizontalAlignment="Left">
-                <Image Source="Assets/logo.png" Width="22" Height="22" Margin="0,0,14,0" VerticalAlignment="Center"
+                <Image x:Name="TitleLogo" Source="Assets/logo.png" Width="22" Height="22" Margin="0,0,14,0" VerticalAlignment="Center"
                        RenderOptions.BitmapScalingMode="HighQuality"/>
                 <StackPanel Orientation="Horizontal" WindowChrome.IsHitTestVisibleInChrome="True">
                     <RadioButton x:Name="TabExplode" Style="{StaticResource TopTab}" Tag="explode" Checked="TopTab_Checked" IsChecked="True">
@@ -164,13 +164,14 @@
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right"
                         WindowChrome.IsHitTestVisibleInChrome="True">
+                <Button x:Name="BtnTheme" Style="{StaticResource CaptionButton}" Content="&#xE706;" Click="Theme_Click" ToolTip="Modo claro"/>
                 <Button Style="{StaticResource CaptionButton}" Content="&#xE921;" Click="Min_Click" ToolTip="Minimizar"/>
                 <Button x:Name="BtnMax" Style="{StaticResource CaptionButton}" Content="&#xE922;" Click="Max_Click" ToolTip="Maximizar"/>
                 <Button Style="{StaticResource CloseButton}" Content="&#xE8BB;" Click="Close_Click" ToolTip="Fechar"/>
             </StackPanel>
 
             <!-- ===== Menu lateral (só na aba RESET EXPLODE) ===== -->
-            <Border x:Name="Sidebar" Grid.Row="1" Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="0,0,1,0">
+            <Border x:Name="Sidebar" Grid.Row="1" Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Line}" BorderThickness="0,0,1,0">
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Top" Margin="0,18,0,0">
                         <TextBlock Text="MENU" Style="{StaticResource Label}" Margin="22,0,0,10"/>
@@ -239,37 +240,37 @@
                     <!-- Leitura ao vivo, sempre visível -->
                     <StackPanel DockPanel.Dock="Bottom" Margin="22,0,22,22" VerticalAlignment="Bottom">
                         <!-- Aparece só quando os sensores da CPU não respondem -->
-                        <Border x:Name="CpuSensorWarn" Visibility="Collapsed" BorderBrush="{StaticResource Fg}" BorderThickness="1"
+                        <Border x:Name="CpuSensorWarn" Visibility="Collapsed" BorderBrush="{DynamicResource Fg}" BorderThickness="1"
                                 CornerRadius="3" Padding="10,8" Margin="0,0,0,16">
                             <StackPanel>
                                 <TextBlock Text="Sem temperatura e consumo da CPU" FontWeight="SemiBold" FontSize="12" TextWrapping="Wrap"/>
-                                <TextBlock x:Name="CpuSensorWarnText" Foreground="{StaticResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,3,0,8"/>
+                                <TextBlock x:Name="CpuSensorWarnText" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,3,0,8"/>
                                 <Button Style="{StaticResource PrimaryButton}" Content="CORRIGIR" Padding="10,5" FontSize="11"
                                         Click="BtnFixCpuSensors_Click"/>
                             </StackPanel>
                         </Border>
                         <TextBlock Text="AO VIVO" Style="{StaticResource Label}"/>
                         <Grid Margin="0,0,0,6">
-                            <TextBlock Text="CPU temp" Foreground="{StaticResource Muted}"/>
+                            <TextBlock Text="CPU temp" Foreground="{DynamicResource Muted}"/>
                             <TextBlock x:Name="SideTemp" Text="—" FontFamily="{StaticResource Mono}" HorizontalAlignment="Right"/>
                         </Grid>
                         <Grid Margin="0,0,0,6">
-                            <TextBlock Text="CPU carga" Foreground="{StaticResource Muted}"/>
+                            <TextBlock Text="CPU carga" Foreground="{DynamicResource Muted}"/>
                             <TextBlock x:Name="SideLoad" Text="—" FontFamily="{StaticResource Mono}" HorizontalAlignment="Right"/>
                         </Grid>
                         <Grid Margin="0,0,0,6">
-                            <TextBlock Text="GPU temp" Foreground="{StaticResource Muted}"/>
+                            <TextBlock Text="GPU temp" Foreground="{DynamicResource Muted}"/>
                             <TextBlock x:Name="SideGpuTemp" Text="—" FontFamily="{StaticResource Mono}" HorizontalAlignment="Right"/>
                         </Grid>
                         <Grid Margin="0,0,0,6">
-                            <TextBlock Text="GPU carga" Foreground="{StaticResource Muted}"/>
+                            <TextBlock Text="GPU carga" Foreground="{DynamicResource Muted}"/>
                             <TextBlock x:Name="SideGpuLoad" Text="—" FontFamily="{StaticResource Mono}" HorizontalAlignment="Right"/>
                         </Grid>
                         <Grid Margin="0,0,0,18">
-                            <TextBlock Text="Stress" Foreground="{StaticResource Muted}"/>
+                            <TextBlock Text="Stress" Foreground="{DynamicResource Muted}"/>
                             <TextBlock x:Name="SideStress" Text="parado" FontFamily="{StaticResource Mono}" HorizontalAlignment="Right"/>
                         </Grid>
-                        <TextBlock Text="v0.11" Foreground="{StaticResource Faint}" FontSize="11"/>
+                        <TextBlock Text="v0.11" Foreground="{DynamicResource Faint}" FontSize="11"/>
                     </StackPanel>
                     <Border/>
                 </DockPanel>
@@ -316,7 +317,7 @@
                                     <StackPanel x:Name="DrivesPanel" Visibility="Collapsed" Margin="0,4,0,8">
                                         <Grid Margin="0,0,0,10">
                                             <TextBlock Text="UNIDADES" Style="{StaticResource Label}" Margin="0"/>
-                                            <TextBlock x:Name="DrivesSummary" Foreground="{StaticResource Muted}" FontSize="12" HorizontalAlignment="Right"/>
+                                            <TextBlock x:Name="DrivesSummary" Foreground="{DynamicResource Muted}" FontSize="12" HorizontalAlignment="Right"/>
                                         </Grid>
                                         <ItemsControl x:Name="DriveCards">
                                             <ItemsControl.ItemsPanel>
@@ -326,8 +327,8 @@
                                             </ItemsControl.ItemsPanel>
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
-                                                    <Border BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="4" Padding="16,14" Margin="0,0,10,10"
-                                                            Background="{StaticResource Bg}">
+                                                    <Border BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="4" Padding="16,14" Margin="0,0,10,10"
+                                                            Background="{DynamicResource Bg}">
                                                         <Grid>
                                                             <Grid.ColumnDefinitions>
                                                                 <ColumnDefinition Width="Auto"/>
@@ -335,15 +336,15 @@
                                                             </Grid.ColumnDefinitions>
                                                             <!-- Anel: trilha cinza = vazio, arco branco = usado -->
                                                             <Grid Width="84" Height="84" Margin="0,0,16,0" VerticalAlignment="Center">
-                                                                <Ellipse Width="72" Height="72" Stroke="{StaticResource Line}" StrokeThickness="8"/>
-                                                                <Path Data="{Binding UsedArc}" Stroke="{StaticResource Fg}" StrokeThickness="8" StrokeStartLineCap="Flat" StrokeEndLineCap="Flat"/>
+                                                                <Ellipse Width="72" Height="72" Stroke="{DynamicResource Line}" StrokeThickness="8"/>
+                                                                <Path Data="{Binding UsedArc}" Stroke="{DynamicResource Fg}" StrokeThickness="8" StrokeStartLineCap="Flat" StrokeEndLineCap="Flat"/>
                                                                 <TextBlock Text="{Binding UsedPercent}" FontFamily="{StaticResource Mono}" FontSize="15"
                                                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                             </Grid>
                                                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                                                 <TextBlock Text="{Binding Title}" FontSize="15" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
-                                                                <TextBlock Text="{Binding Sizes}" Foreground="{StaticResource Muted}" FontSize="12" Margin="0,4,0,0" TextWrapping="Wrap"/>
-                                                                <TextBlock Text="{Binding Meta}" Foreground="{StaticResource Faint}" FontSize="11" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                                                <TextBlock Text="{Binding Sizes}" Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                                                <TextBlock Text="{Binding Meta}" Foreground="{DynamicResource Faint}" FontSize="11" Margin="0,4,0,0" TextWrapping="Wrap"/>
                                                             </StackPanel>
                                                         </Grid>
                                                     </Border>
@@ -380,15 +381,15 @@
                                             <Grid>
                                                 <StackPanel Margin="0,0,130,0">
                                                     <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap"/>
-                                                    <TextBlock Text="{Binding Meta}" Foreground="{StaticResource Muted}" FontSize="12" Margin="0,3,0,0" TextWrapping="Wrap"/>
+                                                    <TextBlock Text="{Binding Meta}" Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,3,0,0" TextWrapping="Wrap"/>
                                                 </StackPanel>
-                                                <Border HorizontalAlignment="Right" VerticalAlignment="Top" BorderBrush="{StaticResource Fg}" BorderThickness="1" Padding="12,4">
+                                                <Border HorizontalAlignment="Right" VerticalAlignment="Top" BorderBrush="{DynamicResource Fg}" BorderThickness="1" Padding="12,4">
                                                     <Border.Style>
                                                         <Style TargetType="Border">
                                                             <Setter Property="Background" Value="Transparent"/>
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding IsAlert}" Value="True">
-                                                                    <Setter Property="Background" Value="{StaticResource Fg}"/>
+                                                                    <Setter Property="Background" Value="{DynamicResource Fg}"/>
                                                                 </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
@@ -396,10 +397,10 @@
                                                     <TextBlock Text="{Binding VerdictText}" FontSize="11" FontWeight="SemiBold">
                                                         <TextBlock.Style>
                                                             <Style TargetType="TextBlock">
-                                                                <Setter Property="Foreground" Value="{StaticResource Fg}"/>
+                                                                <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding IsAlert}" Value="True">
-                                                                        <Setter Property="Foreground" Value="{StaticResource Ink}"/>
+                                                                        <Setter Property="Foreground" Value="{DynamicResource Ink}"/>
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
@@ -416,9 +417,9 @@
                                                 </ItemsControl.ItemsPanel>
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
-                                                        <Border BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Padding="0,8,16,8">
+                                                        <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0" Padding="0,8,16,8">
                                                             <StackPanel>
-                                                                <TextBlock Text="{Binding Key}" Foreground="{StaticResource Muted}" FontSize="11"/>
+                                                                <TextBlock Text="{Binding Key}" Foreground="{DynamicResource Muted}" FontSize="11"/>
                                                                 <TextBlock Text="{Binding Value}" FontFamily="{StaticResource Mono}" TextWrapping="Wrap" Margin="0,2,0,0"/>
                                                             </StackPanel>
                                                         </Border>
@@ -431,7 +432,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
-                        <TextBlock Foreground="{StaticResource Faint}" FontSize="11" TextWrapping="Wrap">
+                        <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap">
                             Os dados vêm do Windows (S.M.A.R.T. e API de armazenamento) e dos sensores do disco. Pendrives e alguns HDs externos
                             não informam saúde. O veredito é uma estimativa: faça backup de qualquer disco com aviso, não só dos críticos.
                         </TextBlock>
@@ -450,7 +451,7 @@
                                     HorizontalAlignment="Right" VerticalAlignment="Top" Click="BtnEnergyRefresh_Click"/>
                         </Grid>
                         <ItemsControl x:Name="EnergyCards" ItemTemplate="{StaticResource CardTemplate}"/>
-                        <TextBlock Foreground="{StaticResource Faint}" FontSize="11" TextWrapping="Wrap">
+                        <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap">
                             Os dados vêm do Windows (WMI). Alguns notebooks não informam ciclos de carga ou a capacidade de projeto.
                             O consumo mostrado vem dos sensores de CPU e GPU, não da fonte (PSU) do PC.
                         </TextBlock>
@@ -468,14 +469,14 @@
                             <Button x:Name="BtnNetTest" Style="{StaticResource PrimaryButton}" Content="TESTAR" Padding="22,9"
                                     HorizontalAlignment="Right" VerticalAlignment="Top" Click="BtnNetTest_Click"/>
                         </Grid>
-                        <Grid Height="3" Margin="0,0,0,8" Background="{StaticResource Line}">
-                            <Border Background="{StaticResource Fg}" RenderTransformOrigin="0,0.5">
+                        <Grid Height="3" Margin="0,0,0,8" Background="{DynamicResource Line}">
+                            <Border Background="{DynamicResource Fg}" RenderTransformOrigin="0,0.5">
                                 <Border.RenderTransform><ScaleTransform x:Name="NetProgress" ScaleX="0"/></Border.RenderTransform>
                             </Border>
                         </Grid>
-                        <TextBlock x:Name="NetStatus" Text="Pronto. O teste leva cerca de 30 segundos." Foreground="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,0,0,16"/>
+                        <TextBlock x:Name="NetStatus" Text="Pronto. O teste leva cerca de 30 segundos." Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,16"/>
                         <ItemsControl x:Name="NetCards" ItemTemplate="{StaticResource CardTemplate}"/>
-                        <TextBlock Foreground="{StaticResource Faint}" FontSize="11" TextWrapping="Wrap">
+                        <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap">
                             O teste envia pacotes de ping ao roteador e aos DNS públicos 1.1.1.1 e 8.8.8.8 e baixa/envia dados de teste do servidor público
                             speed.cloudflare.com (cerca de 100 MB no total). Feche downloads, streaming e jogos antes para um resultado fiel.
                         </TextBlock>
@@ -499,31 +500,31 @@
                                 <TextBlock Text="INTEGRAÇÕES" Style="{StaticResource Label}"/>
 
                                 <TextBlock Text="Corsair iCUE / iCUE LINK" FontSize="14" FontWeight="SemiBold" Margin="0,8,0,2"/>
-                                <TextBlock x:Name="LightStatus" Text="Aguardando…" TextWrapping="Wrap" Foreground="{StaticResource Muted}"/>
+                                <TextBlock x:Name="LightStatus" Text="Aguardando…" TextWrapping="Wrap" Foreground="{DynamicResource Muted}"/>
                                 <Button x:Name="BtnLightSdk" Style="{StaticResource OutlineButton}" Content="BAIXAR O SDK DA CORSAIR" Visibility="Collapsed"
                                         HorizontalAlignment="Left" Padding="20,9" Margin="0,10,0,0" Click="BtnLightSdk_Click"/>
-                                <TextBlock Foreground="{StaticResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0">
+                                <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0">
                                     Requer o iCUE aberto com o SDK ativado nas configurações (manual, dentro do iCUE). A DLL do SDK é baixada pelo botão acima.
                                 </TextBlock>
 
-                                <Border BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Margin="0,14,0,0" Padding="0,12,0,0">
+                                <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0" Margin="0,14,0,0" Padding="0,12,0,0">
                                     <StackPanel>
                                         <TextBlock Text="OpenRGB · MSI Mystic Light, Gigabyte RGB Fusion, ASUS Aura, RAM, Razer, Logitech e outras" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,2"/>
-                                        <TextBlock x:Name="OrgbStatus" Text="Aguardando…" TextWrapping="Wrap" Foreground="{StaticResource Muted}"/>
+                                        <TextBlock x:Name="OrgbStatus" Text="Aguardando…" TextWrapping="Wrap" Foreground="{DynamicResource Muted}"/>
                                         <Button x:Name="BtnOrgbOpen" Style="{StaticResource OutlineButton}" Content="ABRIR O OPENRGB"
                                                 HorizontalAlignment="Left" Padding="20,9" Margin="0,10,0,0" Click="BtnOrgbOpen_Click"/>
-                                        <TextBlock Foreground="{StaticResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0">
+                                        <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0">
                                             A MSI, a Gigabyte e a ASUS não oferecem SDK público; o OpenRGB (gratuito, openrgb.org) conversa com os controladores delas.
                                             Ele precisa estar aberto com o servidor SDK ligado, e o MSI Center, o Armoury Crate e o RGB Fusion devem estar fechados.
                                         </TextBlock>
                                     </StackPanel>
                                 </Border>
 
-                                <Border BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Margin="0,14,0,0" Padding="0,12,0,0">
+                                <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0" Margin="0,14,0,0" Padding="0,12,0,0">
                                     <StackPanel>
                                         <TextBlock Text="Razer Chroma" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,2"/>
-                                        <TextBlock x:Name="RazerStatus" Text="Aguardando…" TextWrapping="Wrap" Foreground="{StaticResource Muted}"/>
-                                        <TextBlock Foreground="{StaticResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0">
+                                        <TextBlock x:Name="RazerStatus" Text="Aguardando…" TextWrapping="Wrap" Foreground="{DynamicResource Muted}"/>
+                                        <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0">
                                             Requer o Razer Synapse instalado e aberto. Controla cada categoria (teclado, mouse, headset...) com uma cor só.
                                         </TextBlock>
                                     </StackPanel>
@@ -534,16 +535,16 @@
                         <Border Style="{StaticResource CardBorder}" Margin="0,0,0,14">
                             <StackPanel>
                                 <TextBlock Text="DISPOSITIVOS" Style="{StaticResource Label}"/>
-                                <TextBlock x:Name="LightDevicesHint" Foreground="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                <TextBlock x:Name="LightDevicesHint" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,8"/>
                                 <ItemsControl x:Name="LightDevices">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Padding="0,10">
+                                            <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0" Padding="0,10">
                                                 <StackPanel Orientation="Horizontal">
                                                     <CheckBox IsChecked="{Binding Selected}" VerticalAlignment="Center" Margin="0,0,14,0"/>
                                                     <StackPanel VerticalAlignment="Center">
                                                         <TextBlock Text="{Binding Name}" FontSize="14"/>
-                                                        <TextBlock Text="{Binding Detail}" Foreground="{StaticResource Muted}" FontSize="11"/>
+                                                        <TextBlock Text="{Binding Detail}" Foreground="{DynamicResource Muted}" FontSize="11"/>
                                                     </StackPanel>
                                                 </StackPanel>
                                             </Border>
@@ -565,14 +566,14 @@
                                     <RadioButton Style="{StaticResource Chip}" GroupName="LightFx" Content="Carga da CPU" Tag="load" Checked="LightFx_Checked"/>
                                     <RadioButton Style="{StaticResource Chip}" GroupName="LightFx" Content="Apagar" Tag="off" Checked="LightFx_Checked"/>
                                 </WrapPanel>
-                                <TextBlock Foreground="{StaticResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,16">
+                                <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,16">
                                     Temperatura e carga mudam a cor sozinhas (azul = frio/ocioso, verde, amarelo, vermelho = quente/carga alta).
                                     Cor fixa e Respiração usam a cor escolhida abaixo.
                                 </TextBlock>
 
                                 <TextBlock Text="COR" Style="{StaticResource Label}"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,6,0,8">
-                                    <Border x:Name="LightPreview" Width="46" Height="46" Margin="0,0,16,0" BorderBrush="{StaticResource LineStrong}" BorderThickness="1" VerticalAlignment="Top"/>
+                                    <Border x:Name="LightPreview" Width="46" Height="46" Margin="0,0,16,0" BorderBrush="{DynamicResource LineStrong}" BorderThickness="1" VerticalAlignment="Top"/>
                                     <WrapPanel x:Name="LightSwatches" Width="360"/>
                                 </StackPanel>
                                 <Grid Margin="0,0,0,2"><TextBlock Text="VERMELHO" Style="{StaticResource Label}"/></Grid>
@@ -598,9 +599,9 @@
                                 <WrapPanel Margin="0,14,0,0">
                                     <Button x:Name="BtnLightRun" Style="{StaticResource PrimaryButton}" Content="ATIVAR CONTROLE"
                                             Padding="24,10" Margin="0,0,14,0" Click="BtnLightRun_Click"/>
-                                    <TextBlock x:Name="LightLive" Foreground="{StaticResource Muted}" VerticalAlignment="Center" FontFamily="{StaticResource Mono}"/>
+                                    <TextBlock x:Name="LightLive" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" FontFamily="{StaticResource Mono}"/>
                                 </WrapPanel>
-                                <TextBlock x:Name="LightRunHint" Foreground="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,10,0,0"/>
+                                <TextBlock x:Name="LightRunHint" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,10,0,0"/>
                             </StackPanel>
                         </Border>
 
@@ -609,7 +610,7 @@
                                 <TextBlock Text="DIAGNÓSTICO" Style="{StaticResource Label}"/>
                                 <TextBox x:Name="LightDiag" IsReadOnly="True" FontFamily="{StaticResource Mono}" FontSize="11" TextWrapping="Wrap"
                                          MinHeight="90" MaxHeight="260" VerticalScrollBarVisibility="Auto" AcceptsReturn="True"/>
-                                <TextBlock Foreground="{StaticResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,0">
+                                <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,0">
                                     Se as luzes não mudarem, copie este quadro e me envie.
                                 </TextBlock>
                             </StackPanel>
@@ -656,7 +657,7 @@
                     </Grid>
 
                     <!-- Detalhes do jogo -->
-                    <TextBlock x:Name="LEmpty" Grid.Column="2" Text="Escolha um jogo na lista." Foreground="{StaticResource Muted}" VerticalAlignment="Top" Margin="0,60,0,0"/>
+                    <TextBlock x:Name="LEmpty" Grid.Column="2" Text="Escolha um jogo na lista." Foreground="{DynamicResource Muted}" VerticalAlignment="Top" Margin="0,60,0,0"/>
                     <ScrollViewer x:Name="LDetail" Grid.Column="2" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="0,0,6,0">
                             <Grid Margin="0,0,0,6">
@@ -667,13 +668,13 @@
                                 <Button x:Name="BtnPlay" Style="{StaticResource PrimaryButton}" Content="JOGAR" Padding="40,14" FontSize="16"
                                         HorizontalAlignment="Right" VerticalAlignment="Top" Click="BtnPlay_Click"/>
                             </Grid>
-                            <TextBlock x:Name="LStatus" Foreground="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,0,0,16"/>
+                            <TextBlock x:Name="LStatus" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,16"/>
 
                             <!-- Desempenho -->
                             <Border Style="{StaticResource CardBorder}" Margin="0,0,0,14">
                                 <StackPanel>
                                     <TextBlock Text="DESEMPENHO" Style="{StaticResource Label}"/>
-                                    <TextBlock Text="Prioridade do processo" Foreground="{StaticResource Muted}" FontSize="12" Margin="0,8,0,0"/>
+                                    <TextBlock Text="Prioridade do processo" Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,8,0,0"/>
                                     <WrapPanel x:Name="LPriorityPanel" Margin="0,4,0,10">
                                     <RadioButton Style="{StaticResource Chip}" GroupName="LPriority" Content="Normal" Tag="normal" IsChecked="True" Checked="LProfile_Changed"/>
                                     <RadioButton Style="{StaticResource Chip}" GroupName="LPriority" Content="Acima do normal" Tag="above" Checked="LProfile_Changed"/>
@@ -682,12 +683,12 @@
                                     <CheckBox x:Name="LChkPlan" Content="Plano de energia Alto desempenho enquanto joga (volta ao normal depois)" Margin="0,0,0,10" Click="LProfile_Changed"/>
                                     <CheckBox x:Name="LChkGpu" Content="Forçar a placa de vídeo dedicada (configuração gráfica do Windows)" Margin="0,0,0,10" Click="LProfile_Changed"/>
                                     <CheckBox x:Name="LChkFso" Content="Desativar otimizações de tela cheia do Windows" Margin="0,0,0,12" Click="LProfile_Changed"/>
-                                    <TextBlock x:Name="LExeText" Foreground="{StaticResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                    <TextBlock x:Name="LExeText" Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8"/>
                                     <WrapPanel>
                                         <Button Style="{StaticResource OutlineButton}" Content="ESCOLHER O .EXE" Padding="14,8" Margin="0,0,8,0" Click="BtnPickExe_Click"/>
                                         <Button Style="{StaticResource OutlineButton}" Content="PERFIL PARA MAIS FPS" Padding="14,8" Click="BtnRecommended_Click"/>
                                     </WrapPanel>
-                                    <TextBlock Foreground="{StaticResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0">
+                                    <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0">
                                         Prioridade e plano de energia valem só durante o jogo. As opções de GPU e tela cheia são gravadas para o .exe do jogo no Windows
                                         (o programa descobre o .exe sozinho; se errar, escolha o certo).
                                     </TextBlock>
@@ -698,14 +699,14 @@
                             <Border Style="{StaticResource CardBorder}" Margin="0,0,0,14">
                                 <StackPanel>
                                     <TextBlock Text="GRÁFICOS (ARGUMENTOS DE INICIALIZAÇÃO)" Style="{StaticResource Label}"/>
-                                    <TextBlock Text="Modo de janela" Foreground="{StaticResource Muted}" FontSize="12" Margin="0,8,0,0"/>
+                                    <TextBlock Text="Modo de janela" Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,8,0,0"/>
                                     <WrapPanel x:Name="LModePanel" Margin="0,4,0,10">
                                     <RadioButton Style="{StaticResource Chip}" GroupName="LMode" Content="Padrão do jogo" Tag="default" IsChecked="True" Checked="LProfile_Changed"/>
                                     <RadioButton Style="{StaticResource Chip}" GroupName="LMode" Content="Tela cheia" Tag="full" Checked="LProfile_Changed"/>
                                     <RadioButton Style="{StaticResource Chip}" GroupName="LMode" Content="Sem bordas" Tag="borderless" Checked="LProfile_Changed"/>
                                     <RadioButton Style="{StaticResource Chip}" GroupName="LMode" Content="Janela" Tag="window" Checked="LProfile_Changed"/>
                                 </WrapPanel>
-                                    <TextBlock Text="Resolução" Foreground="{StaticResource Muted}" FontSize="12"/>
+                                    <TextBlock Text="Resolução" Foreground="{DynamicResource Muted}" FontSize="12"/>
                                     <WrapPanel x:Name="LResPanel" Margin="0,4,0,10">
                                     <RadioButton Style="{StaticResource Chip}" GroupName="LRes" Content="Padrão" Tag="default" IsChecked="True" Checked="LProfile_Changed"/>
                                     <RadioButton Style="{StaticResource Chip}" GroupName="LRes" Content="1280x720" Tag="1280x720" Checked="LProfile_Changed"/>
@@ -713,7 +714,7 @@
                                     <RadioButton Style="{StaticResource Chip}" GroupName="LRes" Content="2560x1440" Tag="2560x1440" Checked="LProfile_Changed"/>
                                     <RadioButton Style="{StaticResource Chip}" GroupName="LRes" Content="3840x2160" Tag="3840x2160" Checked="LProfile_Changed"/>
                                 </WrapPanel>
-                                    <TextBlock Text="Taxa de atualização (Hz)" Foreground="{StaticResource Muted}" FontSize="12"/>
+                                    <TextBlock Text="Taxa de atualização (Hz)" Foreground="{DynamicResource Muted}" FontSize="12"/>
                                     <WrapPanel x:Name="LHzPanel" Margin="0,4,0,10">
                                     <RadioButton Style="{StaticResource Chip}" GroupName="LHz" Content="Padrão" Tag="0" IsChecked="True" Checked="LProfile_Changed"/>
                                     <RadioButton Style="{StaticResource Chip}" GroupName="LHz" Content="60" Tag="60" Checked="LProfile_Changed"/>
@@ -722,23 +723,23 @@
                                     <RadioButton Style="{StaticResource Chip}" GroupName="LHz" Content="165" Tag="165" Checked="LProfile_Changed"/>
                                     <RadioButton Style="{StaticResource Chip}" GroupName="LHz" Content="240" Tag="240" Checked="LProfile_Changed"/>
                                 </WrapPanel>
-                                    <TextBlock Text="Tipo de argumento (depende do jogo)" Foreground="{StaticResource Muted}" FontSize="12"/>
+                                    <TextBlock Text="Tipo de argumento (depende do jogo)" Foreground="{DynamicResource Muted}" FontSize="12"/>
                                     <WrapPanel x:Name="LStylePanel" Margin="0,4,0,10">
                                     <RadioButton Style="{StaticResource Chip}" GroupName="LStyle" Content="Source / CS2" Tag="source" IsChecked="True" Checked="LProfile_Changed"/>
                                     <RadioButton Style="{StaticResource Chip}" GroupName="LStyle" Content="Unity" Tag="unity" Checked="LProfile_Changed"/>
                                     <RadioButton Style="{StaticResource Chip}" GroupName="LStyle" Content="Unreal" Tag="unreal" Checked="LProfile_Changed"/>
                                 </WrapPanel>
-                                    <TextBlock Text="Extras" Foreground="{StaticResource Muted}" FontSize="12"/>
+                                    <TextBlock Text="Extras" Foreground="{DynamicResource Muted}" FontSize="12"/>
                                     <TextBox x:Name="LExtra" Tag="ex.: -novid -high +fps_max 0" Margin="0,4,0,8" TextChanged="LExtra_Changed"/>
                                     <WrapPanel x:Name="LExtraPresets" Margin="0,0,0,12"/>
                                     <TextBlock Text="LINHA FINAL" Style="{StaticResource Label}"/>
                                     <TextBlock x:Name="LPreview" FontFamily="{StaticResource Mono}" TextWrapping="Wrap" Margin="0,4,0,10"/>
                                     <StackPanel x:Name="LSteamBox" Visibility="Collapsed">
-                                        <TextBlock x:Name="LSteamNow" Foreground="{StaticResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                        <TextBlock x:Name="LSteamNow" Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,8"/>
                                         <Button x:Name="BtnSteamApply" Style="{StaticResource PrimaryButton}" Content="APLICAR NAS OPÇÕES DA STEAM"
                                                 HorizontalAlignment="Left" Padding="20,9" Click="BtnSteamApply_Click"/>
                                     </StackPanel>
-                                    <TextBlock x:Name="LGfxNote" Foreground="{StaticResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                                    <TextBlock x:Name="LGfxNote" Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0"/>
                                 </StackPanel>
                             </Border>
 
@@ -746,7 +747,7 @@
                             <Border Style="{StaticResource CardBorder}" Margin="0,0,0,14">
                                 <StackPanel>
                                     <TextBlock Text="PROGRAMAS AUXILIARES" Style="{StaticResource Label}"/>
-                                    <TextBlock Foreground="{StaticResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,10">
+                                    <TextBlock Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,10">
                                         Ferramentas de terceiros que abrem antes do jogo (monitoramento, comandos, mixer de áudio, script...). O RESET JOGOS as abre
                                         sozinho ao clicar em JOGAR e pode fechá-las junto com o jogo. Nada é escrito nas opções da Steam.
                                     </TextBlock>
@@ -831,10 +832,10 @@
                         <Grid>
                             <StackPanel>
                                 <TextBlock x:Name="GpuName" FontSize="24" FontWeight="SemiBold"/>
-                                <TextBlock x:Name="GpuSubtitle" Foreground="{StaticResource Muted}" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                                <TextBlock x:Name="GpuSubtitle" Foreground="{DynamicResource Muted}" Margin="0,6,0,0" TextWrapping="Wrap"/>
                             </StackPanel>
                             <TextBlock x:Name="GpuVendor" HorizontalAlignment="Right" VerticalAlignment="Center"
-                                       FontSize="30" FontWeight="Black" Foreground="{StaticResource Faint}"/>
+                                       FontSize="30" FontWeight="Black" Foreground="{DynamicResource Faint}"/>
                         </Grid>
                     </Border>
 
@@ -857,7 +858,7 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Grid Margin="0,5">
-                                                <TextBlock Text="{Binding Key}" Foreground="{StaticResource Muted}"/>
+                                                <TextBlock Text="{Binding Key}" Foreground="{DynamicResource Muted}"/>
                                                 <TextBlock Text="{Binding Value}" FontFamily="{StaticResource Mono}" HorizontalAlignment="Right"/>
                                             </Grid>
                                         </DataTemplate>
@@ -867,11 +868,11 @@
                                     <ItemsControl x:Name="GpuLive" Margin="0,0,8,0">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Border BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Padding="0,6">
+                                                <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0" Padding="0,6">
                                                     <Grid>
                                                         <TextBlock>
-                                                            <Run Text="{Binding Category, Mode=OneWay}" Foreground="{StaticResource Faint}"/>
-                                                            <Run Text="{Binding Name, Mode=OneWay}" Foreground="{StaticResource Muted}"/>
+                                                            <Run Text="{Binding Category, Mode=OneWay}" Foreground="{DynamicResource Faint}"/>
+                                                            <Run Text="{Binding Name, Mode=OneWay}" Foreground="{DynamicResource Muted}"/>
                                                         </TextBlock>
                                                         <TextBlock Text="{Binding Value}" FontFamily="{StaticResource Mono}" HorizontalAlignment="Right"/>
                                                     </Grid>
@@ -943,12 +944,12 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel VerticalAlignment="Center">
                                 <TextBlock x:Name="GameSourceTitle" FontWeight="SemiBold"/>
-                                <TextBlock x:Name="GameSourceText" Foreground="{StaticResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                <TextBlock x:Name="GameSourceText" Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
                                 <Grid Width="240" Margin="0,0,8,0">
                                     <PasswordBox x:Name="ApiKeyBox" ToolTip="Chave da API HowManyFPS" PasswordChanged="ApiKeyBox_Changed"/>
-                                    <TextBlock x:Name="ApiKeyHint" Text="Chave da API HowManyFPS" Foreground="{StaticResource Faint}"
+                                    <TextBlock x:Name="ApiKeyHint" Text="Chave da API HowManyFPS" Foreground="{DynamicResource Faint}"
                                                Margin="11,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False"/>
                                 </Grid>
                                 <Button x:Name="BtnApiKey" Style="{StaticResource OutlineButton}" Content="SALVAR CHAVE" Padding="16,8"
@@ -970,28 +971,28 @@
                                     <Border Style="{StaticResource CardBorder}" Margin="0,0,10,10" Padding="16,14">
                                         <StackPanel>
                                             <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14" TextTrimming="CharacterEllipsis"/>
-                                            <TextBlock Text="{Binding Genre}" Foreground="{StaticResource Faint}" FontSize="11" Margin="0,2,0,10"/>
+                                            <TextBlock Text="{Binding Genre}" Foreground="{DynamicResource Faint}" FontSize="11" Margin="0,2,0,10"/>
                                             <Grid>
                                                 <StackPanel Orientation="Horizontal">
                                                     <TextBlock Text="{Binding FpsText}" FontFamily="{StaticResource Mono}" FontSize="30"/>
-                                                    <TextBlock Text=" FPS" Foreground="{StaticResource Muted}" FontSize="12" VerticalAlignment="Bottom" Margin="0,0,0,6"/>
+                                                    <TextBlock Text=" FPS" Foreground="{DynamicResource Muted}" FontSize="12" VerticalAlignment="Bottom" Margin="0,0,0,6"/>
                                                 </StackPanel>
                                                 <TextBlock Text="{Binding Rating}" HorizontalAlignment="Right" VerticalAlignment="Center"
-                                                           FontSize="10" FontWeight="Bold" Foreground="{StaticResource Muted}"/>
+                                                           FontSize="10" FontWeight="Bold" Foreground="{DynamicResource Muted}"/>
                                             </Grid>
                                             <!-- Barra: escala até 240 FPS -->
-                                            <Grid Height="3" Margin="0,8,0,8" Background="{StaticResource Line}">
-                                                <Border Background="{StaticResource Fg}" HorizontalAlignment="Stretch" RenderTransformOrigin="0,0.5">
+                                            <Grid Height="3" Margin="0,8,0,8" Background="{DynamicResource Line}">
+                                                <Border Background="{DynamicResource Fg}" HorizontalAlignment="Stretch" RenderTransformOrigin="0,0.5">
                                                     <Border.RenderTransform>
                                                         <ScaleTransform ScaleX="{Binding Bar}"/>
                                                     </Border.RenderTransform>
                                                 </Border>
                                             </Grid>
                                             <Grid>
-                                                <TextBlock Text="{Binding LowText}" Foreground="{StaticResource Muted}" FontSize="11"/>
-                                                <TextBlock Text="{Binding Source}" Foreground="{StaticResource Faint}" FontSize="11" HorizontalAlignment="Right"/>
+                                                <TextBlock Text="{Binding LowText}" Foreground="{DynamicResource Muted}" FontSize="11"/>
+                                                <TextBlock Text="{Binding Source}" Foreground="{DynamicResource Faint}" FontSize="11" HorizontalAlignment="Right"/>
                                             </Grid>
-                                            <TextBlock Text="{Binding Detail}" Foreground="{StaticResource Faint}" FontSize="11" Margin="0,3,0,0"
+                                            <TextBlock Text="{Binding Detail}" Foreground="{DynamicResource Faint}" FontSize="11" Margin="0,3,0,0"
                                                        TextTrimming="CharacterEllipsis"/>
                                         </StackPanel>
                                     </Border>
@@ -1021,25 +1022,25 @@
                                 <StackPanel>
                                     <TextBlock Text="EQUILÍBRIO DO HARDWARE" Style="{StaticResource Label}"/>
                                     <Grid Margin="0,4,0,0">
-                                        <TextBlock x:Name="BnCpuName" Foreground="{StaticResource Muted}"/>
-                                        <TextBlock x:Name="BnGpuName" Foreground="{StaticResource Muted}" HorizontalAlignment="Right"/>
+                                        <TextBlock x:Name="BnCpuName" Foreground="{DynamicResource Muted}"/>
+                                        <TextBlock x:Name="BnGpuName" Foreground="{DynamicResource Muted}" HorizontalAlignment="Right"/>
                                     </Grid>
                                     <!-- Escala: esquerda = GPU fraca para a CPU; centro = equilibrado; direita = CPU fraca para a GPU -->
                                     <Grid Height="22" Margin="0,8,0,4">
-                                        <Border Height="4" Background="{StaticResource Line}" VerticalAlignment="Center"/>
-                                        <Border Width="2" Height="10" Background="{StaticResource Faint}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <Border Height="4" Background="{DynamicResource Line}" VerticalAlignment="Center"/>
+                                        <Border Width="2" Height="10" Background="{DynamicResource Faint}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         <Canvas x:Name="BnBalanceCanvas" SizeChanged="BnBalanceCanvas_SizeChanged">
-                                            <Ellipse x:Name="BnBalanceDot" Width="14" Height="14" Fill="{StaticResource Fg}" Canvas.Top="4"/>
+                                            <Ellipse x:Name="BnBalanceDot" Width="14" Height="14" Fill="{DynamicResource Fg}" Canvas.Top="4"/>
                                         </Canvas>
                                     </Grid>
                                     <Grid>
-                                        <TextBlock Text="limita a GPU" Foreground="{StaticResource Faint}" FontSize="11"/>
-                                        <TextBlock Text="equilibrado" Foreground="{StaticResource Faint}" FontSize="11" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="limita a CPU" Foreground="{StaticResource Faint}" FontSize="11" HorizontalAlignment="Right"/>
+                                        <TextBlock Text="limita a GPU" Foreground="{DynamicResource Faint}" FontSize="11"/>
+                                        <TextBlock Text="equilibrado" Foreground="{DynamicResource Faint}" FontSize="11" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="limita a CPU" Foreground="{DynamicResource Faint}" FontSize="11" HorizontalAlignment="Right"/>
                                     </Grid>
                                     <TextBlock x:Name="BnBalanceText" TextWrapping="Wrap" Margin="0,12,0,0"/>
                                     <TextBlock Text="Estimativa pelo desempenho relativo típico; o detector ao vivo mostra a realidade de cada jogo."
-                                               Foreground="{StaticResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,0"/>
+                                               Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,0"/>
                                 </StackPanel>
                             </Border>
 
@@ -1048,8 +1049,8 @@
                                 <StackPanel>
                                     <TextBlock x:Name="BnLiveLabel" Text="AGORA" Style="{StaticResource Label}"/>
                                     <TextBlock x:Name="BnLiveTitle" Text="—" FontSize="24" FontWeight="SemiBold"/>
-                                    <TextBlock x:Name="BnLiveGame" Foreground="{StaticResource Muted}" Margin="0,4,0,10" TextWrapping="Wrap"/>
-                                    <TextBlock x:Name="BnLiveAdvice" TextWrapping="Wrap" Foreground="{StaticResource Muted}"/>
+                                    <TextBlock x:Name="BnLiveGame" Foreground="{DynamicResource Muted}" Margin="0,4,0,10" TextWrapping="Wrap"/>
+                                    <TextBlock x:Name="BnLiveAdvice" TextWrapping="Wrap" Foreground="{DynamicResource Muted}"/>
                                 </StackPanel>
                             </Border>
                         </Grid>
@@ -1080,7 +1081,7 @@
                                     <StackPanel>
                                         <TextBlock Text="ANÁLISE DE SESSÃO" Style="{StaticResource Label}"/>
                                         <TextBlock Text="Clique em iniciar, abra o jogo e jogue normalmente. Ao final você recebe o diagnóstico."
-                                                   Foreground="{StaticResource Muted}" TextWrapping="Wrap"/>
+                                                   Foreground="{DynamicResource Muted}" TextWrapping="Wrap"/>
                                     </StackPanel>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                                         <StackPanel x:Name="BnDurationPanel" Orientation="Horizontal" Margin="0,0,14,0" VerticalAlignment="Center">
@@ -1091,10 +1092,10 @@
                                         <Button x:Name="BtnBnSession" Style="{StaticResource PrimaryButton}" Content="INICIAR ANÁLISE" Click="BtnBnSession_Click"/>
                                     </StackPanel>
                                 </Grid>
-                                <TextBlock x:Name="BnSessionStatus" Foreground="{StaticResource Muted}" Margin="0,14,0,0"/>
+                                <TextBlock x:Name="BnSessionStatus" Foreground="{DynamicResource Muted}" Margin="0,14,0,0"/>
                                 <StackPanel x:Name="BnResult" Visibility="Collapsed" Margin="0,16,0,0">
                                     <TextBlock x:Name="BnResultTitle" FontSize="22" FontWeight="SemiBold"/>
-                                    <TextBlock x:Name="BnResultSummary" Foreground="{StaticResource Muted}" Margin="0,4,0,14" TextWrapping="Wrap"/>
+                                    <TextBlock x:Name="BnResultSummary" Foreground="{DynamicResource Muted}" Margin="0,4,0,14" TextWrapping="Wrap"/>
                                     <ItemsControl x:Name="BnDistribution" ItemTemplate="{StaticResource Meter}"/>
                                     <TextBlock x:Name="BnResultAdvice" TextWrapping="Wrap" Margin="0,4,0,0"/>
                                 </StackPanel>
@@ -1115,8 +1116,8 @@
                             <Grid>
                                 <StackPanel>
                                     <CheckBox x:Name="ChkOverlay" Content="Mostrar overlay" FontSize="15" Checked="ChkOverlay_Changed" Unchecked="ChkOverlay_Changed"/>
-                                    <TextBlock Foreground="{StaticResource Muted}" Margin="46,6,0,0" TextWrapping="Wrap">
-                                        Atalho global: <Run Text="Ctrl + Shift + O" FontFamily="{StaticResource Mono}" Foreground="{StaticResource Fg}"/> liga e desliga, inclusive dentro do jogo.
+                                    <TextBlock Foreground="{DynamicResource Muted}" Margin="46,6,0,0" TextWrapping="Wrap">
+                                        Atalho global: <Run Text="Ctrl + Shift + O" FontFamily="{StaticResource Mono}" Foreground="{DynamicResource Fg}"/> liga e desliga, inclusive dentro do jogo.
                                     </TextBlock>
                                 </StackPanel>
                             </Grid>
@@ -1148,7 +1149,7 @@
                             <StackPanel>
                                 <TextBlock Text="DETECÇÃO DE FPS" Style="{StaticResource Label}"/>
                                 <TextBlock x:Name="OvStatus" FontSize="15"/>
-                                <TextBlock Foreground="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,10,0,0">
+                                <TextBlock Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,10,0,0">
                                     O FPS é medido pelo rastreamento de eventos do Windows (ETW), a mesma técnica do PresentMon:
                                     nada é injetado no jogo, então é seguro com anti-cheat. Funciona com DirectX 9 a 12; jogos em
                                     Vulkan/OpenGL só aparecem se o driver apresentar via DXGI. O overlay aparece em tela cheia
@@ -1196,20 +1197,20 @@
                                             <Image x:Name="BenchImage" Width="960" Height="540" RenderOptions.BitmapScalingMode="HighQuality"/>
                                             <Canvas x:Name="BenchBuckets" Width="960" Height="540"/>
                                             <TextBlock x:Name="BenchIdle" Text="Pressione INICIAR para renderizar a cena"
-                                                       Foreground="{StaticResource Faint}" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                       Foreground="{DynamicResource Faint}" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Grid>
                                     </Viewbox>
                                 </Border>
-                                <Grid Height="3" Margin="0,12,0,8" Background="{StaticResource Line}">
-                                    <Border Background="{StaticResource Fg}" RenderTransformOrigin="0,0.5">
+                                <Grid Height="3" Margin="0,12,0,8" Background="{DynamicResource Line}">
+                                    <Border Background="{DynamicResource Fg}" RenderTransformOrigin="0,0.5">
                                         <Border.RenderTransform>
                                             <ScaleTransform x:Name="BenchProgress" ScaleX="0"/>
                                         </Border.RenderTransform>
                                     </Border>
                                 </Grid>
                                 <Grid>
-                                    <TextBlock x:Name="BenchStatus" Text="Pronto" Foreground="{StaticResource Muted}"/>
-                                    <TextBlock x:Name="BenchElapsed" FontFamily="{StaticResource Mono}" Foreground="{StaticResource Muted}" HorizontalAlignment="Right"/>
+                                    <TextBlock x:Name="BenchStatus" Text="Pronto" Foreground="{DynamicResource Muted}"/>
+                                    <TextBlock x:Name="BenchElapsed" FontFamily="{StaticResource Mono}" Foreground="{DynamicResource Muted}" HorizontalAlignment="Right"/>
                                 </Grid>
                             </StackPanel>
                         </Border>
@@ -1231,7 +1232,7 @@
                                             <RadioButton Style="{StaticResource Chip}" GroupName="BenchDur" Content="Mínimo 10 min" Tag="10"/>
                                         </WrapPanel>
                                         <Button x:Name="BtnBench" Style="{StaticResource PrimaryButton}" Content="INICIAR" Margin="0,12,0,0" Click="BtnBench_Click"/>
-                                        <TextBlock x:Name="BenchHint" Foreground="{StaticResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                                        <TextBlock x:Name="BenchHint" Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,8,0,0"/>
                                     </StackPanel>
                                 </Border>
 
@@ -1239,20 +1240,20 @@
                                     <StackPanel>
                                         <TextBlock Text="RESULTADO" Style="{StaticResource Label}"/>
                                         <Grid>
-                                            <TextBlock Text="Multi-core" Foreground="{StaticResource Muted}" VerticalAlignment="Bottom" Margin="0,0,0,5"/>
+                                            <TextBlock Text="Multi-core" Foreground="{DynamicResource Muted}" VerticalAlignment="Bottom" Margin="0,0,0,5"/>
                                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                                 <TextBlock x:Name="BenchMt" Text="—" FontFamily="{StaticResource Mono}" FontSize="30"/>
-                                                <TextBlock Text=" pts" Foreground="{StaticResource Muted}" VerticalAlignment="Bottom" Margin="0,0,0,6"/>
+                                                <TextBlock Text=" pts" Foreground="{DynamicResource Muted}" VerticalAlignment="Bottom" Margin="0,0,0,6"/>
                                             </StackPanel>
                                         </Grid>
                                         <Grid Margin="0,6,0,0">
-                                            <TextBlock Text="Single-core" Foreground="{StaticResource Muted}" VerticalAlignment="Bottom" Margin="0,0,0,5"/>
+                                            <TextBlock Text="Single-core" Foreground="{DynamicResource Muted}" VerticalAlignment="Bottom" Margin="0,0,0,5"/>
                                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                                 <TextBlock x:Name="BenchSt" Text="—" FontFamily="{StaticResource Mono}" FontSize="30"/>
-                                                <TextBlock Text=" pts" Foreground="{StaticResource Muted}" VerticalAlignment="Bottom" Margin="0,0,0,6"/>
+                                                <TextBlock Text=" pts" Foreground="{DynamicResource Muted}" VerticalAlignment="Bottom" Margin="0,0,0,6"/>
                                             </StackPanel>
                                         </Grid>
-                                        <TextBlock x:Name="BenchRatio" Foreground="{StaticResource Muted}" FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                                        <TextBlock x:Name="BenchRatio" Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap"/>
                                     </StackPanel>
                                 </Border>
 
@@ -1263,7 +1264,7 @@
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <Grid Margin="0,3">
-                                                        <TextBlock Text="{Binding Key}" Foreground="{StaticResource Muted}"/>
+                                                        <TextBlock Text="{Binding Key}" Foreground="{DynamicResource Muted}"/>
                                                         <TextBlock Text="{Binding Value}" FontFamily="{StaticResource Mono}" HorizontalAlignment="Right"/>
                                                     </Grid>
                                                 </DataTemplate>
@@ -1275,7 +1276,7 @@
                                 <Border Style="{StaticResource CardBorder}">
                                     <StackPanel>
                                         <TextBlock Text="HISTÓRICO" Style="{StaticResource Label}"/>
-                                        <TextBlock x:Name="BenchHistoryEmpty" Text="Nenhum resultado ainda." Foreground="{StaticResource Faint}"/>
+                                        <TextBlock x:Name="BenchHistoryEmpty" Text="Nenhum resultado ainda." Foreground="{DynamicResource Faint}"/>
                                         <ItemsControl x:Name="BenchHistory" ItemTemplate="{StaticResource Meter}"/>
                                     </StackPanel>
                                 </Border>
@@ -1293,7 +1294,7 @@
                         <Border Style="{StaticResource CardBorder}" VerticalAlignment="Top" Padding="24,20">
                             <StackPanel>
                                 <TextBlock Text="VALE · CENA DE JOGO" Style="{StaticResource Label}"/>
-                                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource Muted}">
+                                <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource Muted}">
                                     Sobrevoo de um vale com terreno gerado por ruído fractal (~500 mil triângulos), 40 mil árvores
                                     por instancing, sombras em tempo real (mapa 4096² com bordas suaves), água com ondas, neblina,
                                     céu e pós-processamento HDR. A câmera segue um trajeto fixo pelo tempo e a resolução é fixa:
@@ -1309,12 +1310,12 @@
                                         <TextBlock x:Name="GbGpuNow" Text="—" FontFamily="{StaticResource Mono}" FontSize="20" HorizontalAlignment="Right"/>
                                     </StackPanel>
                                 </Grid>
-                                <Grid Height="3" Margin="0,14,0,8" Background="{StaticResource Line}">
-                                    <Border Background="{StaticResource Fg}" RenderTransformOrigin="0,0.5">
+                                <Grid Height="3" Margin="0,14,0,8" Background="{DynamicResource Line}">
+                                    <Border Background="{DynamicResource Fg}" RenderTransformOrigin="0,0.5">
                                         <Border.RenderTransform><ScaleTransform x:Name="GbProgress" ScaleX="0"/></Border.RenderTransform>
                                     </Border>
                                 </Grid>
-                                <TextBlock x:Name="GbStatus" Text="Pronto" Foreground="{StaticResource Muted}"/>
+                                <TextBlock x:Name="GbStatus" Text="Pronto" Foreground="{DynamicResource Muted}"/>
                             </StackPanel>
                         </Border>
                         <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
@@ -1364,17 +1365,17 @@
                                     <Border Background="#050505" HorizontalAlignment="Center">
                                         <Image x:Name="SimImage" Width="440" Height="440" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
                                     </Border>
-                                    <TextBlock x:Name="SimIdle" Text="30 mil unidades em batalha" Foreground="{StaticResource Faint}" FontSize="18"
+                                    <TextBlock x:Name="SimIdle" Text="30 mil unidades em batalha" Foreground="{DynamicResource Faint}" FontSize="18"
                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Grid>
-                                <Grid Height="3" Margin="0,12,0,8" Background="{StaticResource Line}">
-                                    <Border Background="{StaticResource Fg}" RenderTransformOrigin="0,0.5">
+                                <Grid Height="3" Margin="0,12,0,8" Background="{DynamicResource Line}">
+                                    <Border Background="{DynamicResource Fg}" RenderTransformOrigin="0,0.5">
                                         <Border.RenderTransform><ScaleTransform x:Name="SimProgress" ScaleX="0"/></Border.RenderTransform>
                                     </Border>
                                 </Grid>
                                 <Grid>
-                                    <TextBlock x:Name="SimStatus" Text="Pronto" Foreground="{StaticResource Muted}"/>
-                                    <TextBlock x:Name="SimFpsNow" FontFamily="{StaticResource Mono}" Foreground="{StaticResource Muted}" HorizontalAlignment="Right"/>
+                                    <TextBlock x:Name="SimStatus" Text="Pronto" Foreground="{DynamicResource Muted}"/>
+                                    <TextBlock x:Name="SimFpsNow" FontFamily="{StaticResource Mono}" Foreground="{DynamicResource Muted}" HorizontalAlignment="Right"/>
                                 </Grid>
                             </StackPanel>
                         </Border>
@@ -1382,7 +1383,7 @@
                             <StackPanel>
                                 <Border Style="{StaticResource CardBorder}" Margin="0,0,0,12">
                                     <StackPanel>
-                                        <TextBlock Foreground="{StaticResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,10">
+                                        <TextBlock Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,10">
                                             Simula o trabalho de CPU de um jogo: a thread principal monta a grade espacial, roda a lógica
                                             e prepara o desenho; as outras threads calculam física, colisão e IA de 30 mil unidades.
                                             A nota é quantos frames por segundo a CPU aguenta.
@@ -1424,11 +1425,11 @@
                                 <ItemsControl x:Name="MemResult" Margin="0,4,0,0">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1" Padding="0,12">
+                                            <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1" Padding="0,12">
                                                 <Grid>
                                                     <StackPanel>
                                                         <TextBlock Text="{Binding Label}" FontSize="14"/>
-                                                        <TextBlock Text="{Binding Hint}" Foreground="{StaticResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,2,140,0"/>
+                                                        <TextBlock Text="{Binding Hint}" Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,2,140,0"/>
                                                     </StackPanel>
                                                     <TextBlock Text="{Binding Value}" FontFamily="{StaticResource Mono}" FontSize="20" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                                 </Grid>
@@ -1436,19 +1437,19 @@
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
-                                <Grid Height="3" Margin="0,16,0,8" Background="{StaticResource Line}">
-                                    <Border Background="{StaticResource Fg}" RenderTransformOrigin="0,0.5">
+                                <Grid Height="3" Margin="0,16,0,8" Background="{DynamicResource Line}">
+                                    <Border Background="{DynamicResource Fg}" RenderTransformOrigin="0,0.5">
                                         <Border.RenderTransform><ScaleTransform x:Name="MemProgress" ScaleX="0"/></Border.RenderTransform>
                                     </Border>
                                 </Grid>
-                                <TextBlock x:Name="MemStatus" Text="Pronto" Foreground="{StaticResource Muted}"/>
+                                <TextBlock x:Name="MemStatus" Text="Pronto" Foreground="{DynamicResource Muted}"/>
                             </StackPanel>
                         </Border>
                         <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
                             <StackPanel>
                                 <Border Style="{StaticResource CardBorder}" Margin="0,0,0,12">
                                     <StackPanel>
-                                        <TextBlock Foreground="{StaticResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,12">
+                                        <TextBlock Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,12">
                                             Mede a latência e a banda da RAM e simula o carregamento de um mapa: um pacote de 512 MB e
                                             mil arquivos de 64 KB, lidos do disco sem o cache do Windows. Os arquivos de teste ficam na
                                             pasta temporária e são apagados no final.
@@ -1479,11 +1480,11 @@
                                 <ItemsControl x:Name="DiskResult" Margin="0,4,0,0">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1" Padding="0,12">
+                                            <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1" Padding="0,12">
                                                 <Grid>
                                                     <StackPanel>
                                                         <TextBlock Text="{Binding Label}" FontSize="14"/>
-                                                        <TextBlock Text="{Binding Hint}" Foreground="{StaticResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,2,170,0"/>
+                                                        <TextBlock Text="{Binding Hint}" Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,2,170,0"/>
                                                     </StackPanel>
                                                     <TextBlock Text="{Binding Value}" FontFamily="{StaticResource Mono}" FontSize="20" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                                 </Grid>
@@ -1491,12 +1492,12 @@
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
-                                <Grid Height="3" Margin="0,16,0,8" Background="{StaticResource Line}">
-                                    <Border Background="{StaticResource Fg}" RenderTransformOrigin="0,0.5">
+                                <Grid Height="3" Margin="0,16,0,8" Background="{DynamicResource Line}">
+                                    <Border Background="{DynamicResource Fg}" RenderTransformOrigin="0,0.5">
                                         <Border.RenderTransform><ScaleTransform x:Name="DiskProgress" ScaleX="0"/></Border.RenderTransform>
                                     </Border>
                                 </Grid>
-                                <TextBlock x:Name="DiskStatus" Text="Pronto" Foreground="{StaticResource Muted}" TextWrapping="Wrap"/>
+                                <TextBlock x:Name="DiskStatus" Text="Pronto" Foreground="{DynamicResource Muted}" TextWrapping="Wrap"/>
                             </StackPanel>
                         </Border>
                         <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
@@ -1511,7 +1512,7 @@
                                             <RadioButton Style="{StaticResource Chip}" GroupName="DiskSize" Content="1 GB" Tag="1024" IsChecked="True"/>
                                             <RadioButton Style="{StaticResource Chip}" GroupName="DiskSize" Content="4 GB" Tag="4096"/>
                                         </WrapPanel>
-                                        <TextBlock Foreground="{StaticResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,12,0,12">
+                                        <TextBlock Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,12,0,12">
                                             Mede leitura e escrita sequenciais e acessos aleatórios de 4 KB, direto no disco (sem o cache do Windows).
                                             Grava um arquivo temporário na unidade escolhida e o apaga no final. Feche outros programas pesados antes.
                                         </TextBlock>
@@ -1549,14 +1550,14 @@
                                         <TextBlock Text="MEMÓRIA RAM" Style="{StaticResource Label}"/>
                                         <TextBlock x:Name="OptRamText" FontFamily="{StaticResource Mono}" HorizontalAlignment="Right"/>
                                     </Grid>
-                                    <Grid Height="6" Background="{StaticResource Line}" Margin="0,0,0,12">
-                                        <Border Background="{StaticResource Fg}" RenderTransformOrigin="0,0.5">
+                                    <Grid Height="6" Background="{DynamicResource Line}" Margin="0,0,0,12">
+                                        <Border Background="{DynamicResource Fg}" RenderTransformOrigin="0,0.5">
                                             <Border.RenderTransform>
                                                 <ScaleTransform x:Name="OptRamBar" ScaleX="0"/>
                                             </Border.RenderTransform>
                                         </Border>
                                     </Grid>
-                                    <TextBlock Foreground="{StaticResource Muted}" TextWrapping="Wrap">
+                                    <TextBlock Foreground="{DynamicResource Muted}" TextWrapping="Wrap">
                                         Um clique: limpa a memória em espera e fecha os programas marcados na lista abaixo.
                                         Use antes de abrir um jogo.
                                     </TextBlock>
@@ -1582,14 +1583,14 @@
                                         <Button Style="{StaticResource OutlineButton}" Content="ATUALIZAR" Padding="10,4" FontSize="11"
                                                 HorizontalAlignment="Right" VerticalAlignment="Top" Click="BtnRefreshApps_Click"/>
                                     </Grid>
-                                    <TextBlock Foreground="{StaticResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10">
+                                    <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10">
                                         Marcados = seguros de fechar durante o jogo. Programas com janela recebem o pedido de
                                         fechar (como clicar no X) e não são forçados, para não perder nada não salvo.
                                     </TextBlock>
                                     <ItemsControl x:Name="OptApps">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Border BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Padding="0,8">
+                                                <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0" Padding="0,8">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="Auto"/>
@@ -1599,10 +1600,10 @@
                                                         <CheckBox IsChecked="{Binding Selected}" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                                         <StackPanel Grid.Column="1">
                                                             <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis"/>
-                                                            <TextBlock Text="{Binding Detail}" Foreground="{StaticResource Faint}" FontSize="11" TextTrimming="CharacterEllipsis"/>
+                                                            <TextBlock Text="{Binding Detail}" Foreground="{DynamicResource Faint}" FontSize="11" TextTrimming="CharacterEllipsis"/>
                                                         </StackPanel>
                                                         <TextBlock Grid.Column="2" Text="{Binding MemoryText}" FontFamily="{StaticResource Mono}"
-                                                                   Foreground="{StaticResource Muted}" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                                                                   Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Margin="12,0,0,0"/>
                                                     </Grid>
                                                 </Border>
                                             </DataTemplate>
@@ -1619,14 +1620,14 @@
                                         <Button Style="{StaticResource OutlineButton}" Content="RESTAURAR ORIGINAIS" Padding="10,4" FontSize="11"
                                                 HorizontalAlignment="Right" VerticalAlignment="Top" Click="BtnRestoreTweaks_Click"/>
                                     </Grid>
-                                    <TextBlock Foreground="{StaticResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10">
+                                    <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10">
                                         O interruptor mostra o estado atual e aplica na hora. O valor original é guardado na primeira
                                         alteração. Não mexemos em segurança (Defender, Integridade de Memória, UAC, Windows Update).
                                     </TextBlock>
                                     <ItemsControl x:Name="OptTweaks">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Border BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Padding="0,10">
+                                                <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0" Padding="0,10">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="Auto"/>
@@ -1637,11 +1638,11 @@
                                                         <StackPanel Grid.Column="1">
                                                             <Grid>
                                                                 <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,110,0"/>
-                                                                <TextBlock Text="{Binding Badge}" FontSize="9.5" FontWeight="Bold" Foreground="{StaticResource Muted}"
+                                                                <TextBlock Text="{Binding Badge}" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource Muted}"
                                                                            HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,3,0,0"/>
                                                             </Grid>
-                                                            <TextBlock Text="{Binding Description}" Foreground="{StaticResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
-                                                            <TextBlock Text="{Binding Effect}" Foreground="{StaticResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                                            <TextBlock Text="{Binding Description}" Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                                            <TextBlock Text="{Binding Effect}" Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,3,0,0"/>
                                                             <TextBlock Text="{Binding Status}" FontSize="11" TextWrapping="Wrap" Margin="0,3,0,0"/>
                                                         </StackPanel>
                                                     </Grid>
@@ -1661,7 +1662,7 @@
                                     <Button Style="{StaticResource OutlineButton}" Content="PROCURAR" Padding="10,4" FontSize="11"
                                             HorizontalAlignment="Right" VerticalAlignment="Top" Click="BtnUsbScan_Click"/>
                                 </Grid>
-                                <TextBlock Foreground="{StaticResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12">
+                                <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12">
                                     Cada placa plugada numa porta USB diferente vira um registro novo e prende um número COM. Os registros
                                     de dispositivos que não estão conectados ("fantasmas") confundem a IDE do Arduino e empurram a porta
                                     para COM20+. Remover um fantasma é seguro: ao plugar de novo, o Windows reinstala na hora.
@@ -1680,11 +1681,11 @@
                                         <TextBlock x:Name="UsbComDb" TextWrapping="Wrap"/>
                                     </StackPanel>
                                 </Grid>
-                                <TextBlock x:Name="UsbSummary" Foreground="{StaticResource Muted}" Margin="0,0,0,6"/>
+                                <TextBlock x:Name="UsbSummary" Foreground="{DynamicResource Muted}" Margin="0,0,0,6"/>
                                 <ItemsControl x:Name="UsbList">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Padding="0,7">
+                                            <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0" Padding="0,7">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="Auto"/>
@@ -1694,9 +1695,9 @@
                                                     <CheckBox IsChecked="{Binding Selected}" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                                     <StackPanel Grid.Column="1">
                                                         <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis"/>
-                                                        <TextBlock Text="{Binding InstanceId}" Foreground="{StaticResource Faint}" FontSize="10.5" TextTrimming="CharacterEllipsis"/>
+                                                        <TextBlock Text="{Binding InstanceId}" Foreground="{DynamicResource Faint}" FontSize="10.5" TextTrimming="CharacterEllipsis"/>
                                                     </StackPanel>
-                                                    <TextBlock Grid.Column="2" Text="{Binding Detail}" Foreground="{StaticResource Muted}" FontSize="12"
+                                                    <TextBlock Grid.Column="2" Text="{Binding Detail}" Foreground="{DynamicResource Muted}" FontSize="12"
                                                                VerticalAlignment="Center" Margin="12,0,0,0"/>
                                                 </Grid>
                                             </Border>
@@ -1731,7 +1732,7 @@
                         <Border Style="{StaticResource CardBorder}" Margin="0,0,0,14">
                             <StackPanel>
                                 <TextBlock x:Name="OcGpuTitle" Style="{StaticResource Label}"/>
-                                <TextBlock x:Name="OcGpuState" Foreground="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,0,0,16"/>
+                                <TextBlock x:Name="OcGpuState" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,16"/>
 
                                 <Grid>
                                     <TextBlock Text="LIMITE DE ENERGIA" Style="{StaticResource Label}"/>
@@ -1739,13 +1740,13 @@
                                 </Grid>
                                 <Slider x:Name="OcPower" Minimum="175" Maximum="300" Value="250" TickFrequency="5"
                                         IsSnapToTickEnabled="True" ValueChanged="OcPower_Changed"/>
-                                <TextBlock Foreground="{StaticResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,16">
+                                <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,16">
                                     Mais energia = clocks mais altos sustentados (e mais calor). Menos energia = PC mais frio e silencioso.
                                 </TextBlock>
 
                                 <TextBlock Text="TETO DE CLOCK (UNDERVOLT)" Style="{StaticResource Label}"/>
                                 <WrapPanel x:Name="OcClockPanel" Margin="0,4,0,0"/>
-                                <TextBlock Foreground="{StaticResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,16">
+                                <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,16">
                                     Limitar o clock máximo faz a placa usar menos tensão: costuma perder 1–3% de FPS e economizar bastante
                                     energia e calor. "Sem teto" é o comportamento normal.
                                 </TextBlock>
@@ -1757,7 +1758,7 @@
                                             Padding="20,9" Margin="0,0,10,8" Click="BtnOcReset_Click"/>
                                 </WrapPanel>
                                 <TextBlock x:Name="OcGpuResult" TextWrapping="Wrap"/>
-                                <TextBlock Foreground="{StaticResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0">
+                                <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0">
                                     Ajustes temporários: voltam ao padrão ao reiniciar o PC. Usa só os controles oficiais do driver NVIDIA (NVML);
                                     offset de clock/memória não é liberado por essa via no Windows.
                                 </TextBlock>
@@ -1768,7 +1769,7 @@
                         <Border Style="{StaticResource CardBorder}" Margin="0,0,0,14">
                             <StackPanel>
                                 <TextBlock Text="VERIFICADOR DE ESTABILIDADE" Style="{StaticResource Label}"/>
-                                <TextBlock Foreground="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,0,0,12">
+                                <TextBlock Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,12">
                                     Depois de mudar algo (aqui ou na BIOS): mede a nota, roda stress, vigia temperatura e procura erros de
                                     hardware (WHEA) e reinícios do driver de vídeo no registro do Windows.
                                 </TextBlock>
@@ -1798,16 +1799,16 @@
                                 <Button x:Name="BtnOcCheck" Style="{StaticResource PrimaryButton}" Content="INICIAR VERIFICAÇÃO"
                                         HorizontalAlignment="Left" Padding="24,10" Margin="0,14,0,0" Click="BtnOcCheck_Click"/>
 
-                                <Grid Height="4" Margin="0,12,0,8" Background="{StaticResource Line}">
-                                    <Border Background="{StaticResource Fg}" RenderTransformOrigin="0,0.5">
+                                <Grid Height="4" Margin="0,12,0,8" Background="{DynamicResource Line}">
+                                    <Border Background="{DynamicResource Fg}" RenderTransformOrigin="0,0.5">
                                         <Border.RenderTransform>
                                             <ScaleTransform x:Name="OcProgress" ScaleX="0"/>
                                         </Border.RenderTransform>
                                     </Border>
                                 </Grid>
-                                <TextBlock x:Name="OcStatus" Foreground="{StaticResource Muted}" TextWrapping="Wrap"/>
+                                <TextBlock x:Name="OcStatus" Foreground="{DynamicResource Muted}" TextWrapping="Wrap"/>
 
-                                <Border x:Name="OcVerdictCard" Background="{StaticResource Card}" BorderBrush="{StaticResource LineStrong}"
+                                <Border x:Name="OcVerdictCard" Background="{DynamicResource Card}" BorderBrush="{DynamicResource LineStrong}"
                                         BorderThickness="1" Padding="14,10" Margin="0,12,0,0" Visibility="Collapsed">
                                     <StackPanel>
                                         <TextBlock x:Name="OcVerdict" FontSize="22" FontWeight="SemiBold"/>
@@ -1831,7 +1832,7 @@
                                 </Border>
 
                                 <TextBlock Text="ERROS DE HARDWARE RECENTES" Style="{StaticResource Label}" Margin="0,16,0,4"/>
-                                <TextBlock x:Name="OcRecentErrors" Foreground="{StaticResource Muted}" TextWrapping="Wrap"/>
+                                <TextBlock x:Name="OcRecentErrors" Foreground="{DynamicResource Muted}" TextWrapping="Wrap"/>
 
                                 <TextBlock Text="HISTÓRICO" Style="{StaticResource Label}" Margin="0,16,0,8"/>
                                 <ItemsControl x:Name="OcHistory" ItemTemplate="{StaticResource Meter}"/>
@@ -1842,7 +1843,7 @@
                         <Border Style="{StaticResource CardBorder}">
                             <StackPanel>
                                 <TextBlock x:Name="OcGuideTitle" Text="GUIA: OVERCLOCK NA BIOS" Style="{StaticResource Label}"/>
-                                <TextBlock x:Name="OcGuideIntro" Foreground="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                                <TextBlock x:Name="OcGuideIntro" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,10"/>
                                 <ItemsControl x:Name="OcGuide">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
@@ -1851,7 +1852,7 @@
                                                     <ColumnDefinition Width="36"/>
                                                     <ColumnDefinition Width="*"/>
                                                 </Grid.ColumnDefinitions>
-                                                <Border Width="24" Height="24" BorderBrush="{StaticResource LineStrong}" BorderThickness="1"
+                                                <Border Width="24" Height="24" BorderBrush="{DynamicResource LineStrong}" BorderThickness="1"
                                                         VerticalAlignment="Top" HorizontalAlignment="Left">
                                                     <TextBlock Text="{Binding Number}" FontFamily="{StaticResource Mono}" FontWeight="SemiBold"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -1859,7 +1860,7 @@
                                                 <StackPanel Grid.Column="1">
                                                     <TextBlock Text="{Binding Title}" FontWeight="SemiBold"/>
                                                     <TextBlock Text="{Binding Where}" FontFamily="{StaticResource Mono}" FontSize="11.5"
-                                                               Foreground="{StaticResource Muted}" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                                               Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,3,0,0"/>
                                                     <TextBlock Text="{Binding Text}" FontSize="12.5" TextWrapping="Wrap" Margin="0,5,0,0"/>
                                                 </StackPanel>
                                             </Grid>
@@ -1931,7 +1932,7 @@
                             </WrapPanel>
 
                             <!-- Linha 2: GPU (estilo FurMark) -->
-                            <Border Grid.Row="1" BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Margin="0,16,0,0" Padding="0,14,0,0">
+                            <Border Grid.Row="1" BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0" Margin="0,16,0,0" Padding="0,14,0,0">
                                 <WrapPanel x:Name="GpuOptions" IsEnabled="False">
                                     <StackPanel Margin="0,0,24,0">
                                         <TextBlock Text="GPU · RESOLUÇÃO" Style="{StaticResource Label}"/>
@@ -1964,7 +1965,7 @@
                             <StackPanel Grid.Column="1" Grid.RowSpan="2" VerticalAlignment="Center" Margin="20,0,0,0">
                                 <Button x:Name="BtnStress" Style="{StaticResource PrimaryButton}" Content="INICIAR"
                                         MinWidth="150" Click="BtnStress_Click"/>
-                                <TextBlock x:Name="StressHint" Foreground="{StaticResource Muted}" TextWrapping="Wrap" FontSize="12"
+                                <TextBlock x:Name="StressHint" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" FontSize="12"
                                            MaxWidth="220" Margin="0,10,0,0" TextAlignment="Center"/>
                             </StackPanel>
                         </Grid>
@@ -1981,7 +1982,7 @@
                                 <Setter Property="FontSize" Value="18"/>
                             </Style>
                             <Style x:Key="StatSub" TargetType="TextBlock">
-                                <Setter Property="Foreground" Value="{StaticResource Muted}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource Muted}"/>
                                 <Setter Property="FontSize" Value="11"/>
                                 <Setter Property="Margin" Value="0,4,0,0"/>
                                 <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
@@ -2049,12 +2050,12 @@
                             <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
                                 <TextBlock Text="TEMPERATURAS — ÚLTIMOS 5 MIN" Style="{StaticResource Label}" Margin="0"/>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                    <Rectangle Width="14" Height="2" Fill="{StaticResource Fg}" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                    <TextBlock Text="CPU" Foreground="{StaticResource Muted}" FontSize="11" Margin="0,0,16,0"/>
-                                    <Rectangle Width="14" Height="2" Fill="{StaticResource Muted}" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                    <TextBlock Text="GPU" Foreground="{StaticResource Muted}" FontSize="11" Margin="0,0,16,0"/>
-                                    <Line X1="0" X2="14" Stroke="{StaticResource Muted}" StrokeDashArray="3 2" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                    <TextBlock Text="limites" Foreground="{StaticResource Muted}" FontSize="11"/>
+                                    <Rectangle Width="14" Height="2" Fill="{DynamicResource Fg}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                    <TextBlock Text="CPU" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,0,16,0"/>
+                                    <Rectangle Width="14" Height="2" Fill="{DynamicResource Muted}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                    <TextBlock Text="GPU" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,0,16,0"/>
+                                    <Line X1="0" X2="14" Stroke="{DynamicResource Muted}" StrokeDashArray="3 2" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                    <TextBlock Text="limites" Foreground="{DynamicResource Muted}" FontSize="11"/>
                                 </StackPanel>
                             </Grid>
                             <Canvas x:Name="TempChart" ClipToBounds="True" SizeChanged="TempChart_SizeChanged"/>
@@ -2066,7 +2067,7 @@
                         <DockPanel>
                             <TextBlock DockPanel.Dock="Top" Text="REGISTRO" Style="{StaticResource Label}"/>
                             <ListBox x:Name="StressLog" FontFamily="{StaticResource Mono}" FontSize="12"
-                                     Foreground="{StaticResource Muted}" ItemContainerStyle="{StaticResource PlainItem}"/>
+                                     Foreground="{DynamicResource Muted}" ItemContainerStyle="{StaticResource PlainItem}"/>
                         </DockPanel>
                     </Border>
                 </Grid>
