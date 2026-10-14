@@ -27,12 +27,12 @@ App WPF (.NET 8) com:
 - **Overlay de jogos** (estilo RTSS/Afterburner, `OverlayWindow.xaml`): FPS, frametime, 1% low, gráfico de frametime, GPU/CPU/RAM/VRAM.
   Janela transparente, sempre no topo e que ignora cliques; atalho global **Ctrl+Shift+O**. O FPS de qualquer jogo é medido via ETW
   (eventos Present de DXGI/D3D9, como o PresentMon, `FrameMonitor.cs`), sem injetar nada no jogo.
-- **RESETBENCH** (`BenchRenderer.cs`): benchmark de CPU no princípio do Cinebench, com renderizador próprio. Path tracer monocromático
+- **RESET BENCH** (`BenchRenderer.cs`): benchmark de CPU no princípio do Cinebench, com renderizador próprio. Path tracer monocromático
   (iluminação global, sombras suaves, metal e vidro com refração), 960×540 a 1024 amostras/pixel, imagem em blocos de 32 px
   distribuídos entre threads do centro para fora. Multi-core (todas as threads) e single-core (1 thread, imagem inteira, ~1min40s num 7700X),
   1 passada ou mínimo de 10 min. Nota = amostras/s ÷ 10.000, determinística (sementes fixas por pixel). Histórico dos últimos 10 resultados.
   Referência: Ryzen 7 7700X ≈ 4.500 multi / 530 single.
-- **RESETBENCH · benchmarks de jogo**:
+- **RESET BENCH · benchmarks de jogo**:
   - *Cena de jogo (GPU)* (`GpuGameBench.cs`): vale em Direct3D 11 com terreno fractal, 40 mil árvores por instancing, sombras 4096² com PCF,
     água, neblina e pós HDR; câmera em trajeto fixo por tempo, 1080p/1440p/4K, 30/60 s. Nota = FPS médio × 10. RTX 5070 em 1080p ≈ 680 FPS.
     Os sensores ficam pausados durante o teste (consultas ao driver geravam engasgos no 1% low).
@@ -65,10 +65,17 @@ App WPF (.NET 8) com:
 - **Rede** (`NetworkTest.cs`): diagnóstico de lag em ~30 s — latência, jitter e perda de pacotes até o roteador e até a internet (1.1.1.1 e 8.8.8.8),
   tempo de DNS, velocidade de download/upload (servidor público speed.cloudflare.com) e latência sob carga (bufferbloat). O veredito aponta se o
   problema está na rede local (Wi-Fi/cabo/roteador), no provedor ou se a conexão está estável.
+- **RESET INTEGRAÇÃO** (`CorsairSdk.cs`, `MainWindow.Integ.cs`): controle de iluminação e efeitos do PC, começando pela **Corsair iCUE / iCUE LINK**
+  (em teste) via iCUE SDK v4. Lista os dispositivos e LEDs, e aplica cor fixa, respiração, arco-íris em onda, e cores que seguem a
+  **temperatura da CPU/GPU** ou a **carga da CPU** (azul → verde → amarelo → vermelho), com brilho e velocidade. O controle volta ao iCUE ao devolver ou fechar o app.
+  Requisitos: iCUE aberto com o **SDK ativado** nas configurações (manual, dentro do iCUE). A DLL `iCUESDK.x64_2019.dll`
+  é baixada pelo próprio programa (botão **BAIXAR O SDK DA CORSAIR**, com confirmação) do repositório oficial
+  [cue-sdk](https://github.com/CorsairOfficial/cue-sdk/releases) para `%AppData%\ResetExplode` (`CorsairSdkInstaller.cs`), com verificação da assinatura digital.
+  A DLL não é distribuída junto com o projeto (licença da Corsair).
 
 ## Interface
-- Visual preto e branco minimalista. Quatro abas no topo: **RESET EXPLODE** (menu lateral com Sistema · Sensores · Placa de vídeo ·
-  Discos · Energia · Rede · Jogos · Gargalo · Overlay · Stress test), **RESET OTIMIZA**, **RESETBENCH** (tela inteira) e **RESET OC**.
+- Visual preto e branco minimalista. Cinco abas no topo: **RESET EXPLODE** (menu lateral com Sistema · Sensores · Placa de vídeo ·
+  Discos · Energia · Rede · Jogos · Gargalo · Overlay · Stress test), **RESET OTIMIZA**, **RESET BENCH** (tela inteira), **RESET OC** e **RESET INTEGRAÇÃO**.
 - Leitura ao vivo de temperatura e carga da CPU e da GPU sempre visível no menu.
 - Sensores com busca e filtros por tipo (chips); tema em `Theme.xaml`.
 
@@ -110,10 +117,12 @@ Ao criar uma tag (`git tag v0.12` e `git push --tags`), também sai uma release 
 - ✔ Relatório exportável (HTML/JSON)
 - ✔ RESET OC (limite de energia, clock e verificação de estabilidade)
 - ✔ Energia (bateria e fonte) e Rede (latência, perda e velocidade)
+- ✔ RESET INTEGRAÇÃO: iluminação Corsair iCUE LINK (primeira versão, em teste)
 
 ## Próximas ideias
 - Relatório em CSV e com gráficos
 - Comparar resultados de benchmark entre PCs / histórico de relatórios
 - Leitura direta de SPD / Super I/O
+- Outras marcas na RESET INTEGRAÇÃO (OpenRGB para ASUS/MSI/Razer etc.), efeitos por jogo e perfis salvos
 - Alertas de temperatura, bateria e saúde de disco em segundo plano
 - Versão com instalador e assinatura digital

@@ -8,7 +8,7 @@ using System.Windows.Threading;
 
 namespace ResetExplode;
 
-/// <summary>Saúde dos discos, benchmark de disco (RESETBENCH) e exportação de relatório.</summary>
+/// <summary>Saúde dos discos, benchmark de disco (RESET BENCH) e exportação de relatório.</summary>
 public partial class MainWindow
 {
     // ================= Saúde dos discos =================

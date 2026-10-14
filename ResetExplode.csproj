@@ -11,7 +11,7 @@
     <AssemblyName>ResetExplode</AssemblyName>
     <Product>RESET EXPLODE</Product>
     <Version>0.11.0</Version>
-    <!-- Sempre otimizado: o RESETBENCH e os stress tests precisam do JIT otimizado também em Debug -->
+    <!-- Sempre otimizado: o RESET BENCH e os stress tests precisam do JIT otimizado também em Debug -->
     <Optimize>true</Optimize>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
@@ -20,6 +20,11 @@
     <Resource Include="Assets\logo.png" />
     <Resource Include="Assets\app.ico" />
     <Resource Include="Assets\logo-badge.png" />
+  </ItemGroup>
+
+  <!-- iCUE SDK da Corsair (RESET INTEGRAÇÃO): se a DLL estiver em Native\, ela vai junto do .exe. Não é versionada no git. -->
+  <ItemGroup>
+    <None Include="Native\iCUESDK.x64_2019.dll" Condition="Exists('Native\iCUESDK.x64_2019.dll')" Link="iCUESDK.x64_2019.dll" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

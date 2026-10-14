@@ -139,13 +139,19 @@
                     <RadioButton x:Name="TabBench" Style="{StaticResource TopTab}" Tag="bench" Checked="TopTab_Checked">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="RESET" FontWeight="Bold"/>
-                            <TextBlock Text="BENCH" FontWeight="Light"/>
+                            <TextBlock Text=" BENCH" FontWeight="Light"/>
                         </StackPanel>
                     </RadioButton>
                     <RadioButton x:Name="TabOc" Style="{StaticResource TopTab}" Tag="oc" Checked="TopTab_Checked">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="RESET" FontWeight="Bold"/>
                             <TextBlock Text=" OC" FontWeight="Light"/>
+                        </StackPanel>
+                    </RadioButton>
+                    <RadioButton x:Name="TabInteg" Style="{StaticResource TopTab}" Tag="integ" Checked="TopTab_Checked">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="RESET" FontWeight="Bold"/>
+                            <TextBlock Text=" INTEGRAÇÃO" FontWeight="Light"/>
                         </StackPanel>
                     </RadioButton>
                 </StackPanel>
@@ -467,6 +473,115 @@
                             O teste envia pacotes de ping ao roteador e aos DNS públicos 1.1.1.1 e 8.8.8.8 e baixa/envia dados de teste do servidor público
                             speed.cloudflare.com (cerca de 100 MB no total). Feche downloads, streaming e jogos antes para um resultado fiel.
                         </TextBlock>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ===== RESET INTEGRAÇÃO (iluminação) ===== -->
+                <ScrollViewer x:Name="PageInteg" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="36,30,36,30">
+                        <Grid Margin="0,0,0,20">
+                            <StackPanel Margin="0,0,170,0">
+                                <TextBlock Text="RESET INTEGRAÇÃO" Style="{StaticResource H1}"/>
+                                <TextBlock Text="Iluminação e efeitos do PC · começando pela Corsair iCUE LINK (em teste)" Style="{StaticResource Sub}" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <Button x:Name="BtnLightConnect" Style="{StaticResource OutlineButton}" Content="CONECTAR" Padding="20,9"
+                                    HorizontalAlignment="Right" VerticalAlignment="Top" Click="BtnLightConnect_Click"/>
+                        </Grid>
+
+                        <Border Style="{StaticResource CardBorder}" Margin="0,0,0,14">
+                            <StackPanel>
+                                <TextBlock Text="CORSAIR iCUE" Style="{StaticResource Label}"/>
+                                <TextBlock x:Name="LightStatus" Text="Aguardando…" TextWrapping="Wrap"/>
+                                <Button x:Name="BtnLightSdk" Style="{StaticResource OutlineButton}" Content="BAIXAR O SDK DA CORSAIR" Visibility="Collapsed"
+                                        HorizontalAlignment="Left" Padding="20,9" Margin="0,12,0,0" Click="BtnLightSdk_Click"/>
+                                <TextBlock Foreground="{StaticResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0">
+                                    Requisitos: iCUE aberto com o SDK ativado nas configurações (isso é manual, dentro do iCUE) e o arquivo iCUESDK.x64_2019.dll
+                                    do SDK da Corsair, que o botão acima baixa e instala em %AppData%\ResetExplode.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource CardBorder}" Margin="0,0,0,14">
+                            <StackPanel>
+                                <TextBlock Text="DISPOSITIVOS" Style="{StaticResource Label}"/>
+                                <ItemsControl x:Name="LightDevices">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="{StaticResource Line}" BorderThickness="0,1,0,0" Padding="0,10">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <CheckBox IsChecked="{Binding Selected}" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                                                    <StackPanel VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Name}" FontSize="14"/>
+                                                        <TextBlock Text="{Binding Detail}" Foreground="{StaticResource Muted}" FontSize="11"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource CardBorder}" Margin="0,0,0,14">
+                            <StackPanel>
+                                <TextBlock Text="EFEITO" Style="{StaticResource Label}"/>
+                                <WrapPanel x:Name="LightFxPanel" Margin="0,4,0,12">
+                                    <RadioButton Style="{StaticResource Chip}" GroupName="LightFx" Content="Cor fixa" Tag="static" IsChecked="True" Checked="LightFx_Checked"/>
+                                    <RadioButton Style="{StaticResource Chip}" GroupName="LightFx" Content="Respiração" Tag="breath" Checked="LightFx_Checked"/>
+                                    <RadioButton Style="{StaticResource Chip}" GroupName="LightFx" Content="Arco-íris" Tag="rainbow" Checked="LightFx_Checked"/>
+                                    <RadioButton Style="{StaticResource Chip}" GroupName="LightFx" Content="Temperatura da CPU" Tag="cpu" Checked="LightFx_Checked"/>
+                                    <RadioButton Style="{StaticResource Chip}" GroupName="LightFx" Content="Temperatura da GPU" Tag="gpu" Checked="LightFx_Checked"/>
+                                    <RadioButton Style="{StaticResource Chip}" GroupName="LightFx" Content="Carga da CPU" Tag="load" Checked="LightFx_Checked"/>
+                                    <RadioButton Style="{StaticResource Chip}" GroupName="LightFx" Content="Apagar" Tag="off" Checked="LightFx_Checked"/>
+                                </WrapPanel>
+                                <TextBlock Foreground="{StaticResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,16">
+                                    Temperatura e carga mudam a cor sozinhas (azul = frio/ocioso, verde, amarelo, vermelho = quente/carga alta).
+                                    Cor fixa e Respiração usam a cor escolhida abaixo.
+                                </TextBlock>
+
+                                <TextBlock Text="COR" Style="{StaticResource Label}"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,6,0,8">
+                                    <Border x:Name="LightPreview" Width="46" Height="46" Margin="0,0,16,0" BorderBrush="{StaticResource LineStrong}" BorderThickness="1" VerticalAlignment="Top"/>
+                                    <WrapPanel x:Name="LightSwatches" Width="360"/>
+                                </StackPanel>
+                                <Grid Margin="0,0,0,2"><TextBlock Text="VERMELHO" Style="{StaticResource Label}"/></Grid>
+                                <Slider x:Name="LightR" Minimum="0" Maximum="255" Value="255" ValueChanged="LightColor_Changed"/>
+                                <Grid Margin="0,8,0,2"><TextBlock Text="VERDE" Style="{StaticResource Label}"/></Grid>
+                                <Slider x:Name="LightG" Minimum="0" Maximum="255" Value="255" ValueChanged="LightColor_Changed"/>
+                                <Grid Margin="0,8,0,2"><TextBlock Text="AZUL" Style="{StaticResource Label}"/></Grid>
+                                <Slider x:Name="LightB" Minimum="0" Maximum="255" Value="255" ValueChanged="LightColor_Changed"/>
+
+                                <Grid Margin="0,16,0,2">
+                                    <TextBlock Text="BRILHO" Style="{StaticResource Label}"/>
+                                    <TextBlock x:Name="LightBrightText" FontFamily="{StaticResource Mono}" HorizontalAlignment="Right"/>
+                                </Grid>
+                                <Slider x:Name="LightBright" Minimum="0" Maximum="100" Value="100" ValueChanged="LightColor_Changed"/>
+                                <Grid Margin="0,8,0,2">
+                                    <TextBlock Text="VELOCIDADE (RESPIRAÇÃO E ARCO-ÍRIS)" Style="{StaticResource Label}"/>
+                                    <TextBlock x:Name="LightSpeedText" FontFamily="{StaticResource Mono}" HorizontalAlignment="Right"/>
+                                </Grid>
+                                <Slider x:Name="LightSpeed" Minimum="1" Maximum="10" Value="5" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="LightColor_Changed"/>
+
+                                <CheckBox x:Name="LightExclusive" Content="Controle exclusivo (se não mudar nada, desmarque e tente de novo)" IsChecked="True" Margin="0,16,0,0"/>
+
+                                <WrapPanel Margin="0,14,0,0">
+                                    <Button x:Name="BtnLightRun" Style="{StaticResource PrimaryButton}" Content="ATIVAR CONTROLE"
+                                            Padding="24,10" Margin="0,0,14,0" Click="BtnLightRun_Click"/>
+                                    <TextBlock x:Name="LightLive" Foreground="{StaticResource Muted}" VerticalAlignment="Center" FontFamily="{StaticResource Mono}"/>
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource CardBorder}" Margin="0,0,0,14">
+                            <StackPanel>
+                                <TextBlock Text="DIAGNÓSTICO" Style="{StaticResource Label}"/>
+                                <TextBox x:Name="LightDiag" IsReadOnly="True" FontFamily="{StaticResource Mono}" FontSize="11" TextWrapping="Wrap"
+                                         MinHeight="90" MaxHeight="260" VerticalScrollBarVisibility="Auto" AcceptsReturn="True"/>
+                                <TextBlock Foreground="{StaticResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,0">
+                                    Se as luzes não mudarem, copie este quadro e me envie.
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
                 </ScrollViewer>
 
@@ -858,7 +973,7 @@
                     </StackPanel>
                 </ScrollViewer>
 
-                <!-- ===== RESETBENCH ===== -->
+                <!-- ===== RESET BENCH ===== -->
                 <Grid x:Name="PageBench" Margin="36,30,36,30" Visibility="Collapsed">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -866,7 +981,7 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <StackPanel Margin="0,0,0,16">
-                        <TextBlock Text="RESETBENCH" Style="{StaticResource H1}"/>
+                        <TextBlock Text="RESET BENCH" Style="{StaticResource H1}"/>
                         <TextBlock x:Name="BenchSub" Text="Benchmark de CPU por renderização 3D (path tracing), no mesmo princípio do Cinebench" Style="{StaticResource Sub}"/>
                     </StackPanel>
 

@@ -51,7 +51,7 @@ public partial class MainWindow : Window
     private bool _overlayReady;
     private const int HotkeyId = 0x5245; // "RE"
 
-    // RESETBENCH
+    // RESET BENCH
     private readonly BenchRenderer _bench = new();
     private System.Windows.Media.Imaging.WriteableBitmap? _benchBitmap;
     private CancellationTokenSource? _benchCts;
@@ -150,6 +150,7 @@ public partial class MainWindow : Window
             _toast?.Close();
             _frames.Dispose();
             UnregisterHotKey(new System.Windows.Interop.WindowInteropHelper(this).Handle, HotkeyId);
+            ShutdownInteg();
             _monitor.Dispose();
         };
     }
@@ -220,7 +221,7 @@ public partial class MainWindow : Window
         if (_explodePage == "PageEnergy") RefreshEnergy();
     }
 
-    /// <summary>Abas superiores: RESET EXPLODE (com menu lateral), RESET OTIMIZA, RESETBENCH e RESET OC (tela cheia).</summary>
+    /// <summary>Abas superiores: RESET EXPLODE (com menu lateral), RESET OTIMIZA, RESET BENCH, RESET OC e RESET INTEGRAÇÃO (tela cheia).</summary>
     private void TopTab_Checked(object sender, RoutedEventArgs e)
     {
         if (PageSystem == null) return;
@@ -228,14 +229,15 @@ public partial class MainWindow : Window
         bool explode = tab == "explode";
         SideCol.Width = new GridLength(explode ? 230 : 0);
         Sidebar.Visibility = explode ? Visibility.Visible : Visibility.Collapsed;
-        ShowPage(tab switch { "optimize" => "PageOptimize", "bench" => "PageBench", "oc" => "PageOc", _ => _explodePage });
+        ShowPage(tab switch { "optimize" => "PageOptimize", "bench" => "PageBench", "oc" => "PageOc", "integ" => "PageInteg", _ => _explodePage });
         if (tab == "oc") { UpdateOcGpuState(); UpdateRecentErrors(); }
+        if (tab == "integ") InitInteg();
         if (tab == "optimize") { RefreshApps(); UpdateRamStatus(); ScanUsb(); }
     }
 
     private void ShowPage(string name)
     {
-        foreach (var p in new FrameworkElement[] { PageSystem, PageSensors, PageGpu, PageGames, PageBottleneck, PageOverlay, PageBench, PageOptimize, PageOc, PageDisks, PageEnergy, PageNet, PageStress })
+        foreach (var p in new FrameworkElement[] { PageSystem, PageSensors, PageGpu, PageGames, PageBottleneck, PageOverlay, PageBench, PageOptimize, PageOc, PageInteg, PageDisks, PageEnergy, PageNet, PageStress })
             p.Visibility = p.Name == name ? Visibility.Visible : Visibility.Collapsed;
     }
 
@@ -627,7 +629,7 @@ public partial class MainWindow : Window
         BnResult.Visibility = Visibility.Visible;
     }
 
-    // ---------------- RESETBENCH ----------------
+    // ---------------- RESET BENCH ----------------
 
     private void InitBench()
     {
@@ -972,7 +974,7 @@ public partial class MainWindow : Window
         if (restart) MessageBox.Show("Alguns ajustes só voltam ao original depois de reiniciar o PC.", "RESET OTIMIZA");
     }
 
-    // ---------------- RESETBENCH: benchmarks de jogo ----------------
+    // ---------------- RESET BENCH: benchmarks de jogo ----------------
 
     public sealed record MemRow(string Label, string Value, string Hint);
     private bool _gameBenchRunning;

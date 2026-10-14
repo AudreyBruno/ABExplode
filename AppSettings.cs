@@ -19,7 +19,7 @@ public sealed class AppSettings
 
     public string? HowManyFpsKeyProtected { get; set; }
 
-    // RESETBENCH: últimos resultados (mais recente primeiro)
+    // RESET BENCH: últimos resultados (mais recente primeiro)
     public List<BenchRun> BenchRuns { get; set; } = new();
     public List<BenchRecord> BenchRecords { get; set; } = new();
 

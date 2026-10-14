@@ -5,7 +5,7 @@ namespace ResetExplode;
 
 public sealed record BenchResult(int Threads, double Seconds, long Samples, int Passes)
 {
-    /// <summary>Pontos RESETBENCH: amostras de path tracing por segundo ÷ 10.000. Mesma cena e mesma
+    /// <summary>Pontos RESET BENCH: amostras de path tracing por segundo ÷ 10.000. Mesma cena e mesma
     /// carga em todo teste, então a nota é comparável entre execuções e entre máquinas (nesta versão do app).</summary>
     public double Score => Seconds > 0 ? Samples / Seconds / 10_000 : 0;
 }
@@ -74,7 +74,7 @@ public sealed class BenchRenderer
                         Interlocked.Increment(ref _bucketsDone);
                     }
                     Active[ti] = -1;
-                }) { IsBackground = true, Name = $"RESETBENCH {ti}" };
+                }) { IsBackground = true, Name = $"RESET BENCH {ti}" };
                 workers[t].Start();
             }
             foreach (var w in workers) w.Join();
