@@ -1,4 +1,10 @@
-﻿# RESET EXPLODE — v0.11
+﻿# RESET EXPLODE — v0.14
+
+> **Download oficial:** apenas em [github.com/GustavoReset/ResetExplode/releases](https://github.com/GustavoReset/ResetExplode/releases).
+> O app roda como administrador; não use versões baixadas de outros lugares.
+>
+> **Contribuições:** este projeto não aceita pull requests. Fique à vontade para fazer um *fork* e modificar a sua própria cópia
+> (licença [MIT](LICENSE): mantenha o aviso de copyright).
 
 App WPF (.NET 8) com:
 - **Informações do sistema** (categorias + detalhes): SO, placa-mãe/BIOS, CPU, RAM (por módulo), GPU, discos — via WMI.
