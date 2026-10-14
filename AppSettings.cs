@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
-namespace MeuHwInfo;
+namespace ResetExplode;
 
 public sealed record BenchRun(DateTime Date, double? Multi, double? Single, bool Sustained, string Cpu);
 

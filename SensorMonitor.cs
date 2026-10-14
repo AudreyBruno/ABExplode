@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using LibreHardwareMonitor.Hardware;
 
-namespace MeuHwInfo;
+namespace ResetExplode;
 
 /// <summary>Encapsula o LibreHardwareMonitorLib e mantém a lista de sensores atualizada.</summary>
 public sealed class SensorMonitor : IDisposable

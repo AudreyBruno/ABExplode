@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace MeuHwInfo;
+namespace ResetExplode;
 
 /// <summary>Programa (agrupado pelo nome do executável) que pode ser fechado para liberar recursos.</summary>
 public sealed class BackgroundApp : INotifyPropertyChanged

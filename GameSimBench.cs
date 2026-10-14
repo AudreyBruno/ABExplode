@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace MeuHwInfo;
+namespace ResetExplode;
 
 public sealed record GameSimResult(double AvgFps, double Low1Fps, double MainThreadMs, double ParallelMs, int Frames, double Seconds)
 {

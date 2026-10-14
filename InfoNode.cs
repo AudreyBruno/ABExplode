@@ -1,4 +1,4 @@
-namespace MeuHwInfo;
+namespace ResetExplode;
 
 /// <summary>Nó da árvore de informações do sistema.</summary>
 public class InfoNode

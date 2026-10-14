@@ -1,6 +1,6 @@
 using System.Management;
 
-namespace MeuHwInfo;
+namespace ResetExplode;
 
 /// <summary>Gera carga sintética de CPU (todos os threads) e/ou RAM (escrita + verificação).</summary>
 public sealed class StressTester

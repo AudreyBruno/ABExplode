@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.Eventing.Reader;
 using System.Management;
 
-namespace MeuHwInfo;
+namespace ResetExplode;
 
 /// <summary>Apoio da aba RESET OC: procura erros de hardware no registro do Windows e identifica a placa-mãe.</summary>
 public static class OcCheck

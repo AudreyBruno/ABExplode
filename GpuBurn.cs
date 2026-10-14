@@ -7,7 +7,7 @@ using Vortice.Direct3D11;
 using Vortice.DXGI;
 using Vortice.Mathematics;
 
-namespace MeuHwInfo;
+namespace ResetExplode;
 
 public sealed class GpuBurnSettings
 {

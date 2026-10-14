@@ -1,6 +1,6 @@
 using System.Management;
 
-namespace MeuHwInfo;
+namespace ResetExplode;
 
 /// <summary>Coleta informações estáticas do sistema via WMI.</summary>
 public static class SystemInfoCollector

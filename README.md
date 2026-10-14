@@ -69,7 +69,7 @@ App WPF (.NET 8) com:
 
 ## Como rodar
 ```
-cd MeuHwInfo
+cd ResetExplode
 dotnet run
 ```
 O app pede privilégio de administrador (necessário para sensores de baixo nível).

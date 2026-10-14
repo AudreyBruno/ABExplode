@@ -1,4 +1,4 @@
-<Window x:Class="MeuHwInfo.ToastWindow"
+<Window x:Class="ResetExplode.ToastWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="RESET EXPLODE aviso" WindowStyle="None" AllowsTransparency="True" Background="Transparent"

@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text;
 
-namespace MeuHwInfo;
+namespace ResetExplode;
 
 /// <summary>P/Invoke mínimo da NVML (nvml.dll, instalada junto com o driver NVIDIA).</summary>
 internal static class Nvml

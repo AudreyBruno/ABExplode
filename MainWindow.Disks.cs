@@ -6,7 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
 
-namespace MeuHwInfo;
+namespace ResetExplode;
 
 /// <summary>Saúde dos discos, benchmark de disco (RESETBENCH) e exportação de relatório.</summary>
 public partial class MainWindow

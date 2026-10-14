@@ -9,7 +9,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using LibreHardwareMonitor.Hardware;
 
-namespace MeuHwInfo;
+namespace ResetExplode;
 
 public partial class MainWindow : Window
 {

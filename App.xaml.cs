@@ -1,6 +1,6 @@
 using System.Windows;
 
-namespace MeuHwInfo;
+namespace ResetExplode;
 
 public partial class App : Application
 {
