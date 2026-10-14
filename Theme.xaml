@@ -52,8 +52,8 @@
         <Setter Property="Background" Value="{DynamicResource Card}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource Line}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="4"/>
-        <Setter Property="Padding" Value="18"/>
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="Padding" Value="20"/>
     </Style>
 
     <!-- ===== Botões ===== -->
@@ -70,7 +70,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="b" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="3" Padding="{TemplateBinding Padding}">
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="10" Padding="{TemplateBinding Padding}">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -139,16 +139,17 @@
     <!-- ===== Navegação lateral ===== -->
     <Style x:Key="NavItem" TargetType="RadioButton">
         <Setter Property="Foreground" Value="{DynamicResource Muted}"/>
-        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontSize" Value="13.5"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="GroupName" Value="Nav"/>
+        <Setter Property="Margin" Value="12,1"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="RadioButton">
-                    <Grid x:Name="bg" Background="Transparent" Height="44">
-                        <Rectangle x:Name="bar" Width="2" HorizontalAlignment="Left" Fill="{DynamicResource Fg}" Visibility="Hidden"/>
-                        <ContentPresenter Margin="22,0,12,0" VerticalAlignment="Center"/>
-                    </Grid>
+                    <!-- "Pílula" arredondada no item selecionado, como no painel de referência -->
+                    <Border x:Name="bg" Background="Transparent" Height="38" CornerRadius="12">
+                        <ContentPresenter Margin="14,0,10,0" VerticalAlignment="Center"/>
+                    </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="bg" Property="Background" Value="{DynamicResource Hover}"/>
@@ -156,13 +157,67 @@
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="bg" Property="Background" Value="{DynamicResource Hover}"/>
-                            <Setter TargetName="bar" Property="Visibility" Value="Visible"/>
                             <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <!-- Título de categoria no menu lateral -->
+    <Style x:Key="NavHeader" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{DynamicResource Faint}"/>
+        <Setter Property="Margin" Value="26,18,0,6"/>
+    </Style>
+
+    <BooleanToVisibilityConverter x:Key="BoolVis"/>
+
+    <!-- Categoria recolhível do menu lateral: clica e mostra/esconde as sub-abas -->
+    <Style x:Key="NavGroup" TargetType="ToggleButton">
+        <Setter Property="Foreground" Value="{DynamicResource Muted}"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Margin" Value="12,6,12,1"/>
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border x:Name="bg" Background="Transparent" Height="36" CornerRadius="12">
+                        <DockPanel Margin="14,0,12,0">
+                            <TextBlock x:Name="chev" DockPanel.Dock="Right" Text="&#xE70D;" FontFamily="{StaticResource Icons}" FontSize="10"
+                                       VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                                <TextBlock.RenderTransform><RotateTransform Angle="-90"/></TextBlock.RenderTransform>
+                            </TextBlock>
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </DockPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="bg" Property="Background" Value="{DynamicResource Hover}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+                            <Setter TargetName="chev" Property="RenderTransform">
+                                <Setter.Value><RotateTransform Angle="0"/></Setter.Value>
+                            </Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Número grande de cartão (como os valores em destaque da referência) -->
+    <Style x:Key="Hero" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="34"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
     </Style>
 
     <!-- ===== Abas superiores (na barra de título) ===== -->
@@ -273,7 +328,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
                     <Border x:Name="b" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="3">
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="10">
                         <Grid>
                             <TextBlock x:Name="ph" Text="{TemplateBinding Tag}" Foreground="{DynamicResource Faint}"
                                        Margin="{TemplateBinding Padding}" Padding="2,0,0,0" Visibility="Collapsed"
@@ -311,7 +366,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="PasswordBox">
                     <Border x:Name="b" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="3">
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="10">
                         <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" VerticalAlignment="Center"/>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -403,7 +458,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ListBoxItem">
-                    <Border x:Name="b" Background="Transparent" Padding="14,10" CornerRadius="3" Margin="0,0,0,2">
+                    <Border x:Name="b" Background="Transparent" Padding="14,10" CornerRadius="10" Margin="0,0,0,2">
                         <ContentPresenter/>
                     </Border>
                     <ControlTemplate.Triggers>

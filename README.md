@@ -1,4 +1,4 @@
-﻿# RESET EXPLODE — v0.14
+# RESET EXPLODE — v0.15
 
 > **Download oficial:** apenas em [github.com/GustavoReset/ResetExplode/releases](https://github.com/GustavoReset/ResetExplode/releases).
 > O app roda como administrador; não use versões baixadas de outros lugares.
@@ -85,10 +85,16 @@ App WPF (.NET 8) com:
   O botão JOGAR aplica o perfil, inicia e desfaz o que for temporário quando o jogo fecha.
 
 ## Interface
-- Visual preto e branco minimalista. Seis abas no topo: **RESET EXPLODE** (menu lateral com Sistema · Sensores · Placa de vídeo ·
-  Discos · Energia · Rede · Jogos · Gargalo · Overlay · Stress test), **RESET OTIMIZA**, **RESET BENCH** (tela inteira), **RESET OC**, **RESET INTEGRAÇÃO**, **RESET JOGOS** e **RESET DRIVER**.
+- Visual preto e branco minimalista em **blocos** (cartões arredondados, inspirado em painéis de dashboard). Um único menu lateral
+  com *Visão geral* no topo e categorias **RESET** recolhíveis (começam fechadas; clique para ver as sub-abas):
+  - *Visão geral* (`MainWindow.Dash.cs`): gráfico de área CPU × GPU (temperatura, carga ou consumo; 1/5/15 min),
+    desempenho do RESET BENCH, tabela de componentes, anéis de RAM/VRAM/disco, eventos recentes e saúde do PC.
+  - **RESET EXPLODE** · Sistema, Sensores, Placa de vídeo, Discos, Energia, Rede.
+  - **RESET JOGOS** · Biblioteca, FPS estimado, Gargalo, Overlay.
+  - **RESET DESEMPENHO** · Benchmark, Stress test, Overclock.
+  - **RESET FERRAMENTAS** · Otimização, Drivers, Integração.
 - Botão de **modo escuro/claro** no canto superior direito (`ThemeManager.cs`); a escolha fica salva. O overlay de jogos e os avisos de dispositivo ficam sempre escuros.
-- Leitura ao vivo de temperatura e carga da CPU e da GPU sempre visível no menu.
+- Leitura ao vivo de temperatura e carga da CPU e da GPU sempre visível no rodapé do menu.
 - Sensores com busca e filtros por tipo (chips); tema em `Theme.xaml`.
 
 ## Base utilizada

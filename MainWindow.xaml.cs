@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -81,7 +81,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         ThemeManager.Apply(_settings.LightTheme);
         UpdateThemeButton();
-        ShowPage("PageSystem");
+        ShowPage("PageDash");
 
         // Sistema
         var info = SystemInfoCollector.Collect();
@@ -119,6 +119,8 @@ public partial class MainWindow : Window
         SnapshotUsb();
         RefreshDrives();
         InitOc();
+        TitlePage.Text = "Visão geral";
+        UpdateDashboard();
 
         _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _timer.Tick += (_, _) =>
@@ -131,6 +133,7 @@ public partial class MainWindow : Window
             UpdateStressPanel();
             UpdateGpuLive();
             UpdateCpuSensorWarning();
+            CollectDashSample();
             UpdateBottleneck();
             if (PageBench.IsVisible) UpdateBenchLive();
             if (PageOptimize.IsVisible) UpdateRamStatus();
@@ -213,36 +216,42 @@ public partial class MainWindow : Window
         => WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
     private void Close_Click(object sender, RoutedEventArgs e) => Close();
 
-    private string _explodePage = "PageSystem"; // última tela aberta dentro de RESET EXPLODE
-
     private void Nav_Checked(object sender, RoutedEventArgs e)
     {
         if (PageSystem == null) return; // disparado durante InitializeComponent
-        _explodePage = (string)((FrameworkElement)sender).Tag;
-        ShowPage(_explodePage);
-        if (_explodePage == "PageDisks") RefreshDiskHealth();
-        if (_explodePage == "PageEnergy") RefreshEnergy();
-    }
+        var item = (FrameworkElement)sender;
+        string page = (string)item.Tag;
+        ShowPage(page);
 
-    /// <summary>Abas superiores: RESET EXPLODE (com menu lateral), RESET OTIMIZA, RESET BENCH, RESET OC e RESET INTEGRAÇÃO e RESET JOGOS (tela cheia).</summary>
-    private void TopTab_Checked(object sender, RoutedEventArgs e)
-    {
-        if (PageSystem == null) return;
-        string tab = (string)((FrameworkElement)sender).Tag;
-        bool explode = tab == "explode";
-        SideCol.Width = new GridLength(explode ? 230 : 0);
-        Sidebar.Visibility = explode ? Visibility.Visible : Visibility.Collapsed;
-        ShowPage(tab switch { "optimize" => "PageOptimize", "bench" => "PageBench", "oc" => "PageOc", "integ" => "PageInteg", "launcher" => "PageLauncher", "driver" => "PageDriver", _ => _explodePage });
-        if (tab == "oc") { UpdateOcGpuState(); UpdateRecentErrors(); }
-        if (tab == "integ") InitInteg();
-        if (tab == "launcher") InitLauncher();
-        if (tab == "driver") InitDriver();
-        if (tab == "optimize") { RefreshApps(); UpdateRamStatus(); ScanUsb(); }
+        // Abre a categoria da página (ex.: quando o painel pula direto para o Benchmark)
+        // e mostra "CATEGORIA · página" na barra de título.
+        string name = item is ContentControl { Content: Panel panel }
+            ? panel.Children.OfType<TextBlock>().LastOrDefault()?.Text ?? "" : "";
+        if (item.Parent is FrameworkElement { Name: var items } && items.EndsWith("Items")
+            && FindName(items[..^5]) is System.Windows.Controls.Primitives.ToggleButton group)
+        {
+            group.IsChecked = true;
+            name = $"{group.Content} · {name}";
+        }
+        TitlePage.Text = name;
+
+        // Algumas páginas carregam dados só quando abertas.
+        switch (page)
+        {
+            case "PageDash": UpdateDashboard(); break;
+            case "PageDisks": RefreshDiskHealth(); break;
+            case "PageEnergy": RefreshEnergy(); break;
+            case "PageOc": UpdateOcGpuState(); UpdateRecentErrors(); break;
+            case "PageInteg": InitInteg(); break;
+            case "PageLauncher": InitLauncher(); break;
+            case "PageDriver": InitDriver(); break;
+            case "PageOptimize": RefreshApps(); UpdateRamStatus(); ScanUsb(); break;
+        }
     }
 
     private void ShowPage(string name)
     {
-        foreach (var p in new FrameworkElement[] { PageSystem, PageSensors, PageGpu, PageGames, PageBottleneck, PageOverlay, PageBench, PageOptimize, PageOc, PageInteg, PageLauncher, PageDriver, PageDisks, PageEnergy, PageNet, PageStress })
+        foreach (var p in new FrameworkElement[] { PageDash, PageSystem, PageSensors, PageGpu, PageGames, PageBottleneck, PageOverlay, PageBench, PageOptimize, PageOc, PageInteg, PageLauncher, PageDriver, PageDisks, PageEnergy, PageNet, PageStress })
             p.Visibility = p.Name == name ? Visibility.Visible : Visibility.Collapsed;
     }
 
@@ -276,6 +285,7 @@ public partial class MainWindow : Window
 
     private void Toast(string title, string text, string icon)
     {
+        AddEvent(icon, title, text.Split('\n')[0], "");
         _toast ??= new ToastWindow();
         _toast.Notify(title, text, icon);
     }
@@ -711,6 +721,7 @@ public partial class MainWindow : Window
                               $"({Environment.ProcessorCount / 2} núcleos com SMT costumam render 8–12x).";
 
         _settings.BenchRuns.Insert(0, new BenchRun(DateTime.Now, mt, st, sustained, GameCatalog.ShortCpuName(_cpuName)));
+        AddEvent("", "RESET BENCH", "Render de CPU", mt is double mte ? $"{mte:N0} pts" : st is double ste ? $"{ste:N0} pts" : "");
         if (_settings.BenchRuns.Count > 10) _settings.BenchRuns.RemoveRange(10, _settings.BenchRuns.Count - 10);
         _settings.Save();
         UpdateBenchHistory();
@@ -1015,6 +1026,7 @@ public partial class MainWindow : Window
 
     private void SaveBenchRecord(string test, double score, string summary)
     {
+        AddEvent("", "Benchmark concluído", summary, "");
         _settings.BenchRecords.Insert(0, new BenchRecord(DateTime.Now, test, score, summary));
         // Mantém os 10 mais recentes de cada teste.
         _settings.BenchRecords = _settings.BenchRecords.GroupBy(r => r.Test).SelectMany(g => g.Take(10))
@@ -1448,6 +1460,7 @@ public partial class MainWindow : Window
 
     private void StopStress(string reason)
     {
+        if (TestRunning) AddEvent("", "Stress test", reason, reason.StartsWith("ABORTADO") ? "abortado" : "ok");
         if (!TestRunning) return;
         var errors = _stress.MemoryErrors;
         var passes = _stress.MemoryPasses;
