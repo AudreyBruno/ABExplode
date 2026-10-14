@@ -1,4 +1,4 @@
-# RESET EXPLODE — v0.11
+﻿# RESET EXPLODE — v0.11
 
 App WPF (.NET 8) com:
 - **Informações do sistema** (categorias + detalhes): SO, placa-mãe/BIOS, CPU, RAM (por módulo), GPU, discos — via WMI.
@@ -80,7 +80,7 @@ App WPF (.NET 8) com:
 
 ## Interface
 - Visual preto e branco minimalista. Seis abas no topo: **RESET EXPLODE** (menu lateral com Sistema · Sensores · Placa de vídeo ·
-  Discos · Energia · Rede · Jogos · Gargalo · Overlay · Stress test), **RESET OTIMIZA**, **RESET BENCH** (tela inteira), **RESET OC**, **RESET INTEGRAÇÃO** e **RESET JOGOS**.
+  Discos · Energia · Rede · Jogos · Gargalo · Overlay · Stress test), **RESET OTIMIZA**, **RESET BENCH** (tela inteira), **RESET OC**, **RESET INTEGRAÇÃO**, **RESET JOGOS** e **RESET DRIVER**.
 - Botão de **modo escuro/claro** no canto superior direito (`ThemeManager.cs`); a escolha fica salva. O overlay de jogos e os avisos de dispositivo ficam sempre escuros.
 - Leitura ao vivo de temperatura e carga da CPU e da GPU sempre visível no menu.
 - Sensores com busca e filtros por tipo (chips); tema em `Theme.xaml`.
@@ -124,6 +124,7 @@ Ao criar uma tag (`git tag v0.12` e `git push --tags`), também sai uma release 
 - ✔ RESET OC (limite de energia, clock e verificação de estabilidade)
 - ✔ Energia (bateria e fonte) e Rede (latência, perda e velocidade)
 - ✔ RESET INTEGRAÇÃO: iluminação Corsair iCUE, OpenRGB (MSI/Gigabyte/ASUS) e Razer Chroma (primeira versão, em teste)
+- ✔ RESET DRIVER: inventário de drivers, NVIDIA (verifica a versão, baixa, confere a assinatura e abre o instalador), AMD/ASUS/MSI/Gigabyte pela página oficial, Windows Update e backup (`DriverManager.cs`, primeira versão, em teste)
 - ✔ RESET JOGOS: inicializador com detecção de jogos, perfil por jogo e opções de inicialização da Steam (primeira versão, em teste)
 
 ## Próximas ideias

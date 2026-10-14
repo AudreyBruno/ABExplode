@@ -163,7 +163,7 @@ public static class CorsairSdkInstaller
     [DllImport("wintrust.dll", ExactSpelling = true, SetLastError = false)]
     private static extern int WinVerifyTrust(IntPtr hwnd, [MarshalAs(UnmanagedType.LPStruct)] Guid pgActionID, ref WINTRUST_DATA pWVTData);
 
-    private static int WinVerifyTrustFile(string path)
+    internal static int WinVerifyTrustFile(string path)
     {
         var file = new WINTRUST_FILE_INFO { pcwszFilePath = path };
         file.cbStruct = (uint)Marshal.SizeOf<WINTRUST_FILE_INFO>();
