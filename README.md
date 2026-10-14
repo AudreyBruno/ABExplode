@@ -65,13 +65,12 @@ App WPF (.NET 8) com:
 - **Rede** (`NetworkTest.cs`): diagnóstico de lag em ~30 s — latência, jitter e perda de pacotes até o roteador e até a internet (1.1.1.1 e 8.8.8.8),
   tempo de DNS, velocidade de download/upload (servidor público speed.cloudflare.com) e latência sob carga (bufferbloat). O veredito aponta se o
   problema está na rede local (Wi-Fi/cabo/roteador), no provedor ou se a conexão está estável.
-- **RESET INTEGRAÇÃO** (`CorsairSdk.cs`, `MainWindow.Integ.cs`): controle de iluminação e efeitos do PC, começando pela **Corsair iCUE / iCUE LINK**
-  (em teste) via iCUE SDK v4. Lista os dispositivos e LEDs, e aplica cor fixa, respiração, arco-íris em onda, e cores que seguem a
-  **temperatura da CPU/GPU** ou a **carga da CPU** (azul → verde → amarelo → vermelho), com brilho e velocidade. O controle volta ao iCUE ao devolver ou fechar o app.
-  Requisitos: iCUE aberto com o **SDK ativado** nas configurações (manual, dentro do iCUE). A DLL `iCUESDK.x64_2019.dll`
-  é baixada pelo próprio programa (botão **BAIXAR O SDK DA CORSAIR**, com confirmação) do repositório oficial
-  [cue-sdk](https://github.com/CorsairOfficial/cue-sdk/releases) para `%AppData%\ResetExplode` (`CorsairSdkInstaller.cs`), com verificação da assinatura digital.
-  A DLL não é distribuída junto com o projeto (licença da Corsair).
+- **RESET INTEGRAÇÃO** (`LightBackends.cs`, `CorsairSdk.cs`, `CorsairSdkInstaller.cs`, `MainWindow.Integ.cs`): controle de iluminação e efeitos
+  de todo o PC numa tela só (em teste). Pontes: **Corsair iCUE / iCUE LINK** (iCUE SDK v4; a DLL é baixada pelo programa, com confirmação e
+  verificação de assinatura), **OpenRGB** (servidor SDK local; é o caminho para **MSI Mystic Light, Gigabyte RGB Fusion, ASUS Aura**, RAM, Razer,
+  Logitech e outras, já que essas marcas não têm SDK público) e **Razer Chroma** (API REST do Synapse). Efeitos: cor fixa, respiração, arco-íris em onda,
+  e cores que seguem a **temperatura da CPU/GPU** ou a **carga da CPU**, com brilho e velocidade. Ao devolver ou fechar, cada fabricante reassume as luzes.
+  Para MSI/Gigabyte/ASUS: abra o OpenRGB com o servidor ligado e feche MSI Center, Armoury Crate e RGB Fusion.
 
 ## Interface
 - Visual preto e branco minimalista. Cinco abas no topo: **RESET EXPLODE** (menu lateral com Sistema · Sensores · Placa de vídeo ·
@@ -117,12 +116,12 @@ Ao criar uma tag (`git tag v0.12` e `git push --tags`), também sai uma release 
 - ✔ Relatório exportável (HTML/JSON)
 - ✔ RESET OC (limite de energia, clock e verificação de estabilidade)
 - ✔ Energia (bateria e fonte) e Rede (latência, perda e velocidade)
-- ✔ RESET INTEGRAÇÃO: iluminação Corsair iCUE LINK (primeira versão, em teste)
+- ✔ RESET INTEGRAÇÃO: iluminação Corsair iCUE, OpenRGB (MSI/Gigabyte/ASUS) e Razer Chroma (primeira versão, em teste)
 
 ## Próximas ideias
 - Relatório em CSV e com gráficos
 - Comparar resultados de benchmark entre PCs / histórico de relatórios
 - Leitura direta de SPD / Super I/O
-- Outras marcas na RESET INTEGRAÇÃO (OpenRGB para ASUS/MSI/Razer etc.), efeitos por jogo e perfis salvos
+- RESET INTEGRAÇÃO: perfis salvos, efeitos por jogo, SDKs nativos da MSI/ASUS/Gigabyte se forem liberados
 - Alertas de temperatura, bateria e saúde de disco em segundo plano
 - Versão com instalador e assinatura digital
