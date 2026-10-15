@@ -339,9 +339,12 @@ public partial class MainWindow
         DashCheck Item(bool ok, string title, string okText, string badText) => new(title, ok ? okText : badText, ok);
 
         var list = new List<DashCheck>();
-        var sensors = _monitor.DiagnoseCpuSensors();
-        list.Add(Item(sensors == SensorMonitor.CpuSensorProblem.None, "Sensores da CPU",
-                      "Temperatura e consumo disponíveis.", SensorMonitor.Explain(sensors).Split('.')[0] + "."));
+        if (_monitor.IsOpen) // enquanto detecta o hardware, ainda não dá para saber
+        {
+            var sensors = _monitor.DiagnoseCpuSensors();
+            list.Add(Item(sensors == SensorMonitor.CpuSensorProblem.None, "Sensores da CPU",
+                          "Temperatura e consumo disponíveis.", SensorMonitor.Explain(sensors).Split('.')[0] + "."));
+        }
 
         var errs = OcCheck.ErrorsSince(DateTime.Now.AddDays(-7));
         list.Add(Item(errs.Error == null && errs.Total == 0, "Sem erros de hardware",

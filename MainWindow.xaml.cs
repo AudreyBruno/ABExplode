@@ -62,7 +62,8 @@ public partial class MainWindow : Window
 
     // RESET OTIMIZA
     private List<BackgroundApp> _apps = new();
-    private List<Tweak> _tweaks = new();
+    private readonly List<Tweak> _tweaks = WindowsTweaks.All(); // só as definições; o estado é lido ao abrir a página
+    private bool _optInit;
 
     // Stress de GPU (estilo FurMark)
     private readonly GpuBurn _burn = new();
@@ -83,44 +84,22 @@ public partial class MainWindow : Window
         UpdateThemeButton();
         ShowPage("PageDash");
 
-        // Sistema
-        var info = SystemInfoCollector.Collect();
-        InfoCategories.ItemsSource = info;
-        InfoCategories.SelectedIndex = 0;
-        SystemSub.Text = $"{Environment.MachineName} · {info.Count} categorias";
-
-        // Sensores
+        // Sensores: a lista começa vazia e é preenchida quando a detecção do hardware termina (LoadHardwareAsync).
         _monitor = new SensorMonitor();
         _view = CollectionViewSource.GetDefaultView(_monitor.Rows);
         _view.GroupDescriptions.Add(new PropertyGroupDescription(nameof(SensorRow.Hardware)));
         SensorGrid.ItemsSource = _view;
+        SystemSub.Text = "Lendo informações do sistema…";
+        StatusText.Text = "Detectando o hardware…";
 
-        _monitor.Refresh();
-        UpdateCpuSensorWarning();
-        AddChip("Todos", null, isChecked: true);
-        foreach (var c in _monitor.Rows.Select(r => r.Category).Distinct().OrderBy(x => x))
-            AddChip(c, c);
-
-        // Placa de vídeo
-        _gpus = GpuInfoCollector.Collect();
-        for (int i = 0; i < _gpus.Count && _gpus.Count > 1; i++)
-        {
-            var g = _gpus[i];
-            var chip = new RadioButton { Content = g.Name, GroupName = "Gpu", Style = (Style)FindResource("Chip"), IsChecked = i == 0 };
-            chip.Checked += (_, _) => ShowGpu(g);
-            GpuChips.Children.Add(chip);
-        }
-        if (_gpus.Count > 0) ShowGpu(_gpus[0]);
-
-        InitGames();
-        InitBottleneckAndOverlay();
         InitBench();
-        InitOptimize();
         SnapshotUsb();
         RefreshDrives();
-        InitOc();
         TitlePage.Text = "Visão geral";
         UpdateDashboard();
+
+        // A janela aparece já; as coletas pesadas (WMI, sensores, GPU) rodam em paralelo fora da thread da janela.
+        Loaded += async (_, _) => await LoadHardwareAsync();
 
         _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _timer.Tick += (_, _) =>
@@ -129,7 +108,7 @@ public partial class MainWindow : Window
             // por um instante e aparecia como engasgo no 1% low do benchmark.
             if (_gpuBenchActive) return;
             _monitor.Refresh();
-            StatusText.Text = $"{_monitor.Rows.Count} sensores · atualizado {DateTime.Now:HH:mm:ss}";
+            if (_monitor.IsOpen) StatusText.Text = $"{_monitor.Rows.Count} sensores · atualizado {DateTime.Now:HH:mm:ss}";
             UpdateStressPanel();
             UpdateGpuLive();
             UpdateCpuSensorWarning();
@@ -161,11 +140,62 @@ public partial class MainWindow : Window
         };
     }
 
+    /// <summary>Coletas lentas da abertura, em paralelo e fora da thread da janela; cada parte preenche a tela quando fica pronta.</summary>
+    private async Task LoadHardwareAsync()
+    {
+        async Task LoadInfo()
+        {
+            try
+            {
+                var info = await Task.Run(SystemInfoCollector.Collect);
+                InfoCategories.ItemsSource = info;
+                InfoCategories.SelectedIndex = 0;
+                SystemSub.Text = $"{Environment.MachineName} · {info.Count} categorias";
+            }
+            catch (Exception ex) { SystemSub.Text = $"Não foi possível ler as informações do sistema: {ex.Message}"; }
+        }
+
+        async Task LoadSensors()
+        {
+            try { await _monitor.OpenAsync(); }
+            catch (Exception ex) { StatusText.Text = $"Sensores indisponíveis: {ex.Message}"; return; }
+            _monitor.Refresh();
+            UpdateCpuSensorWarning();
+            AddChip("Todos", null, isChecked: true);
+            foreach (var c in _monitor.Rows.Select(r => r.Category).Distinct().OrderBy(x => x))
+                AddChip(c, c);
+            UpdateDashboard();
+        }
+
+        async Task LoadGpu()
+        {
+            try { _gpus = await Task.Run(GpuInfoCollector.Collect); }
+            catch { _gpus = new(); }
+            for (int i = 0; i < _gpus.Count && _gpus.Count > 1; i++)
+            {
+                var g = _gpus[i];
+                var chip = new RadioButton { Content = g.Name, GroupName = "Gpu", Style = (Style)FindResource("Chip"), IsChecked = i == 0 };
+                chip.Checked += (_, _) => ShowGpu(g);
+                GpuChips.Children.Add(chip);
+            }
+            if (_gpus.Count > 0) ShowGpu(_gpus[0]);
+
+            // Dependem do nome da GPU/CPU
+            InitGames();
+            InitBottleneckAndOverlay();
+            InitOc();
+            UpdateDashboard();
+        }
+
+        await Task.WhenAll(LoadInfo(), LoadSensors(), LoadGpu());
+    }
+
     // ---------------- Sensores da CPU (PawnIO) ----------------
 
     /// <summary>Mostra o aviso no menu quando temperatura/consumo da CPU não respondem, com o motivo provável.</summary>
     private void UpdateCpuSensorWarning()
     {
+        if (!_monitor.IsOpen) return; // ainda detectando: não acusar falta de sensor antes da hora
         var p = _monitor.DiagnoseCpuSensors();
         CpuSensorWarn.Visibility = p == SensorMonitor.CpuSensorProblem.None ? Visibility.Collapsed : Visibility.Visible;
         CpuSensorWarnText.Text = p switch
@@ -246,7 +276,7 @@ public partial class MainWindow : Window
             case "PageLauncher": InitLauncher(); break;
             case "PageDriver": InitDriver(); break;
             case "PageStartup": ScanStartup(); break;
-            case "PageOptimize": RefreshApps(); UpdateRamStatus(); ScanUsb(); break;
+            case "PageOptimize": InitOptimize(); break;
         }
     }
 
@@ -790,12 +820,16 @@ public partial class MainWindow : Window
 
     // ---------------- RESET OTIMIZA ----------------
 
+    /// <summary>Carrega a página RESET OTIMIZA quando ela é aberta (os ajustes do Windows só na primeira vez).</summary>
     private void InitOptimize()
     {
-        _tweaks = WindowsTweaks.All();
-        foreach (var t in _tweaks)
-            try { t.Refresh(); } catch (Exception ex) { t.Status = $"Não foi possível ler: {ex.Message}"; }
-        OptTweaks.ItemsSource = _tweaks;
+        if (!_optInit)
+        {
+            _optInit = true;
+            foreach (var t in _tweaks)
+                try { t.Refresh(); } catch (Exception ex) { t.Status = $"Não foi possível ler: {ex.Message}"; }
+            OptTweaks.ItemsSource = _tweaks;
+        }
         RefreshApps();
         UpdateRamStatus();
         ScanUsb();

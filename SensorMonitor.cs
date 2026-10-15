@@ -8,8 +8,10 @@ public sealed class SensorMonitor : IDisposable
 {
     private readonly Computer _computer;
     private readonly Dictionary<string, SensorRow> _index = new();
+    private volatile bool _open;
 
     public ObservableCollection<SensorRow> Rows { get; } = new();
+    public bool IsOpen => _open;
 
     public SensorMonitor()
     {
@@ -23,11 +25,14 @@ public sealed class SensorMonitor : IDisposable
             IsNetworkEnabled = true,
             IsControllerEnabled = true
         };
-        _computer.Open();
     }
+
+    /// <summary>Detecta o hardware (leva de 0,5 a alguns segundos) fora da thread da janela. Até terminar, Refresh não faz nada.</summary>
+    public Task OpenAsync() => Task.Run(() => { _computer.Open(); _open = true; });
 
     public void Refresh()
     {
+        if (!_open) return;
         foreach (var hw in _computer.Hardware)
             Walk(hw);
     }
@@ -125,5 +130,8 @@ public sealed class SensorMonitor : IDisposable
         _ => ""
     };
 
-    public void Dispose() => _computer.Close();
+    public void Dispose()
+    {
+        if (_open) _computer.Close();
+    }
 }
