@@ -245,13 +245,14 @@ public partial class MainWindow : Window
             case "PageInteg": InitInteg(); break;
             case "PageLauncher": InitLauncher(); break;
             case "PageDriver": InitDriver(); break;
+            case "PageStartup": ScanStartup(); break;
             case "PageOptimize": RefreshApps(); UpdateRamStatus(); ScanUsb(); break;
         }
     }
 
     private void ShowPage(string name)
     {
-        foreach (var p in new FrameworkElement[] { PageDash, PageSystem, PageSensors, PageGpu, PageGames, PageBottleneck, PageOverlay, PageBench, PageOptimize, PageOc, PageInteg, PageLauncher, PageDriver, PageDisks, PageEnergy, PageNet, PageStress })
+        foreach (var p in new FrameworkElement[] { PageDash, PageSystem, PageSensors, PageGpu, PageGames, PageBottleneck, PageOverlay, PageBench, PageOptimize, PageOc, PageInteg, PageLauncher, PageDriver, PageStartup, PageDisks, PageEnergy, PageNet, PageStress })
             p.Visibility = p.Name == name ? Visibility.Visible : Visibility.Collapsed;
     }
 

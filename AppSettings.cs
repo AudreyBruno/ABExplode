@@ -60,6 +60,8 @@ public sealed class AppSettings
     public Dictionary<string, string?> TweakBackup { get; set; } = new();
     /// <summary>ComDB original (reservas de números COM) antes da primeira "liberação".</summary>
     public byte[]? ComDbBackup { get; set; }
+    /// <summary>Programas de inicialização removidos, para "Restaurar removidos".</summary>
+    public List<StartupBackup> StartupRemoved { get; set; } = new();
 
     // RESET JOGOS
     public Dictionary<string, GameProfile> GameProfiles { get; set; } = new();
