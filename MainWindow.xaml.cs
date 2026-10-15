@@ -1338,6 +1338,7 @@ public partial class MainWindow : Window
             string cpu = $"{Fmt(s.CpuTemp, "°C")}  {Fmt(s.CpuTotal, "%")}  {Fmt(_monitor.CpuPower, "W")}";
             string ram = s.RamPct is float r ? $"{r:0} %" + (s.VramPct is double v ? $"   VRAM {v:0} %" : "") : "—";
             _overlay.Update(f, gpu, cpu, ram);
+            _overlay.KeepOnTop(); // o jogo pode ter passado na frente (janela sem borda "sempre no topo")
         }
         UpdateOverlayStatus(f);
     }

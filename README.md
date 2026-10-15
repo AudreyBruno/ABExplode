@@ -1,10 +1,17 @@
-# RESET EXPLODE — v0.15
+# RESET EXPLODE — v0.16
 
 > **Download oficial:** apenas em [github.com/GustavoReset/ResetExplode/releases](https://github.com/GustavoReset/ResetExplode/releases).
 > O app roda como administrador; não use versões baixadas de outros lugares.
 >
 > **Contribuições:** este projeto não aceita pull requests. Fique à vontade para fazer um *fork* e modificar a sua própria cópia
 > (licença [MIT](LICENSE): mantenha o aviso de copyright).
+
+## Novidades da v0.16
+- **Inicialização** (RESET FERRAMENTAS): veja, desative ou remova os programas que abrem junto com o Windows, com opção de desfazer.
+- **Abertura mais rápida**: a janela aparece em ~0,5 s (antes ~4,6 s); o hardware é lido em paralelo, em segundo plano.
+- **Overlay corrigido**: fica por cima de jogos em janela sem borda como GTA V e Cyberpunk 2077 e segue o monitor do jogo.
+
+Detalhes em [NOVIDADES.md](NOVIDADES.md) (o mesmo texto vai nas notas da release).
 
 App WPF (.NET 8) com:
 - **Informações do sistema** (categorias + detalhes): SO, placa-mãe/BIOS, CPU, RAM (por módulo), GPU, discos — via WMI.
@@ -31,7 +38,8 @@ App WPF (.NET 8) com:
   temperaturas, limitador térmico) com veredito; e análise de sessão (1/3/5 min) com % do tempo limitado por GPU, CPU, VRAM, RAM,
   temperatura ou trava de FPS, mais recomendações (`BottleneckAnalyzer.cs`).
 - **Overlay de jogos** (estilo RTSS/Afterburner, `OverlayWindow.xaml`): FPS, frametime, 1% low, gráfico de frametime, GPU/CPU/RAM/VRAM.
-  Janela transparente, sempre no topo e que ignora cliques; atalho global **Ctrl+Shift+O**. O FPS de qualquer jogo é medido via ETW
+  Janela transparente, sempre no topo e que ignora cliques; atalho global **Ctrl+Shift+O**. Volta para o topo a cada troca de janela ativa
+  (jogos em janela sem borda também se marcam como "sempre no topo") e fica no monitor do jogo. Não aparece em tela cheia exclusiva. O FPS de qualquer jogo é medido via ETW
   (eventos Present de DXGI/D3D9, como o PresentMon, `FrameMonitor.cs`), sem injetar nada no jogo.
 - **RESET BENCH** (`BenchRenderer.cs`): benchmark de CPU no princípio do Cinebench, com renderizador próprio. Path tracer monocromático
   (iluminação global, sombras suaves, metal e vidro com refração), 960×540 a 1024 amostras/pixel, imagem em blocos de 32 px
@@ -95,7 +103,7 @@ App WPF (.NET 8) com:
   - **RESET EXPLODE** · Sistema, Sensores, Placa de vídeo, Discos, Energia, Rede.
   - **RESET JOGOS** · Biblioteca, FPS estimado, Gargalo, Overlay.
   - **RESET DESEMPENHO** · Benchmark, Stress test, Overclock.
-  - **RESET FERRAMENTAS** · Otimização, Drivers, Integração.
+  - **RESET FERRAMENTAS** · Otimização, Inicialização, Drivers, Integração.
 - Botão de **modo escuro/claro** no canto superior direito (`ThemeManager.cs`); a escolha fica salva. O overlay de jogos e os avisos de dispositivo ficam sempre escuros.
 - Leitura ao vivo de temperatura e carga da CPU e da GPU sempre visível no rodapé do menu.
 - Sensores com busca e filtros por tipo (chips); tema em `Theme.xaml`.
@@ -141,6 +149,8 @@ Ao criar uma tag (`git tag v0.12` e `git push --tags`), também sai uma release 
 - ✔ RESET INTEGRAÇÃO: iluminação Corsair iCUE, OpenRGB (MSI/Gigabyte/ASUS) e Razer Chroma (primeira versão, em teste)
 - ✔ RESET DRIVER: inventário de drivers, NVIDIA (verifica a versão, baixa, confere a assinatura e abre o instalador), AMD/ASUS/MSI/Gigabyte pela página oficial, Windows Update e backup (`DriverManager.cs`, primeira versão, em teste)
 - ✔ RESET JOGOS: inicializador com detecção de jogos, perfil por jogo e opções de inicialização da Steam (primeira versão, em teste)
+- ✔ Inicialização do Windows: ativar, desativar e remover programas, com desfazer (v0.16)
+- ✔ Abertura rápida: janela na hora, hardware carregado em paralelo (v0.16)
 
 ## Próximas ideias
 - Relatório em CSV e com gráficos
