@@ -276,13 +276,16 @@ public partial class MainWindow : Window
             case "PageLauncher": InitLauncher(); break;
             case "PageDriver": InitDriver(); break;
             case "PageStartup": ScanStartup(); break;
+            case "PageApps": InitApps(); break;
+            case "PageMakerPorts": ScanUsb(); break;
+            case "PageMakerDrv": InitMakerDrivers(); break;
             case "PageOptimize": InitOptimize(); break;
         }
     }
 
     private void ShowPage(string name)
     {
-        foreach (var p in new FrameworkElement[] { PageDash, PageSystem, PageSensors, PageGpu, PageGames, PageBottleneck, PageOverlay, PageBench, PageOptimize, PageOc, PageInteg, PageLauncher, PageDriver, PageStartup, PageDisks, PageEnergy, PageNet, PageStress })
+        foreach (var p in new FrameworkElement[] { PageDash, PageSystem, PageSensors, PageGpu, PageGames, PageBottleneck, PageOverlay, PageBench, PageOptimize, PageOc, PageInteg, PageLauncher, PageDriver, PageStartup, PageApps, PageMakerPorts, PageMakerDrv, PageDisks, PageEnergy, PageNet, PageStress })
             p.Visibility = p.Name == name ? Visibility.Visible : Visibility.Collapsed;
     }
 
@@ -392,7 +395,8 @@ public partial class MainWindow : Window
         var added = present.Values.Where(d => !_usbPresent.ContainsKey(d.InstanceId)).ToList();
         var removed = _usbPresent.Values.Where(d => !present.ContainsKey(d.InstanceId)).ToList();
         _usbPresent = present;
-        if (PageOptimize.IsVisible) ScanUsb();
+        if (PageMakerPorts.IsVisible) ScanUsb();
+        if (PageMakerDrv.IsVisible) RefreshMakerDevices(); // placa plugada/removida: atualiza o diagnóstico
 
         // Pendrives já geram aviso de unidade: não repete com o nome genérico "armazenamento em massa".
         bool volumeJustNow = (DateTime.Now - _lastVolumeEvent).TotalSeconds < 4;
@@ -832,7 +836,6 @@ public partial class MainWindow : Window
         }
         RefreshApps();
         UpdateRamStatus();
-        ScanUsb();
     }
 
     private void UpdateRamStatus()
@@ -943,7 +946,7 @@ public partial class MainWindow : Window
     private bool RequireAdmin()
     {
         if (SensorMonitor.IsElevated) return true;
-        MessageBox.Show("Esta ação precisa do RESET EXPLODE aberto como administrador.", "RESET OTIMIZA",
+        MessageBox.Show("Esta ação precisa do RESET EXPLODE aberto como administrador.", "RESET EXPLODE",
                         MessageBoxButton.OK, MessageBoxImage.Warning);
         return false;
     }
@@ -957,7 +960,7 @@ public partial class MainWindow : Window
                        + (sel.Count > 12 ? $"\n  … e mais {sel.Count - 12}" : "");
         var r = MessageBox.Show($"Remover {sel.Count} registros de dispositivos que não estão conectados?\n\n{names}\n\n" +
                                 "Se plugar algum deles de novo, o Windows reinstala automaticamente.",
-                                "RESET OTIMIZA", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                                "RESET MAKER", MessageBoxButton.YesNo, MessageBoxImage.Question);
         if (r != MessageBoxResult.Yes) return;
 
         BtnUsbRemove.IsEnabled = false;
@@ -981,7 +984,7 @@ public partial class MainWindow : Window
                                 $"Mantidos (em uso): {(inUse.Count > 0 ? string.Join(", ", inUse.Select(n => $"COM{n}")) : "nenhum")}\n\n" +
                                 "A próxima placa plugada vai receber um número baixo (COM3, COM4…). " +
                                 "O valor atual fica guardado para \"Desfazer liberação\".",
-                                "RESET OTIMIZA", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                                "RESET MAKER", MessageBoxButton.YesNo, MessageBoxImage.Question);
         if (r != MessageBoxResult.Yes) return;
         try
         {

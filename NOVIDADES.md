@@ -6,6 +6,25 @@
 - Interruptor para ativar/desativar, igual ao Gerenciador de Tarefas: a entrada continua lá e pode ser religada.
 - Botão **REMOVER** com confirmação; o programa continua instalado e tudo pode ser desfeito em **Restaurar removidos**.
 
+**Nova página · RESET FERRAMENTAS › Instalar apps**
+- Os essenciais depois de formatar o PC: Steam, Google Chrome, Discord, Lightshot, 7-Zip, WinRAR e VLC.
+- Instala pelo winget (instalador de pacotes da Microsoft que já vem no Windows): versão oficial mais recente,
+  sem janelas, um app de cada vez, com o resultado de cada um na lista.
+- Mostra o que já está instalado; se o winget ainda não existir (PC recém-formatado), um botão abre a Microsoft Store
+  para atualizar o "Instalador de Aplicativo".
+
+**Nova categoria · RESET MAKER** (Arduino, ESP32 e conversores USB-serial)
+- **Portas COM**: a limpeza de dispositivos fantasmas e de números COM presos saiu de Otimização e ganhou página própria.
+- **Drivers seriais**: diagnóstico das placas com CH340/CH341, CP2102/CP210x, FTDI, Prolific PL2303 e Arduino
+  (sem driver, código 10, código 43, FTDI falsificado travado em PID 0000), com a orientação de cada caso.
+- **REINSTALAR** remove o dispositivo e faz o Windows detectar de novo com o melhor driver.
+- Lista as versões de driver guardadas no Windows para cada chip, com **REMOVER** (backup antes): volta para uma versão
+  anterior quando a nova não funciona com clones, ou desinstala de vez. **Restaurar removidos** desfaz.
+- **Drivers incluídos no app**: CH340 4.0, CP210x 11.6, FTDI 2.12.36.20 e Arduino, oficiais e assinados, instalam sem internet
+  (ideal logo depois de formatar), com a placa conectada ou não. Também abre a página oficial de cada fabricante.
+- **Arduino IDE**: instalar/atualizar pelo winget, fechar programas que prendem a porta COM e limpar o cache de índices
+  quando a IDE trava em "Downloading index".
+
 **Abertura mais rápida**
 - A janela aparece em ~0,5 s (antes ~4,6 s). Informações do sistema, sensores e placa de vídeo carregam em paralelo,
   em segundo plano, e cada página é preenchida quando a sua parte fica pronta.

@@ -15,6 +15,12 @@ public sealed class UsbDevice : INotifyPropertyChanged
     public string? Port { get; init; }
     public bool Present { get; init; }
     public string? Maker { get; init; }   // Arduino, CH340, FTDI... (pelo VID)
+    public string? Vid { get; init; }
+    public string? Pid { get; init; }
+    /// <summary>Código de problema do Gerenciador de Dispositivos (28 = sem driver, 10 = não inicia...); null = funcionando.</summary>
+    public uint? Problem { get; init; }
+    /// <summary>Chave do driver em HKLM\SYSTEM\CurrentControlSet\Control\Class (ex.: {guid}\0003).</summary>
+    public string? DriverKey { get; init; }
     public string Detail => string.Join(" · ", new[] { Port, Maker, Class }.Where(s => !string.IsNullOrEmpty(s)));
 
     private bool _selected;
@@ -54,18 +60,25 @@ public static class UsbCleaner
             for (uint i = 0; SetupDiEnumDeviceInfo(set, i, ref data); i++)
             {
                 string cls = RegString(set, ref data, SPDRP_CLASS) ?? "";
-                if (!Classes.Contains(cls)) continue;
                 string id = InstanceId(set, ref data);
-                bool present = CM_Get_DevNode_Status(out _, out _, data.DevInst, 0) == 0;
+                var vid = System.Text.RegularExpressions.Regex.Match(id, @"VID_([0-9A-F]{4})", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                bool knownVid = vid.Success && Vendors.ContainsKey(vid.Groups[1].Value);
+                // Placa conectada sem driver não tem classe ("Outros dispositivos"): entra pelo VID conhecido.
+                if (!Classes.Contains(cls) && !knownVid) continue;
+                bool present = CM_Get_DevNode_Status(out uint status, out uint problem, data.DevInst, 0) == 0;
                 // Hubs e controladores USB raiz não interessam aqui (e não devem ser mexidos).
                 if (cls.Equals("USB", StringComparison.OrdinalIgnoreCase) && (id.StartsWith("USB\\ROOT_HUB") || id.StartsWith("PCI\\"))) continue;
 
                 string name = RegString(set, ref data, SPDRP_FRIENDLYNAME) ?? RegString(set, ref data, SPDRP_DEVICEDESC) ?? id;
-                var vid = System.Text.RegularExpressions.Regex.Match(id, @"VID_([0-9A-F]{4})", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                var pid = System.Text.RegularExpressions.Regex.Match(id, @"PID_([0-9A-F]{4})", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                 list.Add(new UsbDevice
                 {
                     InstanceId = id, Name = name, Class = cls, Present = present, Port = PortName(set, ref data),
-                    Maker = vid.Success && Vendors.TryGetValue(vid.Groups[1].Value, out var m) ? m : null,
+                    Maker = knownVid ? Vendors[vid.Groups[1].Value] : null,
+                    Vid = vid.Success ? vid.Groups[1].Value.ToUpperInvariant() : null,
+                    Pid = pid.Success ? pid.Groups[1].Value.ToUpperInvariant() : null,
+                    Problem = present && (status & DN_HAS_PROBLEM) != 0 ? problem : null,
+                    DriverKey = RegString(set, ref data, SPDRP_DRIVER),
                     // Pré-marca só fantasmas USB de porta COM ou de placas/conversores conhecidos (não a serial da placa-mãe,
                     // que vem como ACPI); o resto o usuário decide.
                     Selected = !present && !id.StartsWith("ACPI\\", StringComparison.OrdinalIgnoreCase) && (cls.Equals("Ports", StringComparison.OrdinalIgnoreCase) || vid.Success && Vendors.ContainsKey(vid.Groups[1].Value)),
@@ -180,7 +193,8 @@ public static class UsbCleaner
 
     private static readonly IntPtr INVALID_HANDLE = new(-1);
     private const int DIGCF_ALLCLASSES = 0x4;
-    private const uint SPDRP_DEVICEDESC = 0x0, SPDRP_CLASS = 0x7, SPDRP_FRIENDLYNAME = 0xC;
+    private const uint SPDRP_DEVICEDESC = 0x0, SPDRP_CLASS = 0x7, SPDRP_DRIVER = 0x9, SPDRP_FRIENDLYNAME = 0xC;
+    private const uint DN_HAS_PROBLEM = 0x400;
     private const uint DIF_REMOVE = 0x5, DICS_FLAG_GLOBAL = 0x1, DIREG_DEV = 0x1, KEY_READ = 0x20019;
 
     [StructLayout(LayoutKind.Sequential)]
