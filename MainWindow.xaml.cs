@@ -581,6 +581,7 @@ public partial class MainWindow : Window
             rb.IsChecked = (string)rb.Tag == _settings.OverlayCorner;
         foreach (var rb in OvScalePanel.Children.OfType<RadioButton>())
             rb.IsChecked = Math.Abs(double.Parse((string)rb.Tag, CultureInfo.InvariantCulture) - _settings.OverlayScale) < 0.01;
+        BuildOverlayPicker();
         _overlayReady = true;
         UpdateOverlayStatus(null);
     }
@@ -1338,18 +1339,12 @@ public partial class MainWindow : Window
         var f = _frames.GetForegroundStats();
         if (_overlay != null && _overlay.IsVisible)
         {
-            var s = BottleneckAnalyzer.Sample(_monitor, _gpus.FirstOrDefault(), f);
-            float? gpuW = MainGpuPower();
-            string gpu = $"{Fmt(s.GpuTemp, "°C")}  {Fmt(s.GpuLoad, "%")}  {Fmt(gpuW, "W")}";
-            string cpu = $"{Fmt(s.CpuTemp, "°C")}  {Fmt(s.CpuTotal, "%")}  {Fmt(_monitor.CpuPower, "W")}";
-            string ram = s.RamPct is float r ? $"{r:0} %" + (s.VramPct is double v ? $"   VRAM {v:0} %" : "") : "—";
-            _overlay.Update(f, gpu, cpu, ram);
+            _overlay.Update(f, BuildOverlayLines(f), OvShow, OvShow.Contains("clock") ? DateTime.Now.ToString("HH:mm") : null);
             _overlay.KeepOnTop(); // o jogo pode ter passado na frente (janela sem borda "sempre no topo")
         }
         UpdateOverlayStatus(f);
     }
 
-    private static string Fmt(float? v, string unit) => v is float x ? $"{x:0}{(unit == "%" ? "" : " ")}{unit}" : "—";
 
     private void UpdateOverlayStatus(FrameStats? f)
     {

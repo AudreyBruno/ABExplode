@@ -85,26 +85,40 @@ public partial class OverlayWindow : Window
         _hook = IntPtr.Zero;
     }
 
-    public void Update(FrameStats? f, string gpu, string cpu, string ram)
+    /// <summary>Atualiza o overlay. <paramref name="show"/> = itens escolhidos (chaves de OverlayMetrics).</summary>
+    public void Update(FrameStats? f, IReadOnlyList<OverlayLine> lines, IReadOnlySet<string> show, string? extra)
     {
+        static Visibility V(bool on) => on ? Visibility.Visible : Visibility.Collapsed;
+        bool fps = show.Contains("fps"), ft = show.Contains("frametime");
+        OFpsRow.Visibility = V(fps || ft);
+        OFps.Visibility = OFpsUnit.Visibility = V(fps);
+        OFrameTime.Visibility = V(ft);
+        OFrameTime.Margin = new Thickness(fps ? 12 : 0, 0, 0, fps ? 4 : 0);
+        OLow.Visibility = V(show.Contains("low1"));
+        OGraph.Visibility = V(show.Contains("graph"));
+
         if (f != null)
         {
             OFps.Text = $"{f.Fps:0}";
             OFrameTime.Text = $"{f.FrameTimeMs:0.0} ms";
             OLow.Text = $"1% low {f.Low1Fps:0}";
-            OGame.Text = f.ProcessName;
         }
         else
         {
             OFps.Text = "—";
-            OFrameTime.Text = "";
+            OFrameTime.Text = fps ? "" : "— ms";
             OLow.Text = "aguardando jogo";
-            OGame.Text = "";
         }
-        OGpu.Text = gpu;
-        OCpu.Text = cpu;
-        ORam.Text = ram;
-        DrawGraph(f?.RecentFrameTimes);
+        // Rodapé: nome do jogo e/ou hora.
+        var foot = new List<string>();
+        if (show.Contains("game") && f != null) foot.Add(f.ProcessName);
+        if (extra != null) foot.Add(extra);
+        OGame.Text = string.Join("  ·  ", foot);
+        OGame.Visibility = V(foot.Count > 0);
+
+        ORows.ItemsSource = lines;
+        ORows.Visibility = V(lines.Count > 0);
+        if (OGraph.Visibility == Visibility.Visible) DrawGraph(f?.RecentFrameTimes);
     }
 
     /// <summary>Frametimes recentes: picos para cima = engasgos.</summary>

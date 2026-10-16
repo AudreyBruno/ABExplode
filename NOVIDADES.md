@@ -33,6 +33,12 @@
 - Presets Normal, Alta e Extrema em 1080p, 1440p e 4K; histórico comparando só resultados do mesmo preset e resolução.
 - Referência: RX 9070, Alta 1440p = 878 pts (87,8 FPS), variação 0,5%.
 
+**Overlay personalizável**
+- Na aba Overlay, escolha o que aparece: FPS, frametime, 1% low, gráfico; GPU (uso, temperatura, hotspot, clock do núcleo,
+  clock da memória, consumo, tensão, ventoinha, limitador NVIDIA); VRAM (usada, %, temperatura); CPU (uso, núcleo mais
+  ocupado, temperatura, clock médio, clock máximo, consumo); RAM (GB, %); nome do jogo e hora. Atalhos SÓ FPS, PADRÃO e TUDO.
+- Cada componente vira uma linha só com os itens escolhidos; a escolha fica salva e vale na hora.
+
 **RESET JOGOS**
 - Novo atalho em Extras: **-allow_third_party_software** (CS2), que libera captura de jogo do OBS, ReShade e overlays
   bloqueados pelo modo confiável; o aviso sobre o Fator de Confiança aparece ao passar o mouse.

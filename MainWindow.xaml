@@ -1550,6 +1550,25 @@
                             </WrapPanel>
                         </Border>
 
+                        <Border Style="{StaticResource CardBorder}" Margin="0,0,0,14">
+                            <StackPanel>
+                                <Grid>
+                                    <TextBlock Text="O QUE MOSTRAR" Style="{StaticResource Label}"/>
+                                    <WrapPanel HorizontalAlignment="Right" VerticalAlignment="Top">
+                                        <Button Style="{StaticResource OutlineButton}" Content="SÓ FPS" Tag="min" Padding="10,4" FontSize="11" Margin="0,0,6,0" Click="OvPreset_Click"/>
+                                        <Button Style="{StaticResource OutlineButton}" Content="PADRÃO" Tag="default" Padding="10,4" FontSize="11" Margin="0,0,6,0" Click="OvPreset_Click"/>
+                                        <Button Style="{StaticResource OutlineButton}" Content="TUDO" Tag="all" Padding="10,4" FontSize="11" Click="OvPreset_Click"/>
+                                    </WrapPanel>
+                                </Grid>
+                                <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0">
+                                    Marque o que quer ver por cima do jogo; a mudança vale na hora e fica salva. Cada componente vira uma linha
+                                    (GPU, VRAM, CPU, RAM) só com os itens escolhidos. Clock da memória, hotspot e ventoinha dependem da placa;
+                                    o limitador (PerfCap) é só NVIDIA. Clock e temperatura da CPU precisam do app como administrador.
+                                </TextBlock>
+                                <StackPanel x:Name="OvItemsPanel"/>
+                            </StackPanel>
+                        </Border>
+
                         <Border Style="{StaticResource CardBorder}">
                             <StackPanel>
                                 <TextBlock Text="DETECÇÃO DE FPS" Style="{StaticResource Label}"/>
