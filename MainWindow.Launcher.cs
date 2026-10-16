@@ -15,22 +15,26 @@ public partial class MainWindow
     private CancellationTokenSource? _launchCts;
     private readonly Dictionary<string, string?> _exeGuess = new();
 
-    private static readonly (string Label, string Token)[] ExtraPresets =
+    private static readonly (string Label, string Token, string? Hint)[] ExtraPresets =
     {
-        ("Pular intro (-novid)", "-novid"), ("Prioridade alta (-high)", "-high"), ("Sem limite de FPS (+fps_max 0)", "+fps_max 0"),
-        ("Sem joystick (-nojoy)", "-nojoy"), ("Abrir console (-console)", "-console"),
+        ("Pular intro (-novid)", "-novid", null), ("Prioridade alta (-high)", "-high", null), ("Sem limite de FPS (+fps_max 0)", "+fps_max 0", null),
+        ("Sem joystick (-nojoy)", "-nojoy", null), ("Abrir console (-console)", "-console", null),
+        ("Programas de terceiros (-allow_third_party_software)", "-allow_third_party_software",
+         "CS2: libera programas que o modo confiável bloqueia, como a captura de jogo do OBS, ReShade e alguns overlays.\n" +
+         "Atenção: a Valve diz que usar esta opção pode reduzir o seu Fator de Confiança (Trust Factor) no matchmaking."),
     };
 
     private void InitLauncher()
     {
         if (_launcherInited) return;
         _launcherInited = true;
-        foreach (var (label, token) in ExtraPresets)
+        foreach (var (label, token, hint) in ExtraPresets)
         {
             var b = new Button
             {
                 Content = label, Tag = token, Style = (Style)FindResource("OutlineButton"),
                 Padding = new Thickness(10, 4, 10, 4), FontSize = 11, Margin = new Thickness(0, 0, 6, 6),
+                ToolTip = hint,
             };
             b.Click += (_, _) =>
             {

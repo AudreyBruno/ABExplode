@@ -33,6 +33,10 @@
 - Presets Normal, Alta e Extrema em 1080p, 1440p e 4K; histórico comparando só resultados do mesmo preset e resolução.
 - Referência: RX 9070, Alta 1440p = 878 pts (87,8 FPS), variação 0,5%.
 
+**RESET JOGOS**
+- Novo atalho em Extras: **-allow_third_party_software** (CS2), que libera captura de jogo do OBS, ReShade e overlays
+  bloqueados pelo modo confiável; o aviso sobre o Fator de Confiança aparece ao passar o mouse.
+
 **Abertura mais rápida**
 - A janela aparece em ~0,5 s (antes ~4,6 s). Informações do sistema, sensores e placa de vídeo carregam em paralelo,
   em segundo plano, e cada página é preenchida quando a sua parte fica pronta.
