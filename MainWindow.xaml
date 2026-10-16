@@ -1581,6 +1581,7 @@
                     <WrapPanel x:Name="BenchTestPanel" Grid.Row="1" Margin="0,0,0,16">
                         <RadioButton Style="{StaticResource Chip}" GroupName="BenchTest" Content="Render (CPU)" Tag="render" IsChecked="True" Checked="BenchTest_Checked"/>
                         <RadioButton Style="{StaticResource Chip}" GroupName="BenchTest" Content="Cena de jogo (GPU)" Tag="gpu" Checked="BenchTest_Checked"/>
+                        <RadioButton Style="{StaticResource Chip}" GroupName="BenchTest" Content="Ray tracing (GPU)" Tag="rt" Checked="BenchTest_Checked"/>
                         <RadioButton Style="{StaticResource Chip}" GroupName="BenchTest" Content="Simulação de jogo (CPU)" Tag="sim" Checked="BenchTest_Checked"/>
                         <RadioButton Style="{StaticResource Chip}" GroupName="BenchTest" Content="Memória e carregamento" Tag="mem" Checked="BenchTest_Checked"/>
                         <RadioButton Style="{StaticResource Chip}" GroupName="BenchTest" Content="Disco" Tag="disk" Checked="BenchTest_Checked"/>
@@ -1751,6 +1752,106 @@
                                     <StackPanel>
                                         <TextBlock Text="HISTÓRICO" Style="{StaticResource Label}"/>
                                         <ItemsControl x:Name="GbHistory" ItemTemplate="{StaticResource Meter}"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+
+                    <!-- ===== Ray tracing (GPU, DXR 1.1) ===== -->
+                    <Grid x:Name="BenchPanelRt" Grid.Row="2" Visibility="Collapsed">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="310"/>
+                        </Grid.ColumnDefinitions>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <Border Style="{StaticResource CardBorder}" VerticalAlignment="Top" Padding="24,20" Margin="0,0,0,12">
+                                    <StackPanel>
+                                        <TextBlock Text="CIDADE DE OBJETOS · RAY TRACING POR HARDWARE" Style="{StaticResource Label}"/>
+                                        <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource Muted}">
+                                            Direct3D 12 com DXR 1.1: usa os núcleos de ray tracing da placa (RTX 20 ou mais nova, Radeon RX 6000
+                                            ou mais nova, Intel Arc). 4 mil objetos em materiais fosco, metal e espelho; por pixel, path tracing com
+                                            sombras suaves, oclusão de ambiente, reflexos de reflexos e iluminação indireta. A estrutura de
+                                            aceleração é refeita a cada frame, com objetos girando, como nos jogos. Abre numa janela própria; ESC cancela.
+                                        </TextBlock>
+                                        <Grid Margin="0,22,0,0">
+                                            <StackPanel>
+                                                <TextBlock Text="FPS AGORA" Style="{StaticResource Label}"/>
+                                                <TextBlock x:Name="RtFpsNow" Text="—" FontFamily="{StaticResource Mono}" FontSize="44"/>
+                                            </StackPanel>
+                                            <StackPanel HorizontalAlignment="Right">
+                                                <TextBlock Text="ETAPA" Style="{StaticResource Label}" HorizontalAlignment="Right"/>
+                                                <TextBlock x:Name="RtPhase" Text="—" FontFamily="{StaticResource Mono}" FontSize="20" HorizontalAlignment="Right"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        <Grid Height="3" Margin="0,14,0,8" Background="{DynamicResource Line}">
+                                            <Border Background="{DynamicResource Fg}" RenderTransformOrigin="0,0.5">
+                                                <Border.RenderTransform><ScaleTransform x:Name="RtProgress" ScaleX="0"/></Border.RenderTransform>
+                                            </Border>
+                                        </Grid>
+                                        <TextBlock x:Name="RtStatus" Text="Pronto" Foreground="{DynamicResource Muted}" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource CardBorder}" Padding="24,20">
+                                    <StackPanel>
+                                        <TextBlock Text="COMO COMPARAR COM CONFIANÇA" Style="{StaticResource Label}"/>
+                                        <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource Muted}" FontSize="12">
+                                            O teste aquece a placa sem medir (o clock e a temperatura se estabilizam) e depois roda 3 passadas
+                                            iguais. A nota usa a MEDIANA das passadas, e a variação entre elas mostra se o resultado é
+                                            confiável (abaixo de 3%). O tempo de cada frame vem do relógio da própria GPU. Compare só resultados
+                                            com a mesma resolução e o mesmo preset, com o PC na tomada, sem outros programas pesados abertos
+                                            e com o mesmo driver. A cena é sempre a mesma (sementes fixas), em qualquer PC.
+                                        </TextBlock>
+                                        <TextBlock Text="REFERÊNCIA MEDIDA" Style="{StaticResource Label}" Margin="0,14,0,4"/>
+                                        <TextBlock TextWrapping="Wrap" FontSize="12">
+                                            AMD Radeon RX 9070 · Alta 1440p · modo Padrão: 878 pts (87,8 FPS, 1% low 77), variação 0,5%.
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                        <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <Border Style="{StaticResource CardBorder}" Margin="0,0,0,12">
+                                    <StackPanel>
+                                        <TextBlock Text="RESOLUÇÃO" Style="{StaticResource Label}"/>
+                                        <WrapPanel x:Name="RtResPanel">
+                                            <RadioButton Style="{StaticResource Chip}" GroupName="RtRes" Content="1080p" Tag="1920x1080"/>
+                                            <RadioButton Style="{StaticResource Chip}" GroupName="RtRes" Content="1440p" Tag="2560x1440" IsChecked="True"/>
+                                            <RadioButton Style="{StaticResource Chip}" GroupName="RtRes" Content="4K" Tag="3840x2160"/>
+                                        </WrapPanel>
+                                        <TextBlock Text="PRESET" Style="{StaticResource Label}" Margin="0,10,0,8"/>
+                                        <WrapPanel x:Name="RtPresetPanel">
+                                            <RadioButton Style="{StaticResource Chip}" GroupName="RtPreset" Content="Normal" Tag="normal"/>
+                                            <RadioButton Style="{StaticResource Chip}" GroupName="RtPreset" Content="Alta" Tag="alta" IsChecked="True"/>
+                                            <RadioButton Style="{StaticResource Chip}" GroupName="RtPreset" Content="Extrema" Tag="extrema"/>
+                                        </WrapPanel>
+                                        <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0">
+                                            Normal: 2 amostras e 2 rebatidas por pixel · Alta: 4 e 3 · Extrema: 8 e 4.
+                                        </TextBlock>
+                                        <TextBlock Text="MODO" Style="{StaticResource Label}" Margin="0,10,0,8"/>
+                                        <WrapPanel x:Name="RtModePanel">
+                                            <RadioButton Style="{StaticResource Chip}" GroupName="RtMode" Content="Padrão" Tag="std" IsChecked="True"
+                                                         ToolTip="Aquece 20 s e mede 3 passadas de 30 s (~2 min). Use para comparar."/>
+                                            <RadioButton Style="{StaticResource Chip}" GroupName="RtMode" Content="Rápido" Tag="quick"
+                                                         ToolTip="Aquece 5 s e mede 3 passadas de 10 s (~35 s). Só para uma ideia rápida."/>
+                                        </WrapPanel>
+                                        <Button x:Name="BtnRtBench" Style="{StaticResource PrimaryButton}" Content="INICIAR" Margin="0,12,0,0" Click="BtnRtBench_Click"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource CardBorder}" Margin="0,0,0,12">
+                                    <StackPanel>
+                                        <TextBlock Text="RESULTADO" Style="{StaticResource Label}"/>
+                                        <TextBlock x:Name="RtVerdict" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                        <ItemsControl x:Name="RtResult" ItemTemplate="{StaticResource KeyValueRow}"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource CardBorder}">
+                                    <StackPanel>
+                                        <TextBlock Text="HISTÓRICO" Style="{StaticResource Label}"/>
+                                        <ItemsControl x:Name="RtHistory" ItemTemplate="{StaticResource Meter}"/>
                                     </StackPanel>
                                 </Border>
                             </StackPanel>

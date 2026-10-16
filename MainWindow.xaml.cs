@@ -1047,6 +1047,7 @@ public partial class MainWindow : Window
         string test = (string)((FrameworkElement)sender).Tag;
         BenchPanelRender.Visibility = test == "render" ? Visibility.Visible : Visibility.Collapsed;
         BenchPanelGpu.Visibility = test == "gpu" ? Visibility.Visible : Visibility.Collapsed;
+        BenchPanelRt.Visibility = test == "rt" ? Visibility.Visible : Visibility.Collapsed;
         BenchPanelSim.Visibility = test == "sim" ? Visibility.Visible : Visibility.Collapsed;
         BenchPanelMem.Visibility = test == "mem" ? Visibility.Visible : Visibility.Collapsed;
         BenchPanelDisk.Visibility = test == "disk" ? Visibility.Visible : Visibility.Collapsed;
@@ -1054,6 +1055,7 @@ public partial class MainWindow : Window
         BenchSub.Text = test switch
         {
             "gpu" => "Cena de jogo em Direct3D 11 para medir a placa de vídeo, no estilo 3DMark / Unigine",
+            "rt" => "Ray tracing por hardware (DXR 1.1, Direct3D 12): usa os núcleos de RT da placa, com 3 passadas e nota pela mediana",
             "sim" => "Quanto FPS a CPU aguenta numa simulação de jogo com milhares de unidades",
             "mem" => "Latência e banda da RAM e velocidade de carregamento do disco",
             "disk" => "Velocidade de leitura e escrita do disco: sequencial e acessos aleatórios de 4 KB, no estilo CrystalDiskMark",
@@ -1082,6 +1084,7 @@ public partial class MainWindow : Window
             return list.Select(r => new MeterItem($"{r.Date:dd/MM HH:mm}", r.Summary, best > 0 ? r.Score / best : 0)).ToList();
         }
         GbHistory.ItemsSource = For("gpu");
+        RtHistory.ItemsSource = RtHistoryItems();
         SimHistory.ItemsSource = For("sim");
         MemHistory.ItemsSource = For("mem");
         DiskHistory.ItemsSource = For("disk");

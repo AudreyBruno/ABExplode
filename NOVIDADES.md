@@ -25,6 +25,14 @@
 - **Arduino IDE**: instalar/atualizar pelo winget, fechar programas que prendem a porta COM e limpar o cache de índices
   quando a IDE trava em "Downloading index".
 
+**Novo benchmark · Ray tracing (GPU)**
+- Teste em Direct3D 12 com DXR 1.1 que usa os núcleos de ray tracing (RTX 20+, Radeon RX 6000+, Intel Arc): 4 mil objetos,
+  reflexos de reflexos, sombras suaves, oclusão de ambiente e iluminação indireta, com a cena refeita a cada frame.
+- Feito para comparar com confiança: aquecimento sem medir, 3 passadas iguais, nota pela mediana e variação entre passadas
+  (selo de "resultado confiável" abaixo de 3%); tempo de frame medido pelo relógio da própria GPU.
+- Presets Normal, Alta e Extrema em 1080p, 1440p e 4K; histórico comparando só resultados do mesmo preset e resolução.
+- Referência: RX 9070, Alta 1440p = 878 pts (87,8 FPS), variação 0,5%.
+
 **Abertura mais rápida**
 - A janela aparece em ~0,5 s (antes ~4,6 s). Informações do sistema, sensores e placa de vídeo carregam em paralelo,
   em segundo plano, e cada página é preenchida quando a sua parte fica pronta.
