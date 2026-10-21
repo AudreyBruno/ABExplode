@@ -4,7 +4,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ResetExplode;
+namespace ABExplode;
 
 /// <summary>
 /// Cliente da API da HowManyFPS (POST howmanyfps.com/api → FPS médio e 1% low medidos em sessões reais).

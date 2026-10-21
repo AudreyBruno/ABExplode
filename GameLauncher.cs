@@ -3,7 +3,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
 
-namespace ResetExplode;
+namespace ABExplode;
 
 /// <summary>
 /// Aplica o perfil de um jogo e o inicia. Tudo é reversível: o plano de energia volta ao anterior, os programas auxiliares fecham e

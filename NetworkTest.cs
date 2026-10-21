@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 
-namespace ResetExplode;
+namespace ABExplode;
 
 /// <summary>
 /// Diagnóstico de rede para lag: latência, jitter e perda de pacotes até o roteador e até a internet,

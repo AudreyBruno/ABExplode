@@ -3,7 +3,7 @@ using System.Management;
 using System.Windows;
 using System.Windows.Media;
 
-namespace ResetExplode;
+namespace ABExplode;
 
 /// <summary>Cartão de uma unidade (letra) com o anel de ocupação já calculado.</summary>
 public sealed class DriveCard

@@ -6,7 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
 
-namespace ResetExplode;
+namespace ABExplode;
 
 /// <summary>Saúde dos discos, benchmark de disco (RESET BENCH) e exportação de relatório.</summary>
 public partial class MainWindow
@@ -135,7 +135,7 @@ public partial class MainWindow
             Title = "Exportar relatório",
             Filter = "Relatório HTML (*.html)|*.html|Dados JSON (*.json)|*.json",
             DefaultExt = ".html",
-            FileName = $"RESET-EXPLODE-relatorio-{DateTime.Now:yyyyMMdd-HHmm}",
+            FileName = $"ABExplode-relatorio-{DateTime.Now:yyyyMMdd-HHmm}",
         };
         if (dlg.ShowDialog(this) != true) return;
         string path = dlg.FileName;
@@ -175,7 +175,7 @@ public partial class MainWindow
         }
         catch (Exception ex)
         {
-            MessageBox.Show(this, "Não foi possível gerar o relatório:\n" + ex.Message, "RESET EXPLODE", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(this, "Não foi possível gerar o relatório:\n" + ex.Message, "ABExplode", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
         finally
         {

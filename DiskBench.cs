@@ -2,7 +2,7 @@
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace ResetExplode;
+namespace ABExplode;
 
 public sealed record DiskBenchResult(string Drive, long FileMb, double SeqReadMBs, double SeqWriteMBs,
                                      double ReadIopsQ1, double WriteIopsQ1, double ReadLatencyUs, double WriteLatencyUs,
@@ -49,7 +49,7 @@ public static class DiskBench
         if (di.TotalFreeSpace < fileBytes + (512L << 20))
             throw new IOException($"Pouco espaço livre em {driveRoot} (precisa de {fileMb + 512} MB).");
 
-        string dir = Path.Combine(driveRoot, "ResetExplodeBench");
+        string dir = Path.Combine(driveRoot, "ABExplodeBench");
         string path = Path.Combine(dir, "bench.tmp");
         Directory.CreateDirectory(dir);
 

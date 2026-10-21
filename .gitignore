@@ -2,7 +2,7 @@
 bin/
 obj/
 publish/
-ResetExplode-dist/
+ABExplode-dist/
 *.exe
 *.dll
 *.pdb

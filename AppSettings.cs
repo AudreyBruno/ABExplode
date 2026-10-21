@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
-namespace ResetExplode;
+namespace ABExplode;
 
 public sealed record BenchRun(DateTime Date, double? Multi, double? Single, bool Sustained, string Cpu);
 
@@ -43,11 +43,11 @@ public sealed class CustomGame
     public string Args { get; set; } = "";
 }
 
-/// <summary>Configurações em %AppData%\ResetExplode. A chave da API é cifrada com DPAPI (só este usuário do Windows a lê).</summary>
+/// <summary>Configurações em %AppData%\ABExplode. A chave da API é cifrada com DPAPI (só este usuário do Windows a lê).</summary>
 public sealed class AppSettings
 {
     public static string Folder { get; } =
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ResetExplode");
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ABExplode");
     private static string FilePath => Path.Combine(Folder, "settings.json");
 
     public string? HowManyFpsKeyProtected { get; set; }
@@ -97,12 +97,37 @@ public sealed class AppSettings
         }
     }
 
+    /// <summary>Pasta usada antes do app se chamar ABExplode; movida para <see cref="Folder"/> na primeira abertura.</summary>
+    private static string OldFolder { get; } =
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ResetExplode");
+
     public static AppSettings Load()
     {
+        bool migrated = false;
+        try
+        {
+            if (!Directory.Exists(Folder) && Directory.Exists(OldFolder))
+            {
+                Directory.Move(OldFolder, Folder);
+                migrated = true;
+            }
+        }
+        catch { }
         try
         {
             if (File.Exists(FilePath))
-                return JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(FilePath)) ?? new AppSettings();
+            {
+                var s = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(FilePath)) ?? new AppSettings();
+                if (migrated)
+                {
+                    // as cópias dos atalhos de inicialização guardam o caminho completo da pasta antiga
+                    foreach (var b in s.StartupRemoved)
+                        if (b.Backup != null && b.Backup.StartsWith(OldFolder, StringComparison.OrdinalIgnoreCase))
+                            b.Backup = Folder + b.Backup[OldFolder.Length..];
+                    s.Save();
+                }
+                return s;
+            }
         }
         catch { }
         return new AppSettings();

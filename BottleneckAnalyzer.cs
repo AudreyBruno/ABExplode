@@ -1,6 +1,6 @@
 using LibreHardwareMonitor.Hardware;
 
-namespace ResetExplode;
+namespace ABExplode;
 
 public enum Limiter { Gpu, Cpu, Vram, Ram, Thermal, Capped }
 

@@ -4,7 +4,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 
-namespace ResetExplode;
+namespace ABExplode;
 
 /// <summary>Uma "ponte" para um fabricante/serviço de iluminação (Corsair iCUE, OpenRGB, Razer Chroma...).</summary>
 public interface ILightBackend
@@ -182,7 +182,7 @@ public sealed class OpenRgbBackend : ILightBackend
             _ns.ReadTimeout = 3000;
             _ns.WriteTimeout = 3000;
 
-            Write(0, SetClientName, Encoding.ASCII.GetBytes("RESET EXPLODE\0"));
+            Write(0, SetClientName, Encoding.ASCII.GetBytes("ABExplode\0"));
             Write(0, ReqProtocolVersion, BitConverter.GetBytes(3u));
             uint server;
             try { server = BitConverter.ToUInt32(ReadType(ReqProtocolVersion), 0); }
@@ -293,9 +293,9 @@ public sealed class RazerChromaBackend : ILightBackend
     {
         var body = JsonSerializer.Serialize(new
         {
-            title = "RESET EXPLODE",
-            description = "Controle de iluminação do RESET EXPLODE",
-            author = new { name = "RESET", contact = "https://github.com/GustavoReset/ResetExplode" },
+            title = "ABExplode",
+            description = "Controle de iluminação do ABExplode",
+            author = new { name = "ABExplode", contact = "https://github.com/AudreyBruno/ABExplode" },
             device_supported = Kinds.Select(k => k.Key).ToArray(),
             category = "application",
         });
