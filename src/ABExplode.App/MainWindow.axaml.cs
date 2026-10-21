@@ -35,7 +35,7 @@ public partial class MainWindow : Window
     {
         _platform = platform;
         InitializeComponent();
-        _pages = new Control[] { PageDash, PageSystem, PageSensors, PageGpu, PageDisks, PageEnergy, PageNet, PageBench }.ToDictionary(p => p.Name!);
+        _pages = new Control[] { PageDash, PageSystem, PageSensors, PageGpu, PageDisks, PageEnergy, PageNet, PageBench, PageLauncher, PageGames, PageBottleneck }.ToDictionary(p => p.Name!);
         if (platform == null) { _monitor = null!; _timer = null!; return; }
 
         ThemeManager.Apply(_settings.LightTheme);
@@ -67,6 +67,7 @@ public partial class MainWindow : Window
             if (PageSensors.IsVisible) UpdateSensorList();
             if (PageGpu.IsVisible) UpdateGpuPage();
             if (PageBench.IsVisible) UpdateBenchLive();
+            UpdateBottleneck();
         };
         _timer.Start();
 
@@ -78,7 +79,8 @@ public partial class MainWindow : Window
         Closed += (_, _) =>
         {
             _timer.Stop();
-            _benchCts?.Cancel(); _gameBenchCts?.Cancel();
+            _benchCts?.Cancel(); _gameBenchCts?.Cancel(); _gameFetch?.Cancel(); CancelLaunch();
+            _frames?.Dispose();
             _toast?.Close();
             CloseDevices();
             _monitor.Dispose();
@@ -118,6 +120,8 @@ public partial class MainWindow : Window
             catch { _gpus = new(); }
             InitGpuPage();
             _cpuName = await Task.Run(_platform.SystemInfo.CpuName);
+            InitGames();
+            InitBottleneck();
             UpdateDashboard();
         }
 
@@ -212,6 +216,7 @@ public partial class MainWindow : Window
             case "PageDash": UpdateDashboard(); break;
             case "PageSensors": ApplySensorFilter(); break;
             case "PageGpu": UpdateGpuPage(); break;
+            case "PageLauncher": InitLauncher(); break;
             case "PageDisks": RefreshDiskHealth(); break;
             case "PageEnergy": RefreshEnergy(); break;
         }

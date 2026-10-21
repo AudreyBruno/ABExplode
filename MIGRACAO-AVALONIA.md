@@ -169,7 +169,14 @@ Ordem, da mais simples para a mais complexa:
     - **Timers em `DispatcherPriority.Normal`:** no Avalonia o padrão é `Background`, e com o timer da imagem em `Render`
       o timer de 1 s dos sensores ficava sem vez durante o render (a carga aparecia parada em ~6%).
     - Ainda não desliga o overlay durante os testes de GPU (o overlay ainda não foi migrado).
-  - **Próximas etapas:** Jogos, Gargalo, RESET OC;
+  - **Etapa 5 (feita):** **RESET JOGOS** (Biblioteca e FPS estimado) e **Gargalo**.
+    - Biblioteca: a lista vem da plataforma (`IGameLibrary`); achar o .exe, montar os argumentos, opções da Steam e
+      JOGAR usam `GameLauncher`/`SteamInfo` e ficam em `#if WINDOWS` (no Linux avisam que ainda não estão disponíveis).
+      Janelas de escolher arquivo pelo `StorageProvider`.
+    - FPS estimado: estimativa local e HowManyFPS; a chave usa um `TextBox` com `PasswordChar` (no lugar do `PasswordBox`).
+    - Gargalo: equilíbrio GPU × CPU, veredito ao vivo (cartão invertido quando o limite é um problema), leituras ao vivo
+      e análise de sessão; o medidor de FPS é o `IFrameSource` da plataforma.
+  - **Próximas etapas:** Stress test e RESET OC (a verificação de estabilidade usa o stress test);
     OTIMIZA, Ferramentas, MAKER, Integração; Overlay; relatório exportável (precisa do histórico de benchmarks).
 
 ## Fase 4: Linux básico
