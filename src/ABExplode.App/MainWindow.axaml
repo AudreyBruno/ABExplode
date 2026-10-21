@@ -1,12 +1,307 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:core="clr-namespace:ABExplode.Core;assembly=ABExplode.Core"
+        xmlns:plat="clr-namespace:ABExplode.Platform;assembly=ABExplode.Platform"
+        xmlns:local="clr-namespace:ABExplode.App"
         x:Class="ABExplode.App.MainWindow"
         Title="ABExplode" Icon="avares://ABExplode.App/Assets/app.ico"
-        Width="1320" Height="840" MinWidth="1120" MinHeight="660"
-        WindowStartupLocation="CenterScreen">
-    <!-- Esqueleto da Fase 0: as telas do app WPF entram aqui na Fase 3 -->
-    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
-        <TextBlock Text="ABExplode" FontSize="32" FontWeight="Bold" HorizontalAlignment="Center" />
-        <TextBlock x:Name="PlatformText" Opacity="0.6" HorizontalAlignment="Center" />
-    </StackPanel>
+        Width="1320" Height="840" MinWidth="1120" MinHeight="660" WindowStartupLocation="CenterScreen"
+        ExtendClientAreaToDecorationsHint="True" ExtendClientAreaTitleBarHeightHint="44" WindowDecorations="BorderOnly"
+        Background="{DynamicResource Bg}" Foreground="{DynamicResource Fg}"
+        FontFamily="{StaticResource UiFont}" FontSize="13">
+
+    <Window.Resources>
+        <local:UsedArcConverter x:Key="UsedArc"/>
+    </Window.Resources>
+
+    <Window.DataTemplates>
+        <!-- Linha da tela "Sistema": folha = chave/valor; grupo = título + filhos (recursivo) -->
+        <DataTemplate DataType="core:InfoNode" x:DataType="core:InfoNode">
+            <StackPanel>
+                <Border IsVisible="{Binding !IsGroup}" BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1" Padding="0,10">
+                    <Grid ColumnDefinitions="260,*">
+                        <TextBlock Text="{Binding Header}" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,16,0"/>
+                        <TextBlock Grid.Column="1" Text="{Binding Value}" TextWrapping="Wrap"/>
+                    </Grid>
+                </Border>
+                <StackPanel IsVisible="{Binding IsGroup}" Margin="0,26,0,0">
+                    <TextBlock Text="{Binding Header}" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                    <ItemsControl ItemsSource="{Binding Children}"/>
+                </StackPanel>
+            </StackPanel>
+        </DataTemplate>
+    </Window.DataTemplates>
+
+    <Border Name="Root" BorderBrush="{DynamicResource Line}" BorderThickness="1">
+        <Grid RowDefinitions="44,*" ColumnDefinitions="256,*">
+
+            <!-- ===== Barra de título: arrastar a janela, marca, página atual e botões ===== -->
+            <Border Grid.ColumnSpan="2" Background="Transparent" WindowDecorationProperties.ElementRole="TitleBar"
+                    DoubleTapped="TitleBar_DoubleTapped"/>
+            <StackPanel Grid.ColumnSpan="2" Orientation="Horizontal" Margin="30,0,0,0" HorizontalAlignment="Left"
+                        VerticalAlignment="Center" IsHitTestVisible="False">
+                <Image Name="TitleLogo" Source="avares://ABExplode.App/Assets/logo.png" Width="22" Height="22" Margin="0,0,12,0"
+                       VerticalAlignment="Center" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                <TextBlock Text="AB" FontWeight="Bold" FontSize="13" VerticalAlignment="Center"/>
+                <TextBlock Text="EXPLODE" FontWeight="Light" FontSize="13" VerticalAlignment="Center"/>
+                <TextBlock Name="TitlePage" Foreground="{DynamicResource Faint}" FontSize="13" Margin="16,0,0,0" VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Name="BtnTheme" Theme="{StaticResource CaptionButton}" AutomationProperties.Name="Tema" Content="&#xE706;" Click="Theme_Click" ToolTip.Tip="Modo claro"/>
+                <Button Theme="{StaticResource CaptionButton}" Content="&#xE921;" AutomationProperties.Name="Minimizar" Click="Min_Click" ToolTip.Tip="Minimizar"/>
+                <Button Name="BtnMax" Theme="{StaticResource CaptionButton}" AutomationProperties.Name="Maximizar" Content="&#xE922;" Click="Max_Click" ToolTip.Tip="Maximizar"/>
+                <Button Theme="{StaticResource CloseButton}" AutomationProperties.Name="Fechar" Content="&#xE8BB;" Click="Close_Click" ToolTip.Tip="Fechar"/>
+            </StackPanel>
+
+            <!-- ===== Menu lateral por categorias ===== -->
+            <Border Name="Sidebar" Grid.Row="1" Margin="14,0,0,14" Background="{DynamicResource Panel}"
+                    BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="20">
+                <DockPanel>
+                    <!-- Rodapé: aviso de sensores + leitura ao vivo compacta -->
+                    <StackPanel DockPanel.Dock="Bottom" Margin="16,6,16,16">
+                        <Border Name="CpuSensorWarn" IsVisible="False" BorderBrush="{DynamicResource Fg}" BorderThickness="1"
+                                CornerRadius="12" Padding="12,10" Margin="0,0,0,12">
+                            <StackPanel>
+                                <TextBlock Text="Sem temperatura e consumo da CPU" FontWeight="SemiBold" FontSize="12" TextWrapping="Wrap"/>
+                                <TextBlock Name="CpuSensorWarnText" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,3,0,8"/>
+                                <Button Theme="{StaticResource PrimaryButton}" Content="CORRIGIR" Padding="10,5" FontSize="11"
+                                        Click="BtnFixCpuSensors_Click"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="{DynamicResource Card}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="14" Padding="14,10">
+                            <Grid ColumnDefinitions="46,*,Auto" RowDefinitions="Auto,Auto,Auto">
+                                <TextBlock Text="CPU" Foreground="{DynamicResource Faint}" FontSize="10.5" FontWeight="Bold" Margin="0,3" VerticalAlignment="Center"/>
+                                <TextBlock Name="SideTemp" Grid.Column="1" Text="—" Classes="mono" FontSize="12" Margin="0,3"/>
+                                <TextBlock Name="SideLoad" Grid.Column="2" Text="—" Classes="mono" FontSize="12" Foreground="{DynamicResource Muted}" Margin="0,3"/>
+                                <TextBlock Grid.Row="1" Text="GPU" Foreground="{DynamicResource Faint}" FontSize="10.5" FontWeight="Bold" Margin="0,3" VerticalAlignment="Center"/>
+                                <TextBlock Name="SideGpuTemp" Grid.Row="1" Grid.Column="1" Text="—" Classes="mono" FontSize="12" Margin="0,3"/>
+                                <TextBlock Name="SideGpuLoad" Grid.Row="1" Grid.Column="2" Text="—" Classes="mono" FontSize="12" Foreground="{DynamicResource Muted}" Margin="0,3"/>
+                                <TextBlock Grid.Row="2" Text="TESTE" Foreground="{DynamicResource Faint}" FontSize="10.5" FontWeight="Bold" Margin="0,3" VerticalAlignment="Center"/>
+                                <TextBlock Name="SideStress" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Text="parado" Classes="mono" FontSize="12" Margin="0,3"/>
+                            </Grid>
+                        </Border>
+                        <TextBlock Name="SideVersion" Text="v0.16" Foreground="{DynamicResource Faint}" FontSize="11" Margin="4,10,0,0"/>
+                    </StackPanel>
+
+                    <!-- Navegação por categorias (Tag = página; o grupo da categoria é o ToggleButton logo acima) -->
+                    <ScrollViewer Name="NavScroll" VerticalScrollBarVisibility="Auto" Margin="0,2,0,0">
+                        <StackPanel Margin="0,0,0,10">
+                            <RadioButton Name="NavDash" Theme="{StaticResource NavItem}" Tag="PageDash" AutomationProperties.Name="Visão geral" IsCheckedChanged="Nav_Checked">
+                                <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE80F;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Visão geral" VerticalAlignment="Center"/></StackPanel>
+                            </RadioButton>
+
+                            <ToggleButton Name="GrpExplode" Theme="{StaticResource NavGroup}" Content="ABExplode"/>
+                            <StackPanel Name="GrpExplodeItems" Margin="10,0,0,4" IsVisible="{Binding #GrpExplode.IsChecked}">
+                                <RadioButton Name="NavSystem" Theme="{StaticResource NavItem}" Tag="PageSystem" AutomationProperties.Name="Sistema" IsCheckedChanged="Nav_Checked">
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE7F8;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Sistema" VerticalAlignment="Center"/></StackPanel>
+                                </RadioButton>
+                                <RadioButton Name="NavSensors" Theme="{StaticResource NavItem}" Tag="PageSensors" AutomationProperties.Name="Sensores" IsCheckedChanged="Nav_Checked">
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE9D9;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Sensores" VerticalAlignment="Center"/></StackPanel>
+                                </RadioButton>
+                                <RadioButton Name="NavGpu" Theme="{StaticResource NavItem}" Tag="PageGpu" AutomationProperties.Name="Placa de vídeo" IsCheckedChanged="Nav_Checked">
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE7F4;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Placa de vídeo" VerticalAlignment="Center"/></StackPanel>
+                                </RadioButton>
+                                <RadioButton Name="NavDisks" Theme="{StaticResource NavItem}" Tag="PageDisks" AutomationProperties.Name="Discos" IsCheckedChanged="Nav_Checked">
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xEDA2;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Discos" VerticalAlignment="Center"/></StackPanel>
+                                </RadioButton>
+                                <RadioButton Name="NavEnergy" Theme="{StaticResource NavItem}" Tag="PageEnergy" AutomationProperties.Name="Energia" IsCheckedChanged="Nav_Checked">
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE7E8;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Energia" VerticalAlignment="Center"/></StackPanel>
+                                </RadioButton>
+                                <RadioButton Name="NavNet" Theme="{StaticResource NavItem}" Tag="PageNet" AutomationProperties.Name="Rede" IsCheckedChanged="Nav_Checked">
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE839;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Rede" VerticalAlignment="Center"/></StackPanel>
+                                </RadioButton>
+                            </StackPanel>
+
+                            <ToggleButton Name="GrpGames" Theme="{StaticResource NavGroup}" Content="RESET JOGOS"/>
+                            <StackPanel Name="GrpGamesItems" Margin="10,0,0,4" IsVisible="{Binding #GrpGames.IsChecked}">
+                                <RadioButton Theme="{StaticResource NavItem}" Tag="PageLauncher" AutomationProperties.Name="Biblioteca" IsCheckedChanged="Nav_Checked">
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE8F1;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Biblioteca" VerticalAlignment="Center"/></StackPanel>
+                                </RadioButton>
+                                <RadioButton Theme="{StaticResource NavItem}" Tag="PageGames" AutomationProperties.Name="FPS estimado" IsCheckedChanged="Nav_Checked">
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xEC49;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="FPS estimado" VerticalAlignment="Center"/></StackPanel>
+                                </RadioButton>
+                                <RadioButton Theme="{StaticResource NavItem}" Tag="PageBottleneck" AutomationProperties.Name="Gargalo" IsCheckedChanged="Nav_Checked">
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE9D2;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Gargalo" VerticalAlignment="Center"/></StackPanel>
+                                </RadioButton>
+                                <RadioButton Theme="{StaticResource NavItem}" Tag="PageOverlay" AutomationProperties.Name="Overlay" IsCheckedChanged="Nav_Checked">
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE81E;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Overlay" VerticalAlignment="Center"/></StackPanel>
+                                </RadioButton>
+                            </StackPanel>
+
+                            <ToggleButton Name="GrpPerf" Theme="{StaticResource NavGroup}" Content="RESET DESEMPENHO"/>
+                            <StackPanel Name="GrpPerfItems" Margin="10,0,0,4" IsVisible="{Binding #GrpPerf.IsChecked}">
+                                <RadioButton Name="NavBench" Theme="{StaticResource NavItem}" Tag="PageBench" AutomationProperties.Name="Benchmark" IsCheckedChanged="Nav_Checked">
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE8B9;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Benchmark" VerticalAlignment="Center"/></StackPanel>
+                                </RadioButton>
+                                <RadioButton Theme="{StaticResource NavItem}" Tag="PageStress" AutomationProperties.Name="Stress test" IsCheckedChanged="Nav_Checked">
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE945;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Stress test" VerticalAlignment="Center"/></StackPanel>
+                                </RadioButton>
+                                <RadioButton Theme="{StaticResource NavItem}" Tag="PageOc" AutomationProperties.Name="Overclock" IsCheckedChanged="Nav_Checked">
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xEC4A;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Overclock" VerticalAlignment="Center"/></StackPanel>
+                                </RadioButton>
+                            </StackPanel>
+
+                            <ToggleButton Name="GrpTools" Theme="{StaticResource NavGroup}" Content="RESET FERRAMENTAS"/>
+                            <StackPanel Name="GrpToolsItems" Margin="10,0,0,4" IsVisible="{Binding #GrpTools.IsChecked}">
+                                <RadioButton Theme="{StaticResource NavItem}" Tag="PageOptimize" AutomationProperties.Name="Otimização" IsCheckedChanged="Nav_Checked">
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE9F3;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Otimização" VerticalAlignment="Center"/></StackPanel>
+                                </RadioButton>
+                                <RadioButton Theme="{StaticResource NavItem}" Tag="PageStartup" AutomationProperties.Name="Inicialização" IsCheckedChanged="Nav_Checked">
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE823;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Inicialização" VerticalAlignment="Center"/></StackPanel>
+                                </RadioButton>
+                                <RadioButton Theme="{StaticResource NavItem}" Tag="PageApps" AutomationProperties.Name="Instalar apps" IsCheckedChanged="Nav_Checked">
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE719;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Instalar apps" VerticalAlignment="Center"/></StackPanel>
+                                </RadioButton>
+                                <RadioButton Theme="{StaticResource NavItem}" Tag="PageDriver" AutomationProperties.Name="Drivers" IsCheckedChanged="Nav_Checked">
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE896;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Drivers" VerticalAlignment="Center"/></StackPanel>
+                                </RadioButton>
+                                <RadioButton Theme="{StaticResource NavItem}" Tag="PageInteg" AutomationProperties.Name="Integração" IsCheckedChanged="Nav_Checked">
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE790;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Integração" VerticalAlignment="Center"/></StackPanel>
+                                </RadioButton>
+                            </StackPanel>
+
+                            <ToggleButton Name="GrpMaker" Theme="{StaticResource NavGroup}" Content="RESET MAKER"/>
+                            <StackPanel Name="GrpMakerItems" Margin="10,0,0,4" IsVisible="{Binding #GrpMaker.IsChecked}">
+                                <RadioButton Theme="{StaticResource NavItem}" Tag="PageMakerPorts" AutomationProperties.Name="Portas COM" IsCheckedChanged="Nav_Checked">
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE88E;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Portas COM" VerticalAlignment="Center"/></StackPanel>
+                                </RadioButton>
+                                <RadioButton Theme="{StaticResource NavItem}" Tag="PageMakerDrv" AutomationProperties.Name="Drivers seriais" IsCheckedChanged="Nav_Checked">
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE950;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Drivers seriais" VerticalAlignment="Center"/></StackPanel>
+                                </RadioButton>
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+
+            <!-- ===== Conteúdo ===== -->
+            <Panel Name="Pages" Grid.Row="1" Grid.Column="1">
+
+                <!-- ===== Telas que ainda estão só no app WPF ===== -->
+                <StackPanel Name="PageTodo" Margin="36,30,36,30" IsVisible="False">
+                    <TextBlock Name="TodoTitle" Classes="h1"/>
+                    <TextBlock Classes="sub" TextWrapping="Wrap"
+                               Text="Esta tela ainda não foi migrada para a nova interface. Por enquanto, use o ABExplode de sempre (WPF)."/>
+                </StackPanel>
+
+                <!-- ===== SISTEMA ===== -->
+                <Grid Name="PageSystem" Margin="36,30,36,30" RowDefinitions="Auto,*" IsVisible="False">
+                    <StackPanel Margin="0,0,0,24">
+                        <TextBlock Text="Sistema" Classes="h1"/>
+                        <TextBlock Name="SystemSub" Text="Hardware e software detectados" Classes="sub" TextWrapping="Wrap"/>
+                    </StackPanel>
+                    <Grid Grid.Row="1" ColumnDefinitions="220,24,*">
+                        <ListBox Name="InfoCategories" ItemContainerTheme="{StaticResource ListNavItem}" Background="Transparent"
+                                 SelectionChanged="InfoCategories_Changed">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="core:InfoNode">
+                                    <TextBlock Text="{Binding Header}"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <Border Grid.Column="2" Classes="card" Padding="26,8,26,22">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <StackPanel>
+                                    <TextBlock Name="InfoTitle" FontSize="20" FontWeight="SemiBold" Margin="0,16,0,8"/>
+
+                                    <!-- Unidades (só em Armazenamento): anel de cheio/vazio por letra -->
+                                    <StackPanel Name="DrivesPanel" IsVisible="False" Margin="0,4,0,8">
+                                        <Grid Margin="0,0,0,10">
+                                            <TextBlock Text="UNIDADES" Classes="label" Margin="0"/>
+                                            <TextBlock Name="DrivesSummary" Foreground="{DynamicResource Muted}" FontSize="12" HorizontalAlignment="Right"/>
+                                        </Grid>
+                                        <ItemsControl Name="DriveCards">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate><UniformGrid Columns="2"/></ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="plat:DriveCard">
+                                                    <Border BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="4" Padding="16,14" Margin="0,0,10,10"
+                                                            Background="{DynamicResource Bg}">
+                                                        <Grid ColumnDefinitions="Auto,*">
+                                                            <!-- Anel: trilha cinza = vazio, arco branco = usado -->
+                                                            <Grid Width="84" Height="84" Margin="0,0,16,0" VerticalAlignment="Center">
+                                                                <Ellipse Width="72" Height="72" Stroke="{DynamicResource Line}" StrokeThickness="8"/>
+                                                                <Path Data="{Binding UsedFraction, Converter={StaticResource UsedArc}}" Stroke="{DynamicResource Fg}"
+                                                                      StrokeThickness="8" StrokeLineCap="Flat"/>
+                                                                <TextBlock Text="{Binding UsedPercent}" Classes="mono" FontSize="15"
+                                                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            </Grid>
+                                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                                <TextBlock Text="{Binding Title}" FontSize="15" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                                                <TextBlock Text="{Binding Sizes}" Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                                                <TextBlock Text="{Binding Meta}" Foreground="{DynamicResource Faint}" FontSize="11" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                                            </StackPanel>
+                                                        </Grid>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <TextBlock Text="DISCOS FÍSICOS" Classes="label" Margin="0,14,0,0"/>
+                                    </StackPanel>
+
+                                    <ItemsControl Name="InfoDetails"/>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Border>
+                    </Grid>
+                </Grid>
+
+                <!-- ===== DISCOS (saúde) ===== -->
+                <ScrollViewer Name="PageDisks" IsVisible="False" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="36,30,36,30">
+                        <Grid Margin="0,0,0,20">
+                            <StackPanel Margin="0,0,160,0">
+                                <TextBlock Text="Discos" Classes="h1"/>
+                                <TextBlock Name="DiskHealthStatus" Text="Saúde, desgaste e temperatura de cada disco" Classes="sub" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <Button Name="BtnDiskRefresh" Theme="{StaticResource OutlineButton}" Content="ATUALIZAR" Padding="18,9"
+                                    HorizontalAlignment="Right" VerticalAlignment="Top" Click="BtnDiskRefresh_Click"/>
+                        </Grid>
+                        <ItemsControl Name="DiskCards" ItemTemplate="{StaticResource HealthCard}"/>
+                        <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap"
+                                   Text="Os dados vêm do sistema (S.M.A.R.T. e API de armazenamento) e dos sensores do disco. Pendrives e alguns HDs externos não informam saúde. O veredito é uma estimativa: faça backup de qualquer disco com aviso, não só dos críticos."/>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ===== ENERGIA (bateria e fonte) ===== -->
+                <ScrollViewer Name="PageEnergy" IsVisible="False" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="36,30,36,30">
+                        <Grid Margin="0,0,0,20">
+                            <StackPanel Margin="0,0,160,0">
+                                <TextBlock Text="Energia" Classes="h1"/>
+                                <TextBlock Name="EnergyStatus" Text="Bateria, fonte de energia e consumo" Classes="sub" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <Button Name="BtnEnergyRefresh" Theme="{StaticResource OutlineButton}" Content="ATUALIZAR" Padding="18,9"
+                                    HorizontalAlignment="Right" VerticalAlignment="Top" Click="BtnEnergyRefresh_Click"/>
+                        </Grid>
+                        <ItemsControl Name="EnergyCards" ItemTemplate="{StaticResource HealthCard}"/>
+                        <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap"
+                                   Text="Os dados vêm do sistema. Alguns notebooks não informam ciclos de carga ou a capacidade de projeto. O consumo mostrado vem dos sensores de CPU e GPU, não da fonte (PSU) do PC."/>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ===== REDE (diagnóstico de lag) ===== -->
+                <ScrollViewer Name="PageNet" IsVisible="False" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="36,30,36,30">
+                        <Grid Margin="0,0,0,20">
+                            <StackPanel Margin="0,0,160,0">
+                                <TextBlock Text="Rede" Classes="h1"/>
+                                <TextBlock Text="Descubra se o lag vem do seu PC, do Wi-Fi ou do provedor" Classes="sub" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <Button Name="BtnNetTest" Theme="{StaticResource PrimaryButton}" Content="TESTAR" Padding="22,9"
+                                    HorizontalAlignment="Right" VerticalAlignment="Top" Click="BtnNetTest_Click"/>
+                        </Grid>
+                        <ProgressBar Name="NetProgress" Minimum="0" Maximum="1" Height="3" MinHeight="3" Margin="0,0,0,8"
+                                     Background="{DynamicResource Line}" Foreground="{DynamicResource Fg}" CornerRadius="0"/>
+                        <TextBlock Name="NetStatus" Text="Pronto. O teste leva cerca de 30 segundos." Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,16"/>
+                        <ItemsControl Name="NetCards" ItemTemplate="{StaticResource HealthCard}"/>
+                        <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap"
+                                   Text="O teste envia pacotes de ping ao roteador e aos DNS públicos 1.1.1.1 e 8.8.8.8 e baixa/envia dados de teste do servidor público speed.cloudflare.com (cerca de 100 MB no total). Feche downloads, streaming e jogos antes para um resultado fiel."/>
+                    </StackPanel>
+                </ScrollViewer>
+
+            </Panel>
+        </Grid>
+    </Border>
 </Window>

@@ -135,6 +135,23 @@ Ordem, da mais simples para a mais complexa:
 
 - O atalho global Ctrl+Shift+O continua via `RegisterHotKey` no Windows.
 - **Pronto quando:** a versão Avalonia no Windows faz tudo que a v0.16 faz e o `publicar.bat` gera o `.exe` novo.
+- **Status: em andamento.**
+  - **Etapa 1 (feita):** base e primeiras telas em `src\ABExplode.App`.
+    - `Palette.axaml` + `ThemeManager` (troca os pincéis no modo claro, como no WPF) e `Theme.axaml`: os estilos com
+      template viraram `ControlTheme` (`Theme="{StaticResource PrimaryButton}"`), os de texto viraram classes
+      (`Classes="h1"`), e o cartão de veredito virou o modelo `HealthCard`.
+    - Janela com barra de título própria (`WindowDecorations="BorderOnly"` + `ExtendClientAreaToDecorationsHint` e
+      `WindowDecorationProperties.ElementRole="TitleBar"` para arrastar), menu lateral com todas as categorias e rodapé ao vivo.
+    - Telas migradas: **Sistema** (com os cartões de unidade), **Discos**, **Energia** e **Rede**. As outras abrem um
+      aviso de que ainda estão no app WPF. A Visão geral ainda não foi migrada, então o app abre em Sistema.
+    - Aviso de dispositivo (`ToastWindow`): `WM_DEVICECHANGE` pelo `Win32Properties.AddWndProcHookCallback` e
+      `WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE` pelo `Win32Properties.AddWindowStylesCallback`, sem P/Invoke.
+    - `Dialog` no lugar do `MessageBox`; `UsedArcConverter` com `StreamGeometry`.
+    - Sem `app.manifest` de administrador durante a migração (abre sem o UAC; sem admin, falta temperatura/consumo da CPU).
+    - A fonte monoespaçada é `Consolas`: com "Cascadia Mono" o Avalonia desenhava outra fonte.
+    - Os itens do menu e os botões da barra de título têm `AutomationProperties.Name` (leitor de tela e testes por UI Automation).
+  - **Próximas etapas:** Sensores e Visão geral; Placa de vídeo; RESET BENCH; Jogos, Gargalo, RESET OC;
+    OTIMIZA, Ferramentas, MAKER, Integração; Overlay; relatório exportável (precisa do histórico de benchmarks).
 
 ## Fase 4: Linux básico
 

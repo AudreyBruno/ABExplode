@@ -9,10 +9,15 @@
     <RootNamespace>ABExplode.App</RootNamespace>
     <ApplicationIcon>..\..\Assets\app.ico</ApplicationIcon>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <!-- Sem app.manifest de administrador durante a migração: abre sem o pedido do UAC (sensores da CPU pedem
+         "executar como administrador"). O app oficial continua sendo o WPF, que já abre como administrador. -->
   </PropertyGroup>
 
   <ItemGroup>
     <AvaloniaResource Include="..\..\Assets\app.ico" Link="Assets\app.ico" />
+    <AvaloniaResource Include="..\..\Assets\logo.png" Link="Assets\logo.png" />
+    <AvaloniaResource Include="..\..\Assets\logo-dark.png" Link="Assets\logo-dark.png" />
+    <AvaloniaResource Include="..\..\Assets\logo-badge.png" Link="Assets\logo-badge.png" />
   </ItemGroup>
 
   <ItemGroup>

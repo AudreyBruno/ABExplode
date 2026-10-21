@@ -1,0 +1,23 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Paleta monocromática (modo escuro). O ThemeManager troca estes pincéis no modo claro; o XAML usa DynamicResource. -->
+    <SolidColorBrush x:Key="Bg" Color="#000000"/>
+    <SolidColorBrush x:Key="Panel" Color="#080808"/>
+    <SolidColorBrush x:Key="Card" Color="#0E0E0E"/>
+    <SolidColorBrush x:Key="Hover" Color="#181818"/>
+    <SolidColorBrush x:Key="Line" Color="#1F1F1F"/>
+    <SolidColorBrush x:Key="LineStrong" Color="#3A3A3A"/>
+    <SolidColorBrush x:Key="Fg" Color="#F5F5F5"/>
+    <SolidColorBrush x:Key="Muted" Color="#8C8C8C"/>
+    <SolidColorBrush x:Key="Faint" Color="#4A4A4A"/>
+    <SolidColorBrush x:Key="Ink" Color="#000000"/>
+    <SolidColorBrush x:Key="ThumbBrush" Color="#2E2E2E"/>
+    <SolidColorBrush x:Key="ThumbHover" Color="#6A6A6A"/>
+    <SolidColorBrush x:Key="ThumbDrag" Color="#9A9A9A"/>
+
+    <FontFamily x:Key="UiFont">Segoe UI Variable Text, Segoe UI</FontFamily>
+    <FontFamily x:Key="Mono">Consolas</FontFamily>
+    <FontFamily x:Key="Icons">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
+
+</ResourceDictionary>
