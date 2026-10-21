@@ -14,7 +14,7 @@ namespace ABExplode.App;
 
 /// <summary>
 /// Janela principal (Avalonia). Mesma organização do app WPF: um arquivo parcial por área, code-behind e páginas trocadas
-/// por visibilidade. As telas ainda não migradas mostram o aviso da PageTodo (MIGRACAO-AVALONIA.md, Fase 3).
+/// por visibilidade.
 /// </summary>
 public partial class MainWindow : Window
 {
@@ -26,7 +26,7 @@ public partial class MainWindow : Window
     // Placa de vídeo principal (dedicada = primeira da lista), para o rodapé do menu
     private List<GpuInfo> _gpus = new();
 
-    /// <summary>Telas já migradas; as outras abrem a PageTodo.</summary>
+    /// <summary>Páginas pelo nome (Tag dos itens do menu).</summary>
     private readonly Dictionary<string, Control> _pages;
 
     public MainWindow() : this(null!) { } // só para o designer do Avalonia
@@ -35,7 +35,7 @@ public partial class MainWindow : Window
     {
         _platform = platform;
         InitializeComponent();
-        _pages = new Control[] { PageDash, PageSystem, PageSensors, PageGpu, PageDisks, PageEnergy, PageNet, PageBench, PageLauncher, PageGames, PageBottleneck, PageStress, PageOc, PageOptimize, PageStartup, PageApps, PageDriver, PageInteg, PageMakerPorts, PageMakerDrv }.ToDictionary(p => p.Name!);
+        _pages = new Control[] { PageDash, PageSystem, PageSensors, PageGpu, PageDisks, PageEnergy, PageNet, PageBench, PageLauncher, PageGames, PageBottleneck, PageStress, PageOc, PageOptimize, PageStartup, PageApps, PageDriver, PageInteg, PageMakerPorts, PageMakerDrv, PageOverlay }.ToDictionary(p => p.Name!);
         if (platform == null) { _monitor = null!; _timer = null!; return; }
 
         ThemeManager.Apply(_settings.LightTheme);
@@ -48,6 +48,7 @@ public partial class MainWindow : Window
         InitDevices();
         InitBench();
         InitStress();
+        InitOverlay();
         RefreshDrives();
         NavDash.IsChecked = true;
 
@@ -87,6 +88,7 @@ public partial class MainWindow : Window
             _ocCts?.Cancel();
             StopStress("App fechado");
             ShutdownInteg();
+            CloseOverlay();
             _toast?.Close();
             CloseDevices();
             _monitor.Dispose();
@@ -207,7 +209,7 @@ public partial class MainWindow : Window
         if (sender is not RadioButton { IsChecked: true } item || _pages == null) return;
         string page = (string)item.Tag!;
         string name = item.Content is Panel panel ? panel.Children.OfType<TextBlock>().LastOrDefault()?.Text ?? "" : "";
-        ShowPage(page, name);
+        ShowPage(page);
 
         // Abre a categoria da página e mostra "CATEGORIA · página" na barra de título.
         if (item.Parent is Control { Name: { } items } && items.EndsWith("Items") && this.FindControl<ToggleButton>(items[..^5]) is { } group)
@@ -237,12 +239,9 @@ public partial class MainWindow : Window
         }
     }
 
-    private void ShowPage(string name, string title)
+    private void ShowPage(string name)
     {
-        bool migrated = _pages.ContainsKey(name);
         foreach (var p in _pages.Values) p.IsVisible = p.Name == name;
-        PageTodo.IsVisible = !migrated;
-        if (!migrated) TodoTitle.Text = title;
     }
 
     // ---------------- Tema (escuro / claro) ----------------

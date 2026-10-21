@@ -97,6 +97,7 @@ public partial class MainWindow
     {
         const uint WM_DEVICECHANGE = 0x0219;
         if (msg == WM_DEVICECHANGE) OnDeviceChange((int)wParam, lParam);
+        else if (msg == WM_HOTKEY && (int)wParam == HotkeyId) { ToggleOverlay(); handled = true; }
         return IntPtr.Zero;
     }
 

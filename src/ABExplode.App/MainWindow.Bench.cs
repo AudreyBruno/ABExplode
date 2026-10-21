@@ -306,12 +306,13 @@ public partial class MainWindow
         });
         _gpuBenchActive = true;
         GbGpuNow.Text = "sensores pausados";
-        // TODO(Fase 3, Overlay): desligar o overlay durante o teste, como no WPF (ele também consulta a GPU).
+        bool overlayWasOn = PauseOverlay(); // o overlay também consulta a GPU
 
         // Thread dedicada: a cena roda num loop próprio com prioridade alta.
         var r = await Task.Factory.StartNew(bench.Run, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         timer.Stop();
         _gpuBenchActive = false;
+        ResumeOverlay(overlayWasOn);
         GbGpuNow.Text = "—";
         SetGameBenchRunning(BtnGpuBench, false);
         GbProgress.Value = 0;
@@ -364,11 +365,13 @@ public partial class MainWindow
             RtStatus.Text = $"Rodando · {size[0]}x{size[1]} · {PresetName(preset)} · {bench.Progress:P0}";
         });
 
-        // Igual à cena de jogo: sensores pausados (consultas ao driver geram engasgos no frametime).
+        // Igual à cena de jogo: sensores e overlay pausados (consultas ao driver geram engasgos no frametime).
         _gpuBenchActive = true;
+        bool overlayWasOn = PauseOverlay();
         var r = await Task.Factory.StartNew(bench.Run, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         timer.Stop();
         _gpuBenchActive = false;
+        ResumeOverlay(overlayWasOn);
         SetGameBenchRunning(BtnRtBench, false);
         RtProgress.Value = 0;
         RtFpsNow.Text = "—";
