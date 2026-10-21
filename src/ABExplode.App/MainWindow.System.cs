@@ -39,6 +39,7 @@ public partial class MainWindow
 
     private void Toast(string title, string text, string icon)
     {
+        AddEvent(icon, title, text.Split('\n')[0], "");
         _toast ??= new ToastWindow();
         _toast.Notify(title, text, icon);
     }

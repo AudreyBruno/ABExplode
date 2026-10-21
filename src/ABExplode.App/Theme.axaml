@@ -231,7 +231,59 @@
             </Border>
         </DataTemplate>
 
+        <!-- Linha "rótulo ........ valor" (KeyValuePair<string, string>: binding por reflexão) -->
+        <DataTemplate x:Key="KeyValueRow" x:CompileBindings="False">
+            <Grid Margin="0,3">
+                <TextBlock Text="{Binding Key}" Foreground="{DynamicResource Muted}"/>
+                <TextBlock Text="{Binding Value}" Classes="mono" HorizontalAlignment="Right"/>
+            </Grid>
+        </DataTemplate>
+
     </Styles.Resources>
+
+    <!-- ===== TextBox (PlaceholderText = texto de ajuda) ===== -->
+    <Style Selector="TextBox">
+        <Setter Property="Background" Value="{DynamicResource Bg}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource LineStrong}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="10"/>
+        <Setter Property="CaretBrush" Value="{DynamicResource Fg}"/>
+        <Setter Property="SelectionBrush" Value="#666666"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Padding" Value="8,7"/>
+        <Setter Property="PlaceholderForeground" Value="{DynamicResource Faint}"/>
+    </Style>
+    <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
+        <Setter Property="Background" Value="{DynamicResource Bg}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource LineStrong}"/>
+    </Style>
+    <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+        <Setter Property="Background" Value="{DynamicResource Bg}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Fg}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+
+    <!-- ===== Tabelas (Sensores) ===== -->
+    <Style Selector="TextBlock.colHeader">
+        <Setter Property="Foreground" Value="{DynamicResource Muted}"/>
+        <Setter Property="FontSize" Value="10.5"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+    <Style Selector="Border.sensorRow">
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    <Style Selector="Border.sensorRow:pointerover">
+        <Setter Property="Background" Value="{DynamicResource Panel}"/>
+    </Style>
+
+    <!-- Item da "Saúde do PC": ✓ preenchido quando ok -->
+    <Style Selector="TextBlock.check">
+        <Setter Property="Foreground" Value="{DynamicResource Faint}"/>
+    </Style>
+    <Style Selector="TextBlock.check.ok">
+        <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+    </Style>
 
     <!-- ===== Tipografia ===== -->
     <Style Selector="TextBlock.h1">

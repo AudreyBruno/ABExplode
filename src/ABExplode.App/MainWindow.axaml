@@ -184,6 +184,260 @@
                                Text="Esta tela ainda não foi migrada para a nova interface. Por enquanto, use o ABExplode de sempre (WPF)."/>
                 </StackPanel>
 
+                <!-- ===== VISÃO GERAL (painel) ===== -->
+                <ScrollViewer Name="PageDash" VerticalScrollBarVisibility="Auto" IsVisible="False">
+                    <StackPanel Margin="20,6,24,20">
+
+                        <!-- Linha 1: gráfico grande + desempenho -->
+                        <Grid ColumnDefinitions="*,16,330" Margin="0,0,0,16">
+                            <Border Classes="card" Padding="24,20">
+                                <StackPanel>
+                                    <Grid>
+                                        <StackPanel>
+                                            <TextBlock Name="DashChartLabel" Text="CPU · TEMPERATURA" Classes="label" Margin="0,0,0,4"/>
+                                            <TextBlock Name="DashChartDelta" Foreground="{DynamicResource Muted}" FontSize="12"/>
+                                            <TextBlock Name="DashChartValue" Text="—" Classes="hero mono" Margin="0,6,0,0"/>
+                                        </StackPanel>
+                                        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,0,6">
+                                            <TextBlock Text="GPU" Classes="label" HorizontalAlignment="Right" Margin="0,0,0,2"/>
+                                            <TextBlock Name="DashChartValue2" Text="—" Classes="mono" FontSize="22"
+                                                       Foreground="{DynamicResource Muted}" HorizontalAlignment="Right"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    <Grid Margin="0,16,0,8">
+                                        <StackPanel Name="DashRangePanel" Orientation="Horizontal">
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="DashRange" Content="1 MIN" Tag="60" IsCheckedChanged="DashOption_Checked"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="DashRange" Content="5 MIN" Tag="300" IsChecked="True" IsCheckedChanged="DashOption_Checked"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="DashRange" Content="15 MIN" Tag="900" IsCheckedChanged="DashOption_Checked"/>
+                                        </StackPanel>
+                                        <StackPanel Name="DashMetricPanel" Orientation="Horizontal" HorizontalAlignment="Right">
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="DashMetric" Content="Temperatura" Tag="temp" IsChecked="True" IsCheckedChanged="DashOption_Checked"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="DashMetric" Content="Carga" Tag="load" IsCheckedChanged="DashOption_Checked"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="DashMetric" Content="Consumo" Tag="power" IsCheckedChanged="DashOption_Checked"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    <Canvas Name="DashChart" Height="210" ClipToBounds="True" SizeChanged="DashChart_SizeChanged"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                        <Rectangle Width="14" Height="2" Fill="{DynamicResource Fg}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <TextBlock Text="CPU" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,0,16,0"/>
+                                        <Line StartPoint="0,0" EndPoint="14,0" Stroke="{DynamicResource Muted}" StrokeDashArray="3,2" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <TextBlock Text="GPU" Foreground="{DynamicResource Muted}" FontSize="11"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Desempenho -->
+                            <Border Grid.Column="2" Classes="card" Padding="22,20">
+                                <DockPanel>
+                                    <Button DockPanel.Dock="Bottom" Theme="{StaticResource PrimaryButton}" Content="RODAR BENCHMARK" Margin="0,14,0,0"
+                                            Padding="20,13" HorizontalAlignment="Stretch" Click="DashBench_Click"/>
+                                    <StackPanel>
+                                        <TextBlock Text="DESEMPENHO · RESET BENCH" Classes="label" Margin="0,0,0,4"/>
+                                        <Grid>
+                                            <TextBlock Name="DashScore" Text="—" Classes="hero mono"/>
+                                            <TextBlock Name="DashScoreDelta" Foreground="{DynamicResource Muted}" FontSize="12"
+                                                       HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                        </Grid>
+                                        <TextBlock Name="DashScoreSub" Text="multi-core · nenhum teste ainda" Foreground="{DynamicResource Faint}" FontSize="11" Margin="0,2,0,0"/>
+                                        <Border Height="1" Background="{DynamicResource Line}" Margin="0,16"/>
+                                        <ItemsControl Name="DashScores" ItemTemplate="{StaticResource KeyValueRow}"/>
+                                        <Border Background="{DynamicResource Bg}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="14"
+                                                Padding="14,4" Margin="0,14,0,0">
+                                            <StackPanel>
+                                                <Grid Margin="0,10">
+                                                    <TextBlock Text="CPU" Foreground="{DynamicResource Muted}"/>
+                                                    <TextBlock Name="DashCpuName" HorizontalAlignment="Right" TextTrimming="CharacterEllipsis" Margin="50,0,0,0"/>
+                                                </Grid>
+                                                <Border Height="1" Background="{DynamicResource Line}"/>
+                                                <Grid Margin="0,10">
+                                                    <TextBlock Text="GPU" Foreground="{DynamicResource Muted}"/>
+                                                    <TextBlock Name="DashGpuName" HorizontalAlignment="Right" TextTrimming="CharacterEllipsis" Margin="50,0,0,0"/>
+                                                </Grid>
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </DockPanel>
+                            </Border>
+                        </Grid>
+
+                        <!-- Linha 2: tabela de componentes -->
+                        <Border Classes="card" Padding="22,14,22,8" Margin="0,0,0,16">
+                            <StackPanel>
+                                <Grid ColumnDefinitions="2.2*,*,*,*,*,56" Margin="0,4,0,10">
+                                    <TextBlock Text="COMPONENTE" Classes="label" Margin="0"/>
+                                    <TextBlock Grid.Column="1" Text="TEMPERATURA" Classes="label" Margin="0"/>
+                                    <TextBlock Grid.Column="2" Text="CARGA" Classes="label" Margin="0"/>
+                                    <TextBlock Grid.Column="3" Text="CLOCK" Classes="label" Margin="0"/>
+                                    <TextBlock Grid.Column="4" Text="CONSUMO / USO" Classes="label" Margin="0"/>
+                                    <TextBlock Grid.Column="5" Text="VER" Classes="label" Margin="0" HorizontalAlignment="Right"/>
+                                </Grid>
+                                <ItemsControl Name="DashComponents">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="local:DashComponent">
+                                            <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0" Padding="0,11">
+                                                <Grid ColumnDefinitions="2.2*,*,*,*,*,56">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Border Width="28" Height="28" CornerRadius="8" Background="{DynamicResource Hover}" Margin="0,0,12,0">
+                                                            <TextBlock Text="{Binding Icon}" Classes="icon" FontSize="13"
+                                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                        <StackPanel VerticalAlignment="Center">
+                                                            <TextBlock Text="{Binding Name}" FontSize="13"/>
+                                                            <TextBlock Text="{Binding Model}" Foreground="{DynamicResource Faint}" FontSize="11" TextTrimming="CharacterEllipsis"/>
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                    <TextBlock Grid.Column="1" Text="{Binding Temp}" Classes="mono" VerticalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="2" Text="{Binding Load}" Classes="mono" VerticalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="3" Text="{Binding Clock}" Classes="mono" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="4" Text="{Binding Power}" Classes="mono" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
+                                                    <Button Grid.Column="5" Theme="{StaticResource CaptionButton}" Width="30" Height="30" Content="&#xE72A;"
+                                                            HorizontalAlignment="Right" Tag="{Binding Target}" Click="DashGo_Click" ToolTip.Tip="Abrir detalhes"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Linha 3: anéis de memória, eventos e saúde -->
+                        <Grid ColumnDefinitions="*,16,*,16,*">
+                            <Border Classes="card" Padding="22,20">
+                                <StackPanel>
+                                    <TextBlock Text="MEMÓRIA E DISCO" Classes="label" Margin="0,0,0,4"/>
+                                    <TextBlock Name="DashMemHero" Text="—" Classes="hero mono" FontSize="28"/>
+                                    <TextBlock Name="DashMemSub" Foreground="{DynamicResource Faint}" FontSize="11" Margin="0,2,0,8"/>
+                                    <Canvas Name="DashRings" Width="190" Height="190" HorizontalAlignment="Center" Margin="0,4,0,8"/>
+                                    <ItemsControl Name="DashRingLegend">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="local:DashRingItem">
+                                                <Grid Margin="0,3">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Ellipse Width="8" Height="8" Fill="{Binding Swatch}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{Binding Label}" Foreground="{DynamicResource Muted}" FontSize="12"/>
+                                                    </StackPanel>
+                                                    <TextBlock Text="{Binding Value}" Classes="mono" FontSize="12" HorizontalAlignment="Right"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Eventos recentes -->
+                            <Border Grid.Column="2" Classes="card" Padding="22,20">
+                                <StackPanel>
+                                    <TextBlock Text="Eventos recentes" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                    <TextBlock Name="DashEventsEmpty" Text="Nada ainda. Benchmarks, testes e dispositivos conectados aparecem aqui."
+                                               Foreground="{DynamicResource Faint}" TextWrapping="Wrap" FontSize="12"/>
+                                    <ItemsControl Name="DashEvents">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="local:DashEvent">
+                                                <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1" Padding="0,12">
+                                                    <Grid ColumnDefinitions="Auto,*,Auto">
+                                                        <Border Width="34" Height="34" CornerRadius="17" Background="{DynamicResource Fg}" Margin="0,0,12,0">
+                                                            <TextBlock Text="{Binding Icon}" Classes="icon" FontSize="14" Foreground="{DynamicResource Ink}"
+                                                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                                            <TextBlock Text="{Binding Detail}" Foreground="{DynamicResource Muted}" FontSize="12" TextTrimming="CharacterEllipsis"/>
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,0,0,0">
+                                                            <TextBlock Text="{Binding Value}" Classes="mono" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                                            <TextBlock Text="{Binding When}" Foreground="{DynamicResource Muted}" FontSize="11" HorizontalAlignment="Right"/>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Saúde do PC: lista de verificação + ação -->
+                            <Border Grid.Column="4" Classes="card" Padding="22,20">
+                                <DockPanel>
+                                    <Button DockPanel.Dock="Bottom" Theme="{StaticResource PrimaryButton}" Content="RESET OTIMIZA" Padding="20,13"
+                                            Margin="0,14,0,0" HorizontalAlignment="Stretch" Click="DashOptimize_Click"/>
+                                    <StackPanel>
+                                        <TextBlock Text="Saúde do PC" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                        <ItemsControl Name="DashHealth">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="local:DashCheck">
+                                                    <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1" Padding="0,11">
+                                                        <Grid ColumnDefinitions="Auto,*">
+                                                            <TextBlock Text="{Binding Glyph}" Classes="icon check" Classes.ok="{Binding Ok}" FontSize="18"
+                                                                       Margin="0,0,12,0" VerticalAlignment="Top"/>
+                                                            <StackPanel Grid.Column="1">
+                                                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                                                <TextBlock Text="{Binding Detail}" Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                            </StackPanel>
+                                                        </Grid>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </DockPanel>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ===== SENSORES ===== -->
+                <Grid Name="PageSensors" Margin="36,30,36,30" RowDefinitions="Auto,Auto,*" IsVisible="False">
+                    <Grid Margin="0,0,0,20">
+                        <StackPanel>
+                            <TextBlock Text="Sensores" Classes="h1"/>
+                            <TextBlock Name="StatusText" Text="Lendo sensores…" Classes="sub"/>
+                        </StackPanel>
+                        <TextBox Name="SensorSearch" Width="260" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                 PlaceholderText="Buscar sensor ou hardware…" TextChanged="SensorSearch_Changed"/>
+                    </Grid>
+                    <WrapPanel Name="CategoryChips" Grid.Row="1" Margin="0,0,0,14"/>
+                    <Border Grid.Row="2" Classes="card" Padding="6,14,6,6">
+                        <Grid RowDefinitions="Auto,*">
+                            <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1" Padding="12,0,12,10">
+                                <Grid ColumnDefinitions="*,130,130,120,120">
+                                    <TextBlock Text="SENSOR" Classes="colHeader"/>
+                                    <TextBlock Grid.Column="1" Text="TIPO" Classes="colHeader"/>
+                                    <TextBlock Grid.Column="2" Text="VALOR" Classes="colHeader"/>
+                                    <TextBlock Grid.Column="3" Text="MÍN." Classes="colHeader"/>
+                                    <TextBlock Grid.Column="4" Text="MÁX." Classes="colHeader"/>
+                                </Grid>
+                            </Border>
+                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                                <ItemsControl Name="SensorGroups">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="local:SensorGroup">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" Margin="12,22,0,8"/>
+                                                <ItemsControl ItemsSource="{Binding Rows}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate x:DataType="core:SensorRow">
+                                                            <Border Classes="sensorRow" BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1"
+                                                                    MinHeight="32" Padding="12,0">
+                                                                <Grid ColumnDefinitions="*,130,130,120,120" VerticalAlignment="Center">
+                                                                    <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis"/>
+                                                                    <TextBlock Grid.Column="1" Text="{Binding Category}" Foreground="{DynamicResource Muted}"/>
+                                                                    <TextBlock Grid.Column="2" Text="{Binding Value}" Classes="mono"/>
+                                                                    <TextBlock Grid.Column="3" Text="{Binding Min}" Classes="mono" Foreground="{DynamicResource Muted}"/>
+                                                                    <TextBlock Grid.Column="4" Text="{Binding Max}" Classes="mono" Foreground="{DynamicResource Muted}"/>
+                                                                </Grid>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
+                    </Border>
+                </Grid>
+
                 <!-- ===== SISTEMA ===== -->
                 <Grid Name="PageSystem" Margin="36,30,36,30" RowDefinitions="Auto,*" IsVisible="False">
                     <StackPanel Margin="0,0,0,24">

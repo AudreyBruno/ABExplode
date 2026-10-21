@@ -150,7 +150,14 @@ Ordem, da mais simples para a mais complexa:
     - Sem `app.manifest` de administrador durante a migração (abre sem o UAC; sem admin, falta temperatura/consumo da CPU).
     - A fonte monoespaçada é `Consolas`: com "Cascadia Mono" o Avalonia desenhava outra fonte.
     - Os itens do menu e os botões da barra de título têm `AutomationProperties.Name` (leitor de tela e testes por UI Automation).
-  - **Próximas etapas:** Sensores e Visão geral; Placa de vídeo; RESET BENCH; Jogos, Gargalo, RESET OC;
+  - **Etapa 2 (feita):** **Visão geral** e **Sensores**. O app volta a abrir na Visão geral.
+    - Visão geral: gráfico de área CPU × GPU (1/5/15 min; temperatura, carga, consumo), desempenho, tabela de componentes,
+      anéis de RAM/VRAM/disco, eventos recentes e saúde do PC, desenhados em `Canvas` como no WPF.
+      Os itens da saúde que dependem de ferramentas só do Windows (Modo de Jogo, Game DVR, portas COM) ficam em `#if WINDOWS`.
+    - Sensores: o `DataGrid` agrupado virou uma lista agrupada por hardware com as mesmas colunas (sem o pacote DataGrid);
+      filtros por tipo e busca. A lista só é remontada quando o filtro muda ou aparecem sensores novos.
+    - `TextBox` no visual do app (borda, foco, `PlaceholderText` no lugar do `Tag`).
+  - **Próximas etapas:** Placa de vídeo; RESET BENCH; Jogos, Gargalo, RESET OC;
     OTIMIZA, Ferramentas, MAKER, Integração; Overlay; relatório exportável (precisa do histórico de benchmarks).
 
 ## Fase 4: Linux básico

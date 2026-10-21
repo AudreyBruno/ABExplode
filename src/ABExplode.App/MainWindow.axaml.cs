@@ -35,7 +35,7 @@ public partial class MainWindow : Window
     {
         _platform = platform;
         InitializeComponent();
-        _pages = new Control[] { PageSystem, PageDisks, PageEnergy, PageNet }.ToDictionary(p => p.Name!);
+        _pages = new Control[] { PageDash, PageSystem, PageSensors, PageDisks, PageEnergy, PageNet }.ToDictionary(p => p.Name!);
         if (platform == null) { _monitor = null!; _timer = null!; return; }
 
         ThemeManager.Apply(_settings.LightTheme);
@@ -47,7 +47,7 @@ public partial class MainWindow : Window
 
         InitDevices();
         RefreshDrives();
-        NavSystem.IsChecked = true; // a Visão geral ainda não foi migrada: abre em Sistema
+        NavDash.IsChecked = true;
 
         // A janela aparece já; as coletas pesadas (WMI, sensores, GPU) rodam em paralelo fora da thread da janela.
         Opened += async (_, _) => await LoadHardwareAsync();
@@ -56,8 +56,11 @@ public partial class MainWindow : Window
         _timer.Tick += (_, _) =>
         {
             _monitor.Refresh();
+            if (_monitor.IsOpen) StatusText.Text = $"{_monitor.Rows.Count} sensores · atualizado {DateTime.Now:HH:mm:ss}";
             UpdateSideBar();
             UpdateCpuSensorWarning();
+            CollectDashSample();
+            if (PageSensors.IsVisible) UpdateSensorList();
         };
         _timer.Start();
 
@@ -93,15 +96,21 @@ public partial class MainWindow : Window
         async Task LoadSensors()
         {
             try { await _monitor.OpenAsync(); }
-            catch { return; }
+            catch (Exception ex) { StatusText.Text = $"Sensores indisponíveis: {ex.Message}"; return; }
             _monitor.Refresh();
             UpdateCpuSensorWarning();
+            AddChip("Todos", null, isChecked: true);
+            foreach (var c in _monitor.Rows.Select(r => r.Category).Distinct().OrderBy(x => x))
+                AddChip(c, c);
+            UpdateDashboard();
         }
 
         async Task LoadGpu()
         {
             try { _gpus = await Task.Run(_platform.Gpu.Collect); }
             catch { _gpus = new(); }
+            _cpuName = await Task.Run(_platform.SystemInfo.CpuName);
+            UpdateDashboard();
         }
 
         await Task.WhenAll(LoadInfo(), LoadSensors(), LoadGpu());
@@ -113,15 +122,9 @@ public partial class MainWindow : Window
     {
         SideTemp.Text = _monitor.CpuTemperature is float t ? $"{t:0.#} °C" : "—";
         SideLoad.Text = _monitor.CpuLoad is float l ? $"{l:0} %" : "—";
-        if (_gpus.Count > 0)
-        {
-            var g = _gpus[0];
-            var temps = _monitor.Rows.Where(r => r.Hardware == g.Name && r.Type == SensorKind.Temperature).ToList();
-            var gt = (temps.FirstOrDefault(r => r.Name == "GPU Core") ?? temps.FirstOrDefault())?.RawValue;
-            var gl = _monitor.Rows.FirstOrDefault(r => r.Hardware == g.Name && r.Type == SensorKind.Load && r.Name == "GPU Core")?.RawValue;
-            SideGpuTemp.Text = gt is float a ? $"{a:0.#} °C" : "—";
-            SideGpuLoad.Text = gl is float b ? $"{b:0} %" : "—";
-        }
+        if (_gpus.Count == 0) return;
+        SideGpuTemp.Text = MainGpuTemp() is float gt ? $"{gt:0.#} °C" : "—";
+        SideGpuLoad.Text = MainGpuLoad() is float gl ? $"{gl:0} %" : "—";
     }
 
     // ---------------- Sensores da CPU (PawnIO) ----------------
@@ -198,6 +201,8 @@ public partial class MainWindow : Window
         // Algumas páginas carregam dados só quando abertas.
         switch (page)
         {
+            case "PageDash": UpdateDashboard(); break;
+            case "PageSensors": ApplySensorFilter(); break;
             case "PageDisks": RefreshDiskHealth(); break;
             case "PageEnergy": RefreshEnergy(); break;
         }
