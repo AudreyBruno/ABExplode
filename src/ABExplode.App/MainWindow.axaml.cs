@@ -35,7 +35,7 @@ public partial class MainWindow : Window
     {
         _platform = platform;
         InitializeComponent();
-        _pages = new Control[] { PageDash, PageSystem, PageSensors, PageGpu, PageDisks, PageEnergy, PageNet }.ToDictionary(p => p.Name!);
+        _pages = new Control[] { PageDash, PageSystem, PageSensors, PageGpu, PageDisks, PageEnergy, PageNet, PageBench }.ToDictionary(p => p.Name!);
         if (platform == null) { _monitor = null!; _timer = null!; return; }
 
         ThemeManager.Apply(_settings.LightTheme);
@@ -46,15 +46,19 @@ public partial class MainWindow : Window
         SystemSub.Text = "Lendo informações do sistema…";
 
         InitDevices();
+        InitBench();
         RefreshDrives();
         NavDash.IsChecked = true;
 
         // A janela aparece já; as coletas pesadas (WMI, sensores, GPU) rodam em paralelo fora da thread da janela.
         Opened += async (_, _) => await LoadHardwareAsync();
 
-        _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        _timer = new DispatcherTimer(DispatcherPriority.Normal) { Interval = TimeSpan.FromSeconds(1) };
         _timer.Tick += (_, _) =>
         {
+            // Durante a cena de GPU (e o teste de disco) as leituras de sensores ficam pausadas: cada consulta trava o driver
+            // por um instante e aparecia como engasgo no 1% low do benchmark.
+            if (_gpuBenchActive) return;
             _monitor.Refresh();
             if (_monitor.IsOpen) StatusText.Text = $"{_monitor.Rows.Count} sensores · atualizado {DateTime.Now:HH:mm:ss}";
             UpdateSideBar();
@@ -62,6 +66,7 @@ public partial class MainWindow : Window
             CollectDashSample();
             if (PageSensors.IsVisible) UpdateSensorList();
             if (PageGpu.IsVisible) UpdateGpuPage();
+            if (PageBench.IsVisible) UpdateBenchLive();
         };
         _timer.Start();
 
@@ -73,6 +78,7 @@ public partial class MainWindow : Window
         Closed += (_, _) =>
         {
             _timer.Stop();
+            _benchCts?.Cancel(); _gameBenchCts?.Cancel();
             _toast?.Close();
             CloseDevices();
             _monitor.Dispose();

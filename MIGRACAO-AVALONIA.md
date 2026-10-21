@@ -160,7 +160,16 @@ Ordem, da mais simples para a mais complexa:
   - **Etapa 3 (feita):** **Placa de vídeo**: destaque, seções em 3 colunas, leituras do NVML (P-state, PerfCap, NVENC...)
     e sensores ao vivo da placa, ordenados como no GPU-Z; chips para escolher a placa quando há mais de uma.
     A lista ao vivo era uma `ListCollectionView` filtrada e ordenada; aqui é remontada só quando aparecem sensores novos.
-  - **Próximas etapas:** RESET BENCH; Jogos, Gargalo, RESET OC;
+  - **Etapa 4 (feita):** **RESET BENCH** (render de CPU, cena de jogo, ray tracing, simulação, memória, disco e históricos)
+    e o **relatório exportável** na tela Sistema.
+    - Imagem do render e da simulação num `WriteableBitmap` do Avalonia, copiada linha a linha a cada 100 ms.
+    - As barras de progresso (`ScaleTransform` no WPF) viraram `ProgressBar` com a classe `bar`.
+    - Cena de jogo e ray tracing (Direct3D) em `#if WINDOWS`; no Linux avisam que ainda não estão disponíveis (Fase 6).
+    - "Salvar como" do relatório pelo `StorageProvider`.
+    - **Timers em `DispatcherPriority.Normal`:** no Avalonia o padrão é `Background`, e com o timer da imagem em `Render`
+      o timer de 1 s dos sensores ficava sem vez durante o render (a carga aparecia parada em ~6%).
+    - Ainda não desliga o overlay durante os testes de GPU (o overlay ainda não foi migrado).
+  - **Próximas etapas:** Jogos, Gargalo, RESET OC;
     OTIMIZA, Ferramentas, MAKER, Integração; Overlay; relatório exportável (precisa do histórico de benchmarks).
 
 ## Fase 4: Linux básico

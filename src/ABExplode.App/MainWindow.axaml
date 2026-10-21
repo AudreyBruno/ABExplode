@@ -385,6 +385,360 @@
                     </StackPanel>
                 </ScrollViewer>
 
+                <!-- ===== RESET BENCH ===== -->
+                <Grid Name="PageBench" Margin="36,30,36,30" RowDefinitions="Auto,Auto,*" IsVisible="False">
+                    <StackPanel Margin="0,0,0,16">
+                        <TextBlock Text="RESET BENCH" Classes="h1"/>
+                        <TextBlock Name="BenchSub" Text="Benchmark de CPU por renderização 3D (path tracing), no mesmo princípio do Cinebench" Classes="sub"/>
+                    </StackPanel>
+
+                    <!-- Seletor de teste -->
+                    <WrapPanel Name="BenchTestPanel" Grid.Row="1" Margin="0,0,0,16">
+                        <RadioButton Theme="{StaticResource Chip}" GroupName="BenchTest" Content="Render (CPU)" Tag="render" IsChecked="True" IsCheckedChanged="BenchTest_Checked"/>
+                        <RadioButton Theme="{StaticResource Chip}" GroupName="BenchTest" Content="Cena de jogo (GPU)" Tag="gpu" IsCheckedChanged="BenchTest_Checked"/>
+                        <RadioButton Theme="{StaticResource Chip}" GroupName="BenchTest" Content="Ray tracing (GPU)" Tag="rt" IsCheckedChanged="BenchTest_Checked"/>
+                        <RadioButton Theme="{StaticResource Chip}" GroupName="BenchTest" Content="Simulação de jogo (CPU)" Tag="sim" IsCheckedChanged="BenchTest_Checked"/>
+                        <RadioButton Theme="{StaticResource Chip}" GroupName="BenchTest" Content="Memória e carregamento" Tag="mem" IsCheckedChanged="BenchTest_Checked"/>
+                        <RadioButton Theme="{StaticResource Chip}" GroupName="BenchTest" Content="Disco" Tag="disk" IsCheckedChanged="BenchTest_Checked"/>
+                    </WrapPanel>
+
+                    <!-- ===== Render (CPU) ===== -->
+                    <Grid Name="BenchPanelRender" Grid.Row="2" ColumnDefinitions="*,16,310">
+                        <Border Classes="card" Padding="14" VerticalAlignment="Top">
+                            <StackPanel>
+                                <Border Background="#050505">
+                                    <Viewbox Stretch="Uniform">
+                                        <Panel Width="960" Height="540">
+                                            <Image Name="BenchImage" Width="960" Height="540" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                                            <Canvas Name="BenchBuckets" Width="960" Height="540"/>
+                                            <TextBlock Name="BenchIdle" Text="Pressione INICIAR para renderizar a cena"
+                                                       Foreground="{DynamicResource Faint}" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Panel>
+                                    </Viewbox>
+                                </Border>
+                                <ProgressBar Name="BenchProgress" Classes="bar" Margin="0,12,0,8"/>
+                                <Grid>
+                                    <TextBlock Name="BenchStatus" Text="Pronto" Foreground="{DynamicResource Muted}"/>
+                                    <TextBlock Name="BenchElapsed" Classes="mono" Foreground="{DynamicResource Muted}" HorizontalAlignment="Right"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <Border Classes="card" Margin="0,0,0,12">
+                                    <StackPanel>
+                                        <TextBlock Text="TESTE" Classes="label"/>
+                                        <WrapPanel Name="BenchModePanel">
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="BenchMode" Content="Multi-core" Tag="mt"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="BenchMode" Content="Single-core" Tag="st"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="BenchMode" Content="Ambos" Tag="both" IsChecked="True"/>
+                                        </WrapPanel>
+                                        <TextBlock Text="DURAÇÃO" Classes="label" Margin="0,10,0,8"/>
+                                        <WrapPanel Name="BenchDurationPanel">
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="BenchDur" Content="1 passada" Tag="0" IsChecked="True"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="BenchDur" Content="Mínimo 10 min" Tag="10"/>
+                                        </WrapPanel>
+                                        <Button Name="BtnBench" Theme="{StaticResource PrimaryButton}" Content="INICIAR" Margin="0,12,0,0"
+                                                HorizontalAlignment="Stretch" Click="BtnBench_Click"/>
+                                        <TextBlock Name="BenchHint" Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Classes="card" Margin="0,0,0,12">
+                                    <StackPanel>
+                                        <TextBlock Text="RESULTADO" Classes="label"/>
+                                        <Grid>
+                                            <TextBlock Text="Multi-core" Foreground="{DynamicResource Muted}" VerticalAlignment="Bottom" Margin="0,0,0,5"/>
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                                <TextBlock Name="BenchMt" Text="—" Classes="mono" FontSize="30"/>
+                                                <TextBlock Text=" pts" Foreground="{DynamicResource Muted}" VerticalAlignment="Bottom" Margin="0,0,0,6"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        <Grid Margin="0,6,0,0">
+                                            <TextBlock Text="Single-core" Foreground="{DynamicResource Muted}" VerticalAlignment="Bottom" Margin="0,0,0,5"/>
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                                <TextBlock Name="BenchSt" Text="—" Classes="mono" FontSize="30"/>
+                                                <TextBlock Text=" pts" Foreground="{DynamicResource Muted}" VerticalAlignment="Bottom" Margin="0,0,0,6"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        <TextBlock Name="BenchRatio" Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Classes="card" Margin="0,0,0,12">
+                                    <StackPanel>
+                                        <TextBlock Text="DURANTE O TESTE" Classes="label"/>
+                                        <ItemsControl Name="BenchLive" ItemTemplate="{StaticResource KeyValueRow}"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Classes="card">
+                                    <StackPanel>
+                                        <TextBlock Text="HISTÓRICO" Classes="label"/>
+                                        <TextBlock Name="BenchHistoryEmpty" Text="Nenhum resultado ainda." Foreground="{DynamicResource Faint}"/>
+                                        <ItemsControl Name="BenchHistory" ItemTemplate="{StaticResource Meter}"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+
+                    <!-- ===== Cena de jogo (GPU) ===== -->
+                    <Grid Name="BenchPanelGpu" Grid.Row="2" ColumnDefinitions="*,16,310" IsVisible="False">
+                        <Border Classes="card" VerticalAlignment="Top" Padding="24,20">
+                            <StackPanel>
+                                <TextBlock Text="VALE · CENA DE JOGO" Classes="label"/>
+                                <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource Muted}"
+                                           Text="Sobrevoo de um vale com terreno gerado por ruído fractal (~500 mil triângulos), 40 mil árvores por instancing, sombras em tempo real (mapa 4096² com bordas suaves), água com ondas, neblina, céu e pós-processamento HDR. A câmera segue um trajeto fixo pelo tempo e a resolução é fixa: o trabalho é o mesmo em qualquer PC. A cena abre numa janela própria; ESC cancela."/>
+                                <Grid Margin="0,22,0,0">
+                                    <StackPanel>
+                                        <TextBlock Text="FPS AGORA" Classes="label"/>
+                                        <TextBlock Name="GbFpsNow" Text="—" Classes="mono" FontSize="44"/>
+                                    </StackPanel>
+                                    <StackPanel HorizontalAlignment="Right">
+                                        <TextBlock Text="GPU" Classes="label" HorizontalAlignment="Right"/>
+                                        <TextBlock Name="GbGpuNow" Text="—" Classes="mono" FontSize="20" HorizontalAlignment="Right"/>
+                                    </StackPanel>
+                                </Grid>
+                                <ProgressBar Name="GbProgress" Classes="bar" Margin="0,14,0,8"/>
+                                <TextBlock Name="GbStatus" Text="Pronto" Foreground="{DynamicResource Muted}" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                        <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <Border Classes="card" Margin="0,0,0,12">
+                                    <StackPanel>
+                                        <TextBlock Text="RESOLUÇÃO" Classes="label"/>
+                                        <WrapPanel Name="GbResPanel">
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="GbRes" Content="1080p" Tag="1920x1080" IsChecked="True"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="GbRes" Content="1440p" Tag="2560x1440"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="GbRes" Content="4K" Tag="3840x2160"/>
+                                        </WrapPanel>
+                                        <TextBlock Text="DURAÇÃO" Classes="label" Margin="0,10,0,8"/>
+                                        <WrapPanel Name="GbDurPanel">
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="GbDur" Content="30 s" Tag="30"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="GbDur" Content="60 s" Tag="60" IsChecked="True"/>
+                                        </WrapPanel>
+                                        <Button Name="BtnGpuBench" Theme="{StaticResource PrimaryButton}" Content="INICIAR" Margin="0,12,0,0"
+                                                HorizontalAlignment="Stretch" Click="BtnGpuBench_Click"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Classes="card" Margin="0,0,0,12">
+                                    <StackPanel>
+                                        <TextBlock Text="RESULTADO" Classes="label"/>
+                                        <ItemsControl Name="GbResult" ItemTemplate="{StaticResource KeyValueRow}"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Classes="card">
+                                    <StackPanel>
+                                        <TextBlock Text="HISTÓRICO" Classes="label"/>
+                                        <ItemsControl Name="GbHistory" ItemTemplate="{StaticResource Meter}"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+
+                    <!-- ===== Ray tracing (GPU, DXR 1.1) ===== -->
+                    <Grid Name="BenchPanelRt" Grid.Row="2" ColumnDefinitions="*,16,310" IsVisible="False">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <Border Classes="card" VerticalAlignment="Top" Padding="24,20" Margin="0,0,0,12">
+                                    <StackPanel>
+                                        <TextBlock Text="CIDADE DE OBJETOS · RAY TRACING POR HARDWARE" Classes="label"/>
+                                        <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource Muted}"
+                                                   Text="Direct3D 12 com DXR 1.1: usa os núcleos de ray tracing da placa (RTX 20 ou mais nova, Radeon RX 6000 ou mais nova, Intel Arc). 4 mil objetos em materiais fosco, metal e espelho; por pixel, path tracing com sombras suaves, oclusão de ambiente, reflexos de reflexos e iluminação indireta. A estrutura de aceleração é refeita a cada frame, com objetos girando, como nos jogos. Abre numa janela própria; ESC cancela."/>
+                                        <Grid Margin="0,22,0,0">
+                                            <StackPanel>
+                                                <TextBlock Text="FPS AGORA" Classes="label"/>
+                                                <TextBlock Name="RtFpsNow" Text="—" Classes="mono" FontSize="44"/>
+                                            </StackPanel>
+                                            <StackPanel HorizontalAlignment="Right">
+                                                <TextBlock Text="ETAPA" Classes="label" HorizontalAlignment="Right"/>
+                                                <TextBlock Name="RtPhase" Text="—" Classes="mono" FontSize="20" HorizontalAlignment="Right"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        <ProgressBar Name="RtProgress" Classes="bar" Margin="0,14,0,8"/>
+                                        <TextBlock Name="RtStatus" Text="Pronto" Foreground="{DynamicResource Muted}" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Classes="card" Padding="24,20">
+                                    <StackPanel>
+                                        <TextBlock Text="COMO COMPARAR COM CONFIANÇA" Classes="label"/>
+                                        <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource Muted}" FontSize="12"
+                                                   Text="O teste aquece a placa sem medir (o clock e a temperatura se estabilizam) e depois roda 3 passadas iguais. A nota usa a MEDIANA das passadas, e a variação entre elas mostra se o resultado é confiável (abaixo de 3%). O tempo de cada frame vem do relógio da própria GPU. Compare só resultados com a mesma resolução e o mesmo preset, com o PC na tomada, sem outros programas pesados abertos e com o mesmo driver. A cena é sempre a mesma (sementes fixas), em qualquer PC."/>
+                                        <TextBlock Text="REFERÊNCIA MEDIDA" Classes="label" Margin="0,14,0,4"/>
+                                        <TextBlock TextWrapping="Wrap" FontSize="12"
+                                                   Text="AMD Radeon RX 9070 · Alta 1440p · modo Padrão: 878 pts (87,8 FPS, 1% low 77), variação 0,5%."/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                        <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <Border Classes="card" Margin="0,0,0,12">
+                                    <StackPanel>
+                                        <TextBlock Text="RESOLUÇÃO" Classes="label"/>
+                                        <WrapPanel Name="RtResPanel">
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="RtRes" Content="1080p" Tag="1920x1080"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="RtRes" Content="1440p" Tag="2560x1440" IsChecked="True"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="RtRes" Content="4K" Tag="3840x2160"/>
+                                        </WrapPanel>
+                                        <TextBlock Text="PRESET" Classes="label" Margin="0,10,0,8"/>
+                                        <WrapPanel Name="RtPresetPanel">
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="RtPreset" Content="Normal" Tag="normal"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="RtPreset" Content="Alta" Tag="alta" IsChecked="True"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="RtPreset" Content="Extrema" Tag="extrema"/>
+                                        </WrapPanel>
+                                        <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0"
+                                                   Text="Normal: 2 amostras e 2 rebatidas por pixel · Alta: 4 e 3 · Extrema: 8 e 4."/>
+                                        <TextBlock Text="MODO" Classes="label" Margin="0,10,0,8"/>
+                                        <WrapPanel Name="RtModePanel">
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="RtMode" Content="Padrão" Tag="std" IsChecked="True"
+                                                         ToolTip.Tip="Aquece 20 s e mede 3 passadas de 30 s (~2 min). Use para comparar."/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="RtMode" Content="Rápido" Tag="quick"
+                                                         ToolTip.Tip="Aquece 5 s e mede 3 passadas de 10 s (~35 s). Só para uma ideia rápida."/>
+                                        </WrapPanel>
+                                        <Button Name="BtnRtBench" Theme="{StaticResource PrimaryButton}" Content="INICIAR" Margin="0,12,0,0"
+                                                HorizontalAlignment="Stretch" Click="BtnRtBench_Click"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Classes="card" Margin="0,0,0,12">
+                                    <StackPanel>
+                                        <TextBlock Text="RESULTADO" Classes="label"/>
+                                        <TextBlock Name="RtVerdict" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                        <ItemsControl Name="RtResult" ItemTemplate="{StaticResource KeyValueRow}"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Classes="card">
+                                    <StackPanel>
+                                        <TextBlock Text="HISTÓRICO" Classes="label"/>
+                                        <ItemsControl Name="RtHistory" ItemTemplate="{StaticResource Meter}"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+
+                    <!-- ===== Simulação de jogo (CPU) ===== -->
+                    <Grid Name="BenchPanelSim" Grid.Row="2" ColumnDefinitions="*,16,310" IsVisible="False">
+                        <Border Classes="card" Padding="14" VerticalAlignment="Top">
+                            <StackPanel>
+                                <Panel>
+                                    <Border Background="#050505" HorizontalAlignment="Center">
+                                        <Image Name="SimImage" Width="440" Height="440" RenderOptions.BitmapInterpolationMode="None"/>
+                                    </Border>
+                                    <TextBlock Name="SimIdle" Text="30 mil unidades em batalha" Foreground="{DynamicResource Faint}" FontSize="18"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Panel>
+                                <ProgressBar Name="SimProgress" Classes="bar" Margin="0,12,0,8"/>
+                                <Grid>
+                                    <TextBlock Name="SimStatus" Text="Pronto" Foreground="{DynamicResource Muted}"/>
+                                    <TextBlock Name="SimFpsNow" Classes="mono" Foreground="{DynamicResource Muted}" HorizontalAlignment="Right"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                        <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <Border Classes="card" Margin="0,0,0,12">
+                                    <StackPanel>
+                                        <TextBlock Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,10"
+                                                   Text="Simula o trabalho de CPU de um jogo: a thread principal monta a grade espacial, roda a lógica e prepara o desenho; as outras threads calculam física, colisão e IA de 30 mil unidades. A nota é quantos frames por segundo a CPU aguenta."/>
+                                        <TextBlock Text="DURAÇÃO" Classes="label"/>
+                                        <WrapPanel Name="SimDurPanel">
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="SimDur" Content="20 s" Tag="20" IsChecked="True"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="SimDur" Content="60 s" Tag="60"/>
+                                        </WrapPanel>
+                                        <Button Name="BtnSimBench" Theme="{StaticResource PrimaryButton}" Content="INICIAR" Margin="0,12,0,0"
+                                                HorizontalAlignment="Stretch" Click="BtnSimBench_Click"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Classes="card" Margin="0,0,0,12">
+                                    <StackPanel>
+                                        <TextBlock Text="RESULTADO" Classes="label"/>
+                                        <ItemsControl Name="SimResult" ItemTemplate="{StaticResource KeyValueRow}"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Classes="card">
+                                    <StackPanel>
+                                        <TextBlock Text="HISTÓRICO" Classes="label"/>
+                                        <ItemsControl Name="SimHistory" ItemTemplate="{StaticResource Meter}"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+
+                    <!-- ===== Memória e carregamento ===== -->
+                    <Grid Name="BenchPanelMem" Grid.Row="2" ColumnDefinitions="*,16,310" IsVisible="False">
+                        <Border Classes="card" VerticalAlignment="Top" Padding="24,20">
+                            <StackPanel>
+                                <TextBlock Text="RESULTADOS" Classes="label"/>
+                                <ItemsControl Name="MemResult" Margin="0,4,0,0" ItemTemplate="{StaticResource MemRowTemplate}"/>
+                                <ProgressBar Name="MemProgress" Classes="bar" Margin="0,16,0,8"/>
+                                <TextBlock Name="MemStatus" Text="Pronto" Foreground="{DynamicResource Muted}" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                        <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <Border Classes="card" Margin="0,0,0,12">
+                                    <StackPanel>
+                                        <TextBlock Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,12"
+                                                   Text="Mede a latência e a banda da RAM e simula o carregamento de um mapa: um pacote de 512 MB e mil arquivos de 64 KB, lidos do disco sem o cache do sistema. Os arquivos de teste ficam na pasta temporária e são apagados no final."/>
+                                        <Button Name="BtnMemBench" Theme="{StaticResource PrimaryButton}" Content="INICIAR"
+                                                HorizontalAlignment="Stretch" Click="BtnMemBench_Click"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Classes="card">
+                                    <StackPanel>
+                                        <TextBlock Text="HISTÓRICO" Classes="label"/>
+                                        <ItemsControl Name="MemHistory" ItemTemplate="{StaticResource Meter}"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+
+                    <!-- ===== Disco ===== -->
+                    <Grid Name="BenchPanelDisk" Grid.Row="2" ColumnDefinitions="*,16,310" IsVisible="False">
+                        <Border Classes="card" VerticalAlignment="Top" Padding="24,20">
+                            <StackPanel>
+                                <TextBlock Text="RESULTADOS" Classes="label"/>
+                                <ItemsControl Name="DiskResult" Margin="0,4,0,0" ItemTemplate="{StaticResource MemRowTemplate}"/>
+                                <ProgressBar Name="DiskProgress" Classes="bar" Margin="0,16,0,8"/>
+                                <TextBlock Name="DiskStatus" Text="Pronto" Foreground="{DynamicResource Muted}" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                        <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <Border Classes="card" Margin="0,0,0,12">
+                                    <StackPanel>
+                                        <TextBlock Text="UNIDADE" Classes="label"/>
+                                        <WrapPanel Name="DiskDrivePanel"/>
+                                        <TextBlock Text="TAMANHO DO TESTE" Classes="label" Margin="0,10,0,8"/>
+                                        <WrapPanel Name="DiskSizePanel">
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="DiskSize" Content="512 MB" Tag="512"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="DiskSize" Content="1 GB" Tag="1024" IsChecked="True"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="DiskSize" Content="4 GB" Tag="4096"/>
+                                        </WrapPanel>
+                                        <TextBlock Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,12,0,12"
+                                                   Text="Mede leitura e escrita sequenciais e acessos aleatórios de 4 KB, direto no disco (sem o cache do sistema). Grava um arquivo temporário na unidade escolhida e o apaga no final. Feche outros programas pesados antes."/>
+                                        <Button Name="BtnDiskBench" Theme="{StaticResource PrimaryButton}" Content="INICIAR"
+                                                HorizontalAlignment="Stretch" Click="BtnDiskBench_Click"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Classes="card">
+                                    <StackPanel>
+                                        <TextBlock Text="HISTÓRICO" Classes="label"/>
+                                        <ItemsControl Name="DiskHistory" ItemTemplate="{StaticResource Meter}"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+                </Grid>
+
                 <!-- ===== PLACA DE VÍDEO ===== -->
                 <Grid Name="PageGpu" Margin="36,30,36,30" RowDefinitions="Auto,Auto,*" IsVisible="False">
                     <Grid Margin="0,0,0,20">
@@ -529,10 +883,15 @@
 
                 <!-- ===== SISTEMA ===== -->
                 <Grid Name="PageSystem" Margin="36,30,36,30" RowDefinitions="Auto,*" IsVisible="False">
-                    <StackPanel Margin="0,0,0,24">
-                        <TextBlock Text="Sistema" Classes="h1"/>
-                        <TextBlock Name="SystemSub" Text="Hardware e software detectados" Classes="sub" TextWrapping="Wrap"/>
-                    </StackPanel>
+                    <Grid Margin="0,0,0,24">
+                        <StackPanel Margin="0,0,200,0">
+                            <TextBlock Text="Sistema" Classes="h1"/>
+                            <TextBlock Name="SystemSub" Text="Hardware e software detectados" Classes="sub" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <Button Name="BtnReport" Theme="{StaticResource OutlineButton}" Content="EXPORTAR RELATÓRIO" Padding="16,9"
+                                HorizontalAlignment="Right" VerticalAlignment="Top" Click="BtnReport_Click"
+                                ToolTip.Tip="Salva um relatório (HTML ou JSON) com sistema, RAM, discos, GPU, sensores e benchmarks. Números de série são omitidos."/>
+                    </Grid>
                     <Grid Grid.Row="1" ColumnDefinitions="220,24,*">
                         <ListBox Name="InfoCategories" ItemContainerTheme="{StaticResource ListNavItem}" Background="Transparent"
                                  SelectionChanged="InfoCategories_Changed">
@@ -635,8 +994,7 @@
                             <Button Name="BtnNetTest" Theme="{StaticResource PrimaryButton}" Content="TESTAR" Padding="22,9"
                                     HorizontalAlignment="Right" VerticalAlignment="Top" Click="BtnNetTest_Click"/>
                         </Grid>
-                        <ProgressBar Name="NetProgress" Minimum="0" Maximum="1" Height="3" MinHeight="3" Margin="0,0,0,8"
-                                     Background="{DynamicResource Line}" Foreground="{DynamicResource Fg}" CornerRadius="0"/>
+                        <ProgressBar Name="NetProgress" Classes="bar" Margin="0,0,0,8"/>
                         <TextBlock Name="NetStatus" Text="Pronto. O teste leva cerca de 30 segundos." Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,16"/>
                         <ItemsControl Name="NetCards" ItemTemplate="{StaticResource HealthCard}"/>
                         <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap"

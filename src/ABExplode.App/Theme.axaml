@@ -1,6 +1,7 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:core="clr-namespace:ABExplode.Core;assembly=ABExplode.Core">
+        xmlns:core="clr-namespace:ABExplode.Core;assembly=ABExplode.Core"
+        xmlns:local="clr-namespace:ABExplode.App">
 
     <!-- Convertido do Theme.xaml do app WPF: estilos com template viram ControlTheme (Theme="{StaticResource ...}"),
          estilos de texto e cartão viram classes (Classes="h1"). As cores vêm do Palette.axaml (DynamicResource). -->
@@ -239,7 +240,40 @@
             </Grid>
         </DataTemplate>
 
+        <!-- Medidor horizontal: rótulo, valor e barra (Fraction 0..1) — históricos de benchmark -->
+        <DataTemplate x:Key="Meter" x:DataType="local:MeterItem">
+            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" Margin="0,0,0,12">
+                <TextBlock Text="{Binding Label}" Foreground="{DynamicResource Muted}" Margin="0,0,12,0"/>
+                <TextBlock Grid.Column="1" Text="{Binding Value}" Classes="mono" HorizontalAlignment="Right" TextTrimming="CharacterEllipsis"/>
+                <ProgressBar Grid.Row="1" Grid.ColumnSpan="2" Classes="bar" Height="4" MinHeight="4" Margin="0,6,0,0" Value="{Binding Fraction}"/>
+            </Grid>
+        </DataTemplate>
+
+        <!-- Linha de resultado com explicação (Memória e carregamento, Disco) -->
+        <DataTemplate x:Key="MemRowTemplate" x:DataType="local:MemRow">
+            <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1" Padding="0,12">
+                <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Margin="0,0,16,0">
+                        <TextBlock Text="{Binding Label}" FontSize="14"/>
+                        <TextBlock Text="{Binding Hint}" Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <TextBlock Grid.Column="1" Text="{Binding Value}" Classes="mono" FontSize="20" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
     </Styles.Resources>
+
+    <!-- ===== Barra de progresso fina (0..1) ===== -->
+    <Style Selector="ProgressBar.bar">
+        <Setter Property="Minimum" Value="0"/>
+        <Setter Property="Maximum" Value="1"/>
+        <Setter Property="Height" Value="3"/>
+        <Setter Property="MinHeight" Value="3"/>
+        <Setter Property="CornerRadius" Value="0"/>
+        <Setter Property="Background" Value="{DynamicResource Line}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+    </Style>
 
     <!-- ===== TextBox (PlaceholderText = texto de ajuda) ===== -->
     <Style Selector="TextBox">
