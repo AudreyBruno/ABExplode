@@ -71,7 +71,7 @@ public partial class MainWindow
     private async void BtnBench_Click(object? sender, RoutedEventArgs e)
     {
         if (BenchRunning) { _benchCts!.Cancel(); return; }
-        if (_gameBenchRunning) { BenchHint.Text = "Pare o outro teste antes de rodar o benchmark."; return; }
+        if (TestRunning || _gameBenchRunning) { BenchHint.Text = "Pare o outro teste antes de rodar o benchmark."; return; }
 
         string mode = CheckedTag(BenchModePanel) ?? "both";
         bool sustained = CheckedTag(BenchDurationPanel) == "10";
@@ -286,7 +286,7 @@ public partial class MainWindow
     private async void BtnGpuBench_Click(object? sender, RoutedEventArgs e)
     {
         if (_gameBenchRunning) { _gpuBench?.Cancel(); return; }
-        if (AnyBenchRunning) { GbStatus.Text = "Termine o outro teste antes."; return; }
+        if (AnyBenchRunning || TestRunning) { GbStatus.Text = "Termine o outro teste antes."; return; }
 
         var size = (CheckedTag(GbResPanel) ?? "1920x1080").Split('x').Select(int.Parse).ToArray();
         int secs = int.Parse(CheckedTag(GbDurPanel) ?? "60");
@@ -337,7 +337,7 @@ public partial class MainWindow
     private async void BtnRtBench_Click(object? sender, RoutedEventArgs e)
     {
         if (_gameBenchRunning) { _rtBench?.Cancel(); return; }
-        if (AnyBenchRunning) { RtStatus.Text = "Termine o outro teste antes."; return; }
+        if (AnyBenchRunning || TestRunning) { RtStatus.Text = "Termine o outro teste antes."; return; }
 
         string adapterName = _gpus.Count > 0 ? _gpus[0].Name : "";
         RtStatus.Text = "Verificando suporte a ray tracing…";
@@ -413,7 +413,7 @@ public partial class MainWindow
     private async void BtnSimBench_Click(object? sender, RoutedEventArgs e)
     {
         if (_gameBenchRunning) { _gameBenchCts?.Cancel(); return; }
-        if (AnyBenchRunning) { SimStatus.Text = "Termine o outro teste antes."; return; }
+        if (AnyBenchRunning || TestRunning) { SimStatus.Text = "Termine o outro teste antes."; return; }
 
         int secs = int.Parse(CheckedTag(SimDurPanel) ?? "20");
         _simBitmap ??= NewBitmap(SimView, SimView);
@@ -476,7 +476,7 @@ public partial class MainWindow
     private async void BtnMemBench_Click(object? sender, RoutedEventArgs e)
     {
         if (_gameBenchRunning) { _gameBenchCts?.Cancel(); return; }
-        if (AnyBenchRunning) { MemStatus.Text = "Termine o outro teste antes."; return; }
+        if (AnyBenchRunning || TestRunning) { MemStatus.Text = "Termine o outro teste antes."; return; }
 
         _gameBenchCts = new CancellationTokenSource();
         var ct = _gameBenchCts.Token;
@@ -555,7 +555,7 @@ public partial class MainWindow
     private async void BtnDiskBench_Click(object? sender, RoutedEventArgs e)
     {
         if (_gameBenchRunning) { _gameBenchCts?.Cancel(); return; }
-        if (AnyBenchRunning) { DiskStatus.Text = "Termine o outro teste antes."; return; }
+        if (AnyBenchRunning || TestRunning) { DiskStatus.Text = "Termine o outro teste antes."; return; }
 
         string root = CheckedTag(DiskDrivePanel) ?? "";
         if (root.Length == 0) { DiskStatus.Text = "Escolha uma unidade."; return; }

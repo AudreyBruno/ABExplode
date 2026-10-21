@@ -16,6 +16,17 @@
     <SolidColorBrush x:Key="ThumbHover" Color="#6A6A6A"/>
     <SolidColorBrush x:Key="ThumbDrag" Color="#9A9A9A"/>
 
+    <!-- Slider monocromático (chaves do tema Fluent): trilha = Line, parte preenchida e botão = Fg -->
+    <SolidColorBrush x:Key="SliderTrackFill" Color="#1F1F1F"/>
+    <SolidColorBrush x:Key="SliderTrackFillPointerOver" Color="#1F1F1F"/>
+    <SolidColorBrush x:Key="SliderTrackFillPressed" Color="#1F1F1F"/>
+    <SolidColorBrush x:Key="SliderTrackValueFill" Color="#F5F5F5"/>
+    <SolidColorBrush x:Key="SliderTrackValueFillPointerOver" Color="#F5F5F5"/>
+    <SolidColorBrush x:Key="SliderTrackValueFillPressed" Color="#F5F5F5"/>
+    <SolidColorBrush x:Key="SliderThumbBackground" Color="#F5F5F5"/>
+    <SolidColorBrush x:Key="SliderThumbBackgroundPointerOver" Color="#F5F5F5"/>
+    <SolidColorBrush x:Key="SliderThumbBackgroundPressed" Color="#F5F5F5"/>
+
     <FontFamily x:Key="UiFont">Segoe UI Variable Text, Segoe UI</FontFamily>
     <FontFamily x:Key="Mono">Consolas</FontFamily>
     <FontFamily x:Key="Icons">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>

@@ -176,8 +176,18 @@ Ordem, da mais simples para a mais complexa:
     - FPS estimado: estimativa local e HowManyFPS; a chave usa um `TextBox` com `PasswordChar` (no lugar do `PasswordBox`).
     - Gargalo: equilíbrio GPU × CPU, veredito ao vivo (cartão invertido quando o limite é um problema), leituras ao vivo
       e análise de sessão; o medidor de FPS é o `IFrameSource` da plataforma.
-  - **Próximas etapas:** Stress test e RESET OC (a verificação de estabilidade usa o stress test);
-    OTIMIZA, Ferramentas, MAKER, Integração; Overlay; relatório exportável (precisa do histórico de benchmarks).
+  - **Etapa 6 (feita):** **Stress test** e **RESET OC**.
+    - Stress test: CPU, RAM e GPU (FurMark, `GpuBurn`, só Windows), leituras, gráfico de temperatura com os limites,
+      registro e corte automático; roda a cada segundo mesmo com a tela fechada, como no WPF. Benchmarks e teste de
+      rede esperam o stress test terminar.
+    - RESET OC: limite de energia e teto de clock pelo NVML (comum aos dois sistemas), verificador de estabilidade
+      (a parte de GPU usa `GpuGameBench`/`GpuBurn` e fica em `#if WINDOWS`), erros recentes, histórico e guia de BIOS.
+      O código veio de um `MainWindow.Oc.cs` com cara de descompilado; foi reescrito legível, com o mesmo comportamento.
+    - `Slider` monocromático pelas chaves do tema Fluent (`SliderTrackFill`, `SliderTrackValueFill`, `SliderThumbBackground`),
+      trocadas também no modo claro pelo `ThemeManager`.
+  - **Próximas etapas:** RESET FERRAMENTAS (Otimização, Inicialização, Instalar apps, Drivers, Integração);
+    RESET MAKER (Portas COM, Drivers seriais); Overlay (tela, janela sobre o jogo, atalho Ctrl+Shift+O e pausa durante os
+    benchmarks de GPU); instância única; `app.manifest` de administrador; trocar a publicação para o app Avalonia.
 
 ## Fase 4: Linux básico
 

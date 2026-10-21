@@ -713,6 +713,322 @@
                     </StackPanel>
                 </ScrollViewer>
 
+                <!-- ===== STRESS TEST ===== -->
+                <Grid Name="PageStress" Margin="36,30,36,30" RowDefinitions="Auto,Auto,Auto,*,110" IsVisible="False">
+                    <Grid.Styles>
+                        <Style Selector="Border.stat">
+                            <Setter Property="Margin" Value="4,0"/>
+                            <Setter Property="Padding" Value="14"/>
+                        </Style>
+                        <Style Selector="TextBlock.statValue">
+                            <Setter Property="FontSize" Value="18"/>
+                            <Setter Property="FontFamily" Value="{StaticResource Mono}"/>
+                        </Style>
+                        <Style Selector="TextBlock.statSub">
+                            <Setter Property="Foreground" Value="{DynamicResource Muted}"/>
+                            <Setter Property="FontSize" Value="11"/>
+                            <Setter Property="Margin" Value="0,4,0,0"/>
+                            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                        </Style>
+                    </Grid.Styles>
+
+                    <StackPanel Margin="0,0,0,20">
+                        <TextBlock Text="Stress test" Classes="h1"/>
+                        <TextBlock Text="Carga máxima com corte automático por temperatura" Classes="sub"/>
+                    </StackPanel>
+
+                    <!-- Configuração -->
+                    <Border Grid.Row="1" Classes="card" Margin="0,0,0,14">
+                        <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto">
+                            <!-- Linha 1: geral + CPU/RAM -->
+                            <WrapPanel>
+                                <StackPanel Margin="0,0,36,0">
+                                    <TextBlock Text="COMPONENTES" Classes="label"/>
+                                    <StackPanel Orientation="Horizontal" Height="30">
+                                        <CheckBox Name="ChkCpu" Content="CPU" IsChecked="True" Margin="0,0,20,0"/>
+                                        <CheckBox Name="ChkRam" Content="RAM" IsCheckedChanged="ChkRam_Click" Margin="0,0,20,0"/>
+                                        <CheckBox Name="ChkGpu" Content="GPU" IsCheckedChanged="ChkGpu_Click"/>
+                                    </StackPanel>
+                                </StackPanel>
+                                <StackPanel Margin="0,0,36,0">
+                                    <TextBlock Text="USO DA RAM LIVRE" Classes="label"/>
+                                    <StackPanel Name="RamFractionPanel" Orientation="Horizontal" IsEnabled="False">
+                                        <RadioButton Theme="{StaticResource Chip}" GroupName="Ram" Content="40%" Tag="0.4"/>
+                                        <RadioButton Theme="{StaticResource Chip}" GroupName="Ram" Content="60%" Tag="0.6" IsChecked="True"/>
+                                        <RadioButton Theme="{StaticResource Chip}" GroupName="Ram" Content="80%" Tag="0.8"/>
+                                    </StackPanel>
+                                </StackPanel>
+                                <StackPanel Margin="0,0,20,0">
+                                    <TextBlock Text="LIMITE CPU °C" Classes="label"/>
+                                    <TextBox Name="TempLimit" Text="90" Width="80"/>
+                                </StackPanel>
+                                <StackPanel Margin="0,0,20,0">
+                                    <TextBlock Text="LIMITE GPU °C" Classes="label"/>
+                                    <TextBox Name="GpuTempLimit" Text="85" Width="80" IsEnabled="False"/>
+                                </StackPanel>
+                                <StackPanel Margin="0,0,20,0">
+                                    <TextBlock Text="DURAÇÃO (MIN)" Classes="label"/>
+                                    <TextBox Name="TxtDuration" Text="10" Width="80" PlaceholderText="0 = ∞"/>
+                                </StackPanel>
+                            </WrapPanel>
+
+                            <!-- Linha 2: GPU (estilo FurMark) -->
+                            <Border Grid.Row="1" BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0" Margin="0,16,0,0" Padding="0,14,0,0">
+                                <WrapPanel Name="GpuOptions" IsEnabled="False">
+                                    <StackPanel Margin="0,0,24,0">
+                                        <TextBlock Text="GPU · RESOLUÇÃO" Classes="label"/>
+                                        <StackPanel Name="GpuResPanel" Orientation="Horizontal">
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="GpuRes" Content="720p" Tag="1280x720"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="GpuRes" Content="1080p" Tag="1920x1080" IsChecked="True"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="GpuRes" Content="1440p" Tag="2560x1440"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="GpuRes" Content="Tela cheia" Tag="full"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,24,0">
+                                        <TextBlock Text="ANTI-ALIASING" Classes="label"/>
+                                        <StackPanel Name="GpuMsaaPanel" Orientation="Horizontal">
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="GpuMsaa" Content="Off" Tag="1"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="GpuMsaa" Content="4x MSAA" Tag="4" IsChecked="True"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="GpuMsaa" Content="8x MSAA" Tag="8"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,24,0">
+                                        <TextBlock Text="INTENSIDADE" Classes="label"/>
+                                        <StackPanel Name="GpuIntensityPanel" Orientation="Horizontal">
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="GpuInt" Content="Normal" Tag="96,32"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="GpuInt" Content="Alta" Tag="128,48" IsChecked="True"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="GpuInt" Content="Extrema" Tag="160,64"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </WrapPanel>
+                            </Border>
+
+                            <StackPanel Grid.Column="1" Grid.RowSpan="2" VerticalAlignment="Center" Margin="20,0,0,0">
+                                <Button Name="BtnStress" Theme="{StaticResource PrimaryButton}" Content="INICIAR" MinWidth="150" Click="BtnStress_Click"/>
+                                <TextBlock Name="StressHint" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" FontSize="12"
+                                           MaxWidth="220" Margin="0,10,0,0" TextAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Leituras -->
+                    <UniformGrid Grid.Row="2" Columns="8" Margin="-4,0,-4,14">
+                        <Border Name="StatusCard" Classes="card stat">
+                            <StackPanel>
+                                <TextBlock Name="StStatusLabel" Text="STATUS" Classes="label"/>
+                                <TextBlock Name="StStatus" Text="Parado" FontSize="18" FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Classes="card stat">
+                            <StackPanel>
+                                <TextBlock Text="TEMPO" Classes="label"/>
+                                <TextBlock Name="StElapsed" Text="00:00:00" Classes="statValue"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Classes="card stat">
+                            <StackPanel>
+                                <TextBlock Text="TEMP. CPU" Classes="label"/>
+                                <TextBlock Name="StTemp" Text="—" Classes="statValue"/>
+                                <TextBlock Name="StTempMax" Text="máx. —" Classes="statSub"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Classes="card stat">
+                            <StackPanel>
+                                <TextBlock Text="CONSUMO CPU" Classes="label"/>
+                                <TextBlock Name="StPower" Text="—" Classes="statValue"/>
+                                <TextBlock Name="StLoad" Text="carga —" Classes="statSub"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Classes="card stat">
+                            <StackPanel>
+                                <TextBlock Text="TEMP. GPU" Classes="label"/>
+                                <TextBlock Name="StGpuTemp" Text="—" Classes="statValue"/>
+                                <TextBlock Name="StGpuTempMax" Text="máx. —" Classes="statSub"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Classes="card stat">
+                            <StackPanel>
+                                <TextBlock Text="CONSUMO GPU" Classes="label"/>
+                                <TextBlock Name="StGpuPower" Text="—" Classes="statValue"/>
+                                <TextBlock Name="StGpuCap" Text="—" Classes="statSub"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Classes="card stat">
+                            <StackPanel>
+                                <TextBlock Text="FPS (GPU)" Classes="label"/>
+                                <TextBlock Name="StFps" Text="—" Classes="statValue"/>
+                                <TextBlock Name="StFpsAvg" Text="média —" Classes="statSub"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Classes="card stat">
+                            <StackPanel>
+                                <TextBlock Text="RAM" Classes="label"/>
+                                <TextBlock Name="StRam" Text="—" Classes="statValue"/>
+                                <TextBlock Text="passes / erros" Classes="statSub"/>
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
+
+                    <!-- Gráfico -->
+                    <Border Grid.Row="3" Classes="card" Margin="0,0,0,14" Padding="18,14,18,12" MinHeight="140">
+                        <DockPanel>
+                            <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
+                                <TextBlock Text="TEMPERATURAS — ÚLTIMOS 5 MIN" Classes="label" Margin="0"/>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Rectangle Width="14" Height="2" Fill="{DynamicResource Fg}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                    <TextBlock Text="CPU" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,0,16,0"/>
+                                    <Rectangle Width="14" Height="2" Fill="{DynamicResource Muted}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                    <TextBlock Text="GPU" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,0,16,0"/>
+                                    <Line StartPoint="0,0" EndPoint="14,0" Stroke="{DynamicResource Muted}" StrokeDashArray="3,2" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                    <TextBlock Text="limites" Foreground="{DynamicResource Muted}" FontSize="11"/>
+                                </StackPanel>
+                            </Grid>
+                            <Canvas Name="TempChart" ClipToBounds="True" SizeChanged="TempChart_SizeChanged"/>
+                        </DockPanel>
+                    </Border>
+
+                    <!-- Registro -->
+                    <Border Grid.Row="4" Classes="card" Padding="18,14,10,10">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Text="REGISTRO" Classes="label"/>
+                            <ListBox Name="StressLog" FontFamily="{StaticResource Mono}" FontSize="12" Background="Transparent"
+                                     Foreground="{DynamicResource Muted}" ItemContainerTheme="{StaticResource PlainItem}"/>
+                        </DockPanel>
+                    </Border>
+                </Grid>
+
+                <!-- ===== RESET OC ===== -->
+                <ScrollViewer Name="PageOc" IsVisible="False" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="36,30,36,30">
+                        <StackPanel Margin="0,0,0,20">
+                            <TextBlock Text="RESET OC" Classes="h1"/>
+                            <TextBlock Text="Ajustes da GPU, verificador de estabilidade e guia de overclock na BIOS" Classes="sub"/>
+                        </StackPanel>
+
+                        <!-- GPU: limite de energia e teto de clock -->
+                        <Border Classes="card" Margin="0,0,0,14">
+                            <StackPanel>
+                                <TextBlock Name="OcGpuTitle" Classes="label"/>
+                                <TextBlock Name="OcGpuState" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,16"/>
+
+                                <Grid>
+                                    <TextBlock Text="LIMITE DE ENERGIA" Classes="label"/>
+                                    <TextBlock Name="OcPowerValue" Classes="mono" HorizontalAlignment="Right"/>
+                                </Grid>
+                                <Slider Name="OcPower" Minimum="175" Maximum="300" Value="250" TickFrequency="5"
+                                        IsSnapToTickEnabled="True" ValueChanged="OcPower_Changed"/>
+                                <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,16"
+                                           Text="Mais energia = clocks mais altos sustentados (e mais calor). Menos energia = PC mais frio e silencioso."/>
+
+                                <TextBlock Text="TETO DE CLOCK (UNDERVOLT)" Classes="label"/>
+                                <WrapPanel Name="OcClockPanel" Margin="0,4,0,0"/>
+                                <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,16"
+                                           Text="Limitar o clock máximo faz a placa usar menos tensão: costuma perder 1–3% de FPS e economizar bastante energia e calor. &quot;Sem teto&quot; é o comportamento normal."/>
+
+                                <WrapPanel>
+                                    <Button Name="BtnOcApply" Theme="{StaticResource PrimaryButton}" Content="APLICAR"
+                                            Padding="20,9" Margin="0,0,10,8" Click="BtnOcApply_Click"/>
+                                    <Button Name="BtnOcReset" Theme="{StaticResource OutlineButton}" Content="RESTAURAR PADRÃO"
+                                            Padding="20,9" Margin="0,0,10,8" Click="BtnOcReset_Click"/>
+                                </WrapPanel>
+                                <TextBlock Name="OcGpuResult" TextWrapping="Wrap"/>
+                                <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0"
+                                           Text="Ajustes temporários: voltam ao padrão ao reiniciar o PC. Usa só os controles oficiais do driver NVIDIA (NVML); offset de clock/memória não é liberado por essa via no Windows."/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Verificador de estabilidade -->
+                        <Border Classes="card" Margin="0,0,0,14">
+                            <StackPanel>
+                                <TextBlock Text="VERIFICADOR DE ESTABILIDADE" Classes="label"/>
+                                <TextBlock Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,12"
+                                           Text="Depois de mudar algo (aqui ou na BIOS): mede a nota, roda stress, vigia temperatura e procura erros de hardware (WHEA) e reinícios do driver de vídeo no registro do sistema."/>
+
+                                <TextBlock Text="CONFIGURAÇÃO TESTADA" Classes="label"/>
+                                <TextBox Name="OcLabel" PlaceholderText="ex.: PBO + Curve Optimizer -15, GPU 220 W" Margin="0,0,0,12"/>
+
+                                <WrapPanel>
+                                    <StackPanel Margin="0,0,36,0">
+                                        <TextBlock Text="TESTAR" Classes="label"/>
+                                        <StackPanel Name="OcTargetPanel" Orientation="Horizontal">
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="OcTarget" Content="CPU + RAM" Tag="cpu" IsChecked="True"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="OcTarget" Content="GPU" Tag="gpu"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="OcTarget" Content="Ambos" Tag="both"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <StackPanel>
+                                        <TextBlock Text="DURAÇÃO" Classes="label"/>
+                                        <StackPanel Name="OcDurPanel" Orientation="Horizontal">
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="OcDur" Content="5 min" Tag="5"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="OcDur" Content="15 min" Tag="15" IsChecked="True"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="OcDur" Content="30 min" Tag="30"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </WrapPanel>
+
+                                <Button Name="BtnOcCheck" Theme="{StaticResource PrimaryButton}" Content="INICIAR VERIFICAÇÃO"
+                                        HorizontalAlignment="Left" Padding="24,10" Margin="0,14,0,0" Click="BtnOcCheck_Click"/>
+
+                                <ProgressBar Name="OcProgress" Classes="bar" Height="4" MinHeight="4" Margin="0,12,0,8"/>
+                                <TextBlock Name="OcStatus" Foreground="{DynamicResource Muted}" TextWrapping="Wrap"/>
+
+                                <!-- Veredito: estável = cartão normal; instável = invertido -->
+                                <Border Name="OcVerdictCard" Background="{DynamicResource Card}" BorderBrush="{DynamicResource LineStrong}"
+                                        BorderThickness="1" Padding="14,10" Margin="0,12,0,0" IsVisible="False">
+                                    <StackPanel>
+                                        <TextBlock Name="OcVerdict" FontSize="22" FontWeight="SemiBold"/>
+                                        <TextBlock Name="OcVerdictWhy" TextWrapping="Wrap" Margin="0,3,0,8"/>
+                                        <ItemsControl Name="OcResult">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:CompileBindings="False">
+                                                    <Grid ColumnDefinitions="Auto,*" Margin="0,2">
+                                                        <TextBlock Text="{Binding Key}" Opacity="0.7" Margin="0,0,16,0"/>
+                                                        <TextBlock Grid.Column="1" Text="{Binding Value}" Classes="mono"
+                                                                   HorizontalAlignment="Right" TextWrapping="Wrap"/>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </Border>
+
+                                <TextBlock Text="ERROS DE HARDWARE RECENTES" Classes="label" Margin="0,16,0,4"/>
+                                <TextBlock Name="OcRecentErrors" Foreground="{DynamicResource Muted}" TextWrapping="Wrap"/>
+
+                                <TextBlock Text="HISTÓRICO" Classes="label" Margin="0,16,0,8"/>
+                                <ItemsControl Name="OcHistory" ItemTemplate="{StaticResource Meter}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Guia de overclock na BIOS -->
+                        <Border Classes="card">
+                            <StackPanel>
+                                <TextBlock Name="OcGuideTitle" Text="GUIA: OVERCLOCK NA BIOS" Classes="label"/>
+                                <TextBlock Name="OcGuideIntro" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                                <ItemsControl Name="OcGuide">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="local:GuideStep">
+                                            <Grid ColumnDefinitions="36,*" Margin="0,12,0,0">
+                                                <Border Width="24" Height="24" BorderBrush="{DynamicResource LineStrong}" BorderThickness="1"
+                                                        VerticalAlignment="Top" HorizontalAlignment="Left">
+                                                    <TextBlock Text="{Binding Number}" Classes="mono" FontWeight="SemiBold"
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold"/>
+                                                    <TextBlock Text="{Binding Where}" Classes="mono" FontSize="11.5"
+                                                               Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                                    <TextBlock Text="{Binding Text}" FontSize="12.5" TextWrapping="Wrap" Margin="0,5,0,0"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
                 <!-- ===== RESET BENCH ===== -->
                 <Grid Name="PageBench" Margin="36,30,36,30" RowDefinitions="Auto,Auto,*" IsVisible="False">
                     <StackPanel Margin="0,0,0,16">

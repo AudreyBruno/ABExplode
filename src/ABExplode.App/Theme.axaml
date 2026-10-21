@@ -240,6 +240,16 @@
             </Grid>
         </DataTemplate>
 
+        <!-- Item de lista sem destaque (registro do Stress test) -->
+        <ControlTheme x:Key="PlainItem" TargetType="ListBoxItem">
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <ContentPresenter Name="PART_ContentPresenter" Content="{TemplateBinding Content}"
+                                      ContentTemplate="{TemplateBinding ContentTemplate}" Margin="0,2"/>
+                </ControlTemplate>
+            </Setter>
+        </ControlTheme>
+
         <!-- Medidor horizontal: rótulo, valor e barra (Fraction 0..1) — históricos de benchmark -->
         <DataTemplate x:Key="Meter" x:DataType="local:MeterItem">
             <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" Margin="0,0,0,12">

@@ -35,7 +35,7 @@ public partial class MainWindow : Window
     {
         _platform = platform;
         InitializeComponent();
-        _pages = new Control[] { PageDash, PageSystem, PageSensors, PageGpu, PageDisks, PageEnergy, PageNet, PageBench, PageLauncher, PageGames, PageBottleneck }.ToDictionary(p => p.Name!);
+        _pages = new Control[] { PageDash, PageSystem, PageSensors, PageGpu, PageDisks, PageEnergy, PageNet, PageBench, PageLauncher, PageGames, PageBottleneck, PageStress, PageOc }.ToDictionary(p => p.Name!);
         if (platform == null) { _monitor = null!; _timer = null!; return; }
 
         ThemeManager.Apply(_settings.LightTheme);
@@ -47,6 +47,7 @@ public partial class MainWindow : Window
 
         InitDevices();
         InitBench();
+        InitStress();
         RefreshDrives();
         NavDash.IsChecked = true;
 
@@ -68,6 +69,7 @@ public partial class MainWindow : Window
             if (PageGpu.IsVisible) UpdateGpuPage();
             if (PageBench.IsVisible) UpdateBenchLive();
             UpdateBottleneck();
+            UpdateStressPanel();
         };
         _timer.Start();
 
@@ -81,6 +83,8 @@ public partial class MainWindow : Window
             _timer.Stop();
             _benchCts?.Cancel(); _gameBenchCts?.Cancel(); _gameFetch?.Cancel(); CancelLaunch();
             _frames?.Dispose();
+            _ocCts?.Cancel();
+            StopStress("App fechado");
             _toast?.Close();
             CloseDevices();
             _monitor.Dispose();
@@ -122,6 +126,7 @@ public partial class MainWindow : Window
             _cpuName = await Task.Run(_platform.SystemInfo.CpuName);
             InitGames();
             InitBottleneck();
+            InitOc();
             UpdateDashboard();
         }
 
@@ -217,6 +222,7 @@ public partial class MainWindow : Window
             case "PageSensors": ApplySensorFilter(); break;
             case "PageGpu": UpdateGpuPage(); break;
             case "PageLauncher": InitLauncher(); break;
+            case "PageOc": UpdateOcGpuState(); UpdateRecentErrors(); break;
             case "PageDisks": RefreshDiskHealth(); break;
             case "PageEnergy": RefreshEnergy(); break;
         }

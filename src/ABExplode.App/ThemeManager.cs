@@ -27,6 +27,16 @@ public static class ThemeManager
         ("ThumbBrush", "#2E2E2E", "#CFCFCF"),
         ("ThumbHover", "#6A6A6A", "#A5A5A5"),
         ("ThumbDrag", "#9A9A9A", "#7A7A7A"),
+        // Slider do tema Fluent: trilha = Line, parte preenchida e botão = Fg
+        ("SliderTrackFill", "#1F1F1F", "#CFCFCF"),
+        ("SliderTrackFillPointerOver", "#1F1F1F", "#CFCFCF"),
+        ("SliderTrackFillPressed", "#1F1F1F", "#CFCFCF"),
+        ("SliderTrackValueFill", "#F5F5F5", "#111111"),
+        ("SliderTrackValueFillPointerOver", "#F5F5F5", "#111111"),
+        ("SliderTrackValueFillPressed", "#F5F5F5", "#111111"),
+        ("SliderThumbBackground", "#F5F5F5", "#111111"),
+        ("SliderThumbBackgroundPointerOver", "#F5F5F5", "#111111"),
+        ("SliderThumbBackgroundPressed", "#F5F5F5", "#111111"),
     };
 
     public static void Apply(bool light)
