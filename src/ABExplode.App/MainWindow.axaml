@@ -385,6 +385,95 @@
                     </StackPanel>
                 </ScrollViewer>
 
+                <!-- ===== PLACA DE VÍDEO ===== -->
+                <Grid Name="PageGpu" Margin="36,30,36,30" RowDefinitions="Auto,Auto,*" IsVisible="False">
+                    <Grid Margin="0,0,0,20">
+                        <StackPanel>
+                            <TextBlock Text="Placa de vídeo" Classes="h1"/>
+                            <TextBlock Text="Especificações completas e sensores em tempo real" Classes="sub"/>
+                        </StackPanel>
+                        <WrapPanel Name="GpuChips" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+                    </Grid>
+
+                    <!-- Destaque -->
+                    <Border Grid.Row="1" Classes="card" Margin="0,0,0,14" Padding="24,20">
+                        <Grid>
+                            <StackPanel Margin="0,0,180,0">
+                                <TextBlock Name="GpuName" FontSize="24" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                <TextBlock Name="GpuSubtitle" Foreground="{DynamicResource Muted}" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <TextBlock Name="GpuVendor" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                       FontSize="30" FontWeight="Black" Foreground="{DynamicResource Faint}"/>
+                        </Grid>
+                    </Border>
+
+                    <Grid Grid.Row="2" ColumnDefinitions="*,16,330">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,6,0">
+                            <ItemsControl Name="GpuSections">
+                                <ItemsControl.ItemTemplate>
+                                    <!-- Seção em cartão com 3 colunas de campos (rótulo em cima, valor embaixo) -->
+                                    <DataTemplate x:DataType="core:InfoNode">
+                                        <Border Classes="card" Margin="0,0,0,14" Padding="20,16,20,8">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Header}" Classes="label" Margin="0,0,0,2"/>
+                                                <ItemsControl ItemsSource="{Binding Children}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate><UniformGrid Columns="3"/></ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate x:DataType="core:InfoNode">
+                                                            <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1" Padding="0,10,18,10">
+                                                                <StackPanel>
+                                                                    <TextBlock Text="{Binding Header}" Foreground="{DynamicResource Muted}" FontSize="11"/>
+                                                                    <TextBlock Text="{Binding Value}" FontSize="14" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                                                </StackPanel>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+
+                        <!-- Sensores (equivalente à aba Sensors do GPU-Z) -->
+                        <Border Grid.Column="2" Classes="card" Padding="20,16,12,12">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Top" Text="SENSORES AO VIVO" Classes="label" Margin="0,0,0,6"/>
+                                <ItemsControl Name="GpuExtras" DockPanel.Dock="Top" Margin="0,0,8,6">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:CompileBindings="False">
+                                            <Grid Margin="0,5">
+                                                <TextBlock Text="{Binding Key}" Foreground="{DynamicResource Muted}"/>
+                                                <TextBlock Text="{Binding Value}" Classes="mono" HorizontalAlignment="Right"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl Name="GpuLive" Margin="0,0,8,0">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="core:SensorRow">
+                                                <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0" Padding="0,6">
+                                                    <Grid ColumnDefinitions="*,Auto">
+                                                        <TextBlock TextTrimming="CharacterEllipsis" Margin="0,0,8,0">
+                                                            <Run Text="{Binding Category, Mode=OneWay}" Foreground="{DynamicResource Faint}"/>
+                                                            <Run Text="{Binding Name, Mode=OneWay}" Foreground="{DynamicResource Muted}"/>
+                                                        </TextBlock>
+                                                        <TextBlock Grid.Column="1" Text="{Binding Value}" Classes="mono"/>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </DockPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+
                 <!-- ===== SENSORES ===== -->
                 <Grid Name="PageSensors" Margin="36,30,36,30" RowDefinitions="Auto,Auto,*" IsVisible="False">
                     <Grid Margin="0,0,0,20">

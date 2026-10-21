@@ -157,7 +157,10 @@ Ordem, da mais simples para a mais complexa:
     - Sensores: o `DataGrid` agrupado virou uma lista agrupada por hardware com as mesmas colunas (sem o pacote DataGrid);
       filtros por tipo e busca. A lista só é remontada quando o filtro muda ou aparecem sensores novos.
     - `TextBox` no visual do app (borda, foco, `PlaceholderText` no lugar do `Tag`).
-  - **Próximas etapas:** Placa de vídeo; RESET BENCH; Jogos, Gargalo, RESET OC;
+  - **Etapa 3 (feita):** **Placa de vídeo**: destaque, seções em 3 colunas, leituras do NVML (P-state, PerfCap, NVENC...)
+    e sensores ao vivo da placa, ordenados como no GPU-Z; chips para escolher a placa quando há mais de uma.
+    A lista ao vivo era uma `ListCollectionView` filtrada e ordenada; aqui é remontada só quando aparecem sensores novos.
+  - **Próximas etapas:** RESET BENCH; Jogos, Gargalo, RESET OC;
     OTIMIZA, Ferramentas, MAKER, Integração; Overlay; relatório exportável (precisa do histórico de benchmarks).
 
 ## Fase 4: Linux básico
