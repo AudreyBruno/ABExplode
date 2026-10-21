@@ -1029,6 +1029,433 @@
                     </StackPanel>
                 </ScrollViewer>
 
+                <!-- ===== RESET OTIMIZA ===== -->
+                <ScrollViewer Name="PageOptimize" IsVisible="False" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="36,30,36,30">
+                        <StackPanel Margin="0,0,0,20">
+                            <TextBlock Text="RESET OTIMIZA" Classes="h1"/>
+                            <TextBlock Text="Libera memória, fecha o que atrapalha e ajusta o Windows para jogos" Classes="sub"/>
+                        </StackPanel>
+
+                        <!-- Botão principal -->
+                        <Border Classes="card" Margin="0,0,0,14" Padding="24,20">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <StackPanel Margin="0,0,24,0">
+                                    <Grid>
+                                        <TextBlock Text="MEMÓRIA RAM" Classes="label"/>
+                                        <TextBlock Name="OptRamText" Classes="mono" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                    <ProgressBar Name="OptRamBar" Classes="bar" Height="6" MinHeight="6" Margin="0,0,0,12"/>
+                                    <TextBlock Foreground="{DynamicResource Muted}" TextWrapping="Wrap"
+                                               Text="Um clique: limpa a memória em espera e fecha os programas marcados na lista abaixo. Use antes de abrir um jogo."/>
+                                    <TextBlock Name="OptResult" TextWrapping="Wrap" Margin="0,10,0,0"/>
+                                </StackPanel>
+                                <Button Name="BtnOptimize" Grid.Column="1" Theme="{StaticResource PrimaryButton}" Content="RESET OTIMIZA"
+                                        FontSize="16" Padding="34,16" VerticalAlignment="Center" Click="BtnOptimize_Click"/>
+                            </Grid>
+                        </Border>
+
+                        <Grid ColumnDefinitions="*,14,*">
+                            <!-- Programas -->
+                            <Border Classes="card" VerticalAlignment="Top">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,6">
+                                        <TextBlock Text="PROGRAMAS PARA FECHAR" Classes="label"/>
+                                        <Button Theme="{StaticResource OutlineButton}" Content="ATUALIZAR" Padding="10,4" FontSize="11"
+                                                HorizontalAlignment="Right" VerticalAlignment="Top" Click="BtnRefreshApps_Click"/>
+                                    </Grid>
+                                    <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10"
+                                               Text="Marcados = seguros de fechar durante o jogo. Programas com janela recebem o pedido de fechar (como clicar no X) e não são forçados, para não perder nada não salvo."/>
+                                    <ItemsControl Name="OptApps">
+                                        <ItemsControl.ItemTemplate>
+                                            <!-- BackgroundApp (Platform.Windows): binding por reflexão para compilar também no alvo Linux -->
+                                            <DataTemplate x:CompileBindings="False">
+                                                <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0" Padding="0,8">
+                                                    <Grid ColumnDefinitions="Auto,*,Auto">
+                                                        <CheckBox IsChecked="{Binding Selected}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                                        <StackPanel Grid.Column="1">
+                                                            <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis"/>
+                                                            <TextBlock Text="{Binding Detail}" Foreground="{DynamicResource Faint}" FontSize="11" TextTrimming="CharacterEllipsis"/>
+                                                        </StackPanel>
+                                                        <TextBlock Grid.Column="2" Text="{Binding MemoryText}" Classes="mono"
+                                                                   Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Ajustes do Windows -->
+                            <Border Grid.Column="2" Classes="card" VerticalAlignment="Top">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,6">
+                                        <TextBlock Text="AJUSTES DO WINDOWS PARA JOGOS" Classes="label"/>
+                                        <Button Theme="{StaticResource OutlineButton}" Content="RESTAURAR ORIGINAIS" Padding="10,4" FontSize="11"
+                                                HorizontalAlignment="Right" VerticalAlignment="Top" Click="BtnRestoreTweaks_Click"/>
+                                    </Grid>
+                                    <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10"
+                                               Text="O interruptor mostra o estado atual e aplica na hora. O valor original é guardado na primeira alteração. Não mexemos em segurança (Defender, Integridade de Memória, UAC, Windows Update)."/>
+                                    <ItemsControl Name="OptTweaks">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:CompileBindings="False">
+                                                <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0" Padding="0,10">
+                                                    <Grid ColumnDefinitions="Auto,*">
+                                                        <CheckBox IsChecked="{Binding IsOn, Mode=OneWay}" Tag="{Binding}" Click="Tweak_Click"
+                                                                  VerticalAlignment="Top" Margin="0,1,12,0"/>
+                                                        <StackPanel Grid.Column="1">
+                                                            <Grid ColumnDefinitions="*,Auto">
+                                                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,12,0"/>
+                                                                <TextBlock Grid.Column="1" Text="{Binding Badge}" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource Muted}"
+                                                                           VerticalAlignment="Top" Margin="0,3,0,0"/>
+                                                            </Grid>
+                                                            <TextBlock Text="{Binding Description}" Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                                            <TextBlock Text="{Binding Effect}" Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                                            <TextBlock Text="{Binding Status}" FontSize="11" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ===== INICIALIZAÇÃO (programas que abrem com o sistema) ===== -->
+                <ScrollViewer Name="PageStartup" IsVisible="False" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="36,30,36,30">
+                        <Grid Margin="0,0,0,20">
+                            <StackPanel Margin="0,0,190,0">
+                                <TextBlock Text="INICIALIZAÇÃO" Classes="h1"/>
+                                <TextBlock Text="Programas que abrem junto com o Windows · desative ou remova o que não precisa" Classes="sub" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <Button Theme="{StaticResource PrimaryButton}" Content="ATUALIZAR" Padding="20,9"
+                                    HorizontalAlignment="Right" VerticalAlignment="Top" Click="BtnStartupScan_Click"/>
+                        </Grid>
+
+                        <Border Classes="card">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,6">
+                                    <TextBlock Name="StartupSummary" Text="PROGRAMAS DE INICIALIZAÇÃO" Classes="label"/>
+                                    <Button Name="BtnStartupRestore" Theme="{StaticResource OutlineButton}" Content="RESTAURAR REMOVIDOS" Padding="10,4" FontSize="11"
+                                            HorizontalAlignment="Right" VerticalAlignment="Top" Click="BtnStartupRestore_Click"/>
+                                </Grid>
+                                <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10"
+                                           Text="O interruptor ativa ou desativa na hora, do mesmo jeito que o Gerenciador de Tarefas (a entrada continua lá e pode ser religada). REMOVER apaga a entrada da inicialização; o programa continua instalado e dá para desfazer em &quot;Restaurar removidos&quot;. Vale na próxima vez que o Windows iniciar."/>
+                                <ItemsControl Name="StartupList">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:CompileBindings="False">
+                                            <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0" Padding="0,10">
+                                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                                    <CheckBox IsChecked="{Binding Enabled, Mode=OneWay}" Tag="{Binding}" Click="StartupToggle_Click"
+                                                              VerticalAlignment="Top" Margin="0,1,12,0" ToolTip.Tip="Ativar / desativar na inicialização"/>
+                                                    <StackPanel Grid.Column="1">
+                                                        <Grid ColumnDefinitions="*,Auto">
+                                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" Margin="0,0,12,0"/>
+                                                            <TextBlock Grid.Column="1" Text="{Binding State}" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource Muted}"
+                                                                       VerticalAlignment="Top" Margin="0,3,0,0"/>
+                                                        </Grid>
+                                                        <TextBlock Text="{Binding Detail}" Foreground="{DynamicResource Muted}" FontSize="12" TextTrimming="CharacterEllipsis" Margin="0,2,0,0"/>
+                                                        <TextBlock Text="{Binding Command}" Foreground="{DynamicResource Faint}" FontSize="10.5" TextTrimming="CharacterEllipsis"
+                                                                   ToolTip.Tip="{Binding Command}" Margin="0,2,0,0"/>
+                                                        <TextBlock Text="{Binding Source}" Foreground="{DynamicResource Faint}" FontSize="10.5" Margin="0,1,0,0"/>
+                                                    </StackPanel>
+                                                    <Button Grid.Column="2" Theme="{StaticResource OutlineButton}" Content="REMOVER" Padding="12,5" FontSize="11"
+                                                            Tag="{Binding}" Click="StartupRemove_Click" VerticalAlignment="Center" Margin="14,0,0,0"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <TextBlock Name="StartupResult" TextWrapping="Wrap" Margin="0,10,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ===== INSTALAR APPS (pós-formatação, via winget) ===== -->
+                <ScrollViewer Name="PageApps" IsVisible="False" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="36,30,36,30">
+                        <Grid Margin="0,0,0,20">
+                            <StackPanel Margin="0,0,250,0">
+                                <TextBlock Text="INSTALAR APPS" Classes="h1"/>
+                                <TextBlock Text="Os essenciais depois de formatar o PC · versão oficial mais recente, instalação silenciosa" Classes="sub" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <Button Name="BtnAppsInstall" Theme="{StaticResource PrimaryButton}" Content="INSTALAR SELECIONADOS" Padding="20,9"
+                                    HorizontalAlignment="Right" VerticalAlignment="Top" Click="BtnAppsInstall_Click"/>
+                        </Grid>
+                        <ProgressBar Name="AppsProgress" Classes="bar" Margin="0,0,0,8"/>
+                        <TextBlock Name="AppsStatus" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,16"/>
+
+                        <Border Classes="card">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,6">
+                                    <TextBlock Text="APPS" Classes="label"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                        <Button Theme="{StaticResource OutlineButton}" Content="MARCAR TODOS" Padding="10,4" FontSize="11" Margin="0,0,8,0" Click="BtnAppsAll_Click"/>
+                                        <Button Theme="{StaticResource OutlineButton}" Content="DESMARCAR" Padding="10,4" FontSize="11" Click="BtnAppsNone_Click"/>
+                                    </StackPanel>
+                                </Grid>
+                                <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10"
+                                           Text="Usa o winget, o instalador de pacotes da Microsoft que já vem no Windows 10/11: baixa do site oficial de cada fabricante e confere o arquivo antes de instalar. Os apps são instalados um de cada vez, sem janelas. O que já está instalado aparece marcado como INSTALADO."/>
+                                <ItemsControl Name="AppsList">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:CompileBindings="False">
+                                            <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0" Padding="0,10">
+                                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                                    <CheckBox IsChecked="{Binding Selected}" IsEnabled="{Binding CanSelect}" VerticalAlignment="Top" Margin="0,1,12,0"/>
+                                                    <StackPanel Grid.Column="1">
+                                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                                        <TextBlock Text="{Binding Description}" Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                        <TextBlock Text="{Binding Status}" FontSize="11" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                                    </StackPanel>
+                                                    <TextBlock Grid.Column="2" Text="INSTALADO" IsVisible="{Binding Installed}" FontSize="9.5" FontWeight="Bold"
+                                                               Foreground="{DynamicResource Muted}" VerticalAlignment="Top" Margin="14,3,0,0"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <Button Name="BtnAppsStore" Theme="{StaticResource OutlineButton}" Content="ATUALIZAR O INSTALADOR DE APLICATIVO (MICROSOFT STORE)"
+                                        Padding="14,7" Margin="0,12,0,0" HorizontalAlignment="Left" IsVisible="False" Click="BtnAppsStore_Click"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ===== RESET DRIVER ===== -->
+                <ScrollViewer Name="PageDriver" IsVisible="False" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="36,30,36,30">
+                        <Grid Margin="0,0,0,20">
+                            <StackPanel Margin="0,0,190,0">
+                                <TextBlock Text="RESET DRIVER" Classes="h1"/>
+                                <TextBlock Text="Verifique, baixe e instale drivers · NVIDIA e AMD automáticos, fabricantes pela página oficial" Classes="sub" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <Button Name="BtnDrvScan" Theme="{StaticResource PrimaryButton}" Content="VERIFICAR TUDO" Padding="20,9"
+                                    HorizontalAlignment="Right" VerticalAlignment="Top" Click="BtnDrvScan_Click"/>
+                        </Grid>
+                        <ProgressBar Name="DrvProgress" Classes="bar" Margin="0,0,0,8"/>
+                        <TextBlock Name="DrvStatus" Text="Clique em VERIFICAR TUDO." Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,16"/>
+
+                        <Border Classes="card" Margin="0,0,0,14">
+                            <StackPanel>
+                                <TextBlock Text="PLACA DE VÍDEO" Classes="label"/>
+                                <ItemsControl Name="DrvGpus">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:CompileBindings="False">
+                                            <StackPanel Margin="0,12,0,0">
+                                                <TextBlock Text="{Binding GpuName}" FontSize="15" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                                <TextBlock Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,2,0,0">
+                                                    <Run Text="Instalado: "/><Run Text="{Binding Installed, Mode=OneWay}"/>
+                                                    <Run Text="  ·  Mais recente: "/><Run Text="{Binding Latest, Mode=OneWay}"/>
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding Message}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <CheckBox Name="DrvStudio" Content="Driver Studio (criação) em vez de Game Ready" Margin="0,14,0,0"/>
+                                <WrapPanel Margin="0,14,0,0">
+                                    <Button Name="BtnDrvInstall" Theme="{StaticResource PrimaryButton}" Content="BAIXAR E INSTALAR" Padding="18,8" Margin="0,0,10,8" Click="BtnDrvInstall_Click" IsEnabled="False"/>
+                                    <Button Name="BtnDrvGpuPage" Theme="{StaticResource OutlineButton}" Content="ABRIR PÁGINA OFICIAL" Padding="18,8" Margin="0,0,10,8" Click="BtnDrvGpuPage_Click"/>
+                                </WrapPanel>
+                                <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap"
+                                           Text="NVIDIA: o instalador é baixado do servidor oficial, a assinatura digital é conferida e um ponto de restauração é criado antes de abrir. AMD: o programa procura o instalador na página oficial do seu modelo (RX série 4000 a 9000); se o site bloquear, use ABRIR PÁGINA OFICIAL. Intel: só a página oficial."/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Classes="card" Margin="0,0,0,14">
+                            <StackPanel>
+                                <TextBlock Text="PLACA-MÃE / FABRICANTE" Classes="label"/>
+                                <TextBlock Name="DrvBoard" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                                <Button Name="BtnDrvBoardPage" Theme="{StaticResource OutlineButton}" Content="ABRIR SUPORTE DO FABRICANTE" Padding="18,8" Margin="0,14,0,8"
+                                        HorizontalAlignment="Left" Click="BtnDrvBoardPage_Click" IsEnabled="False"/>
+                                <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap"
+                                           Text="ASUS, MSI, Gigabyte e outros não têm API pública de versões. Abrimos o suporte oficial do fabricante detectado (chipset, áudio, rede, BIOS). Se a página não abrir no seu modelo, digite o modelo mostrado acima na busca do site."/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Classes="card" Margin="0,0,0,14">
+                            <StackPanel>
+                                <TextBlock Text="WINDOWS UPDATE (DRIVERS CERTIFICADOS)" Classes="label"/>
+                                <TextBlock Name="DrvWuList" Margin="0,10,0,0" TextWrapping="Wrap" Text="Ainda não pesquisado."/>
+                                <WrapPanel Margin="0,14,0,0">
+                                    <Button Name="BtnDrvWuSearch" Theme="{StaticResource OutlineButton}" Content="PROCURAR" Padding="18,8" Margin="0,0,10,8" Click="BtnDrvWuSearch_Click"/>
+                                    <Button Name="BtnDrvWuInstall" Theme="{StaticResource PrimaryButton}" Content="INSTALAR TODOS" Padding="18,8" Margin="0,0,10,8" Click="BtnDrvWuInstall_Click" IsEnabled="False"/>
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Classes="card" Margin="0,0,0,14">
+                            <StackPanel>
+                                <TextBlock Text="BACKUP DOS DRIVERS" Classes="label"/>
+                                <TextBlock Margin="0,10,0,0" TextWrapping="Wrap" Foreground="{DynamicResource Muted}"
+                                           Text="Exporta todos os drivers de terceiros para Documentos\ABExplode-Drivers. Útil antes de formatar ou de trocar um driver."/>
+                                <Button Name="BtnDrvBackup" Theme="{StaticResource OutlineButton}" Content="FAZER BACKUP" Padding="18,8" Margin="0,14,0,0"
+                                        HorizontalAlignment="Left" Click="BtnDrvBackup_Click"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Classes="card" Margin="0,0,0,14">
+                            <StackPanel>
+                                <TextBlock Text="DRIVERS INSTALADOS" Classes="label"/>
+                                <ItemsControl Name="DrvList" Margin="0,10,0,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:CompileBindings="False">
+                                            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Device}" TextWrapping="Wrap"/>
+                                                    <TextBlock Foreground="{DynamicResource Muted}" FontSize="11">
+                                                        <Run Text="{Binding Class, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding Vendor, Mode=OneWay}"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                                                    <TextBlock Text="{Binding Version}" Foreground="{DynamicResource Muted}" FontSize="11" HorizontalAlignment="Right"/>
+                                                    <TextBlock Foreground="{DynamicResource Muted}" FontSize="11" HorizontalAlignment="Right">
+                                                        <Run Text="{Binding Date, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding SignedText, Mode=OneWay}"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ===== RESET INTEGRAÇÃO (iluminação) ===== -->
+                <ScrollViewer Name="PageInteg" IsVisible="False" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="36,30,36,30">
+                        <Grid Margin="0,0,0,20">
+                            <StackPanel Margin="0,0,190,0">
+                                <TextBlock Text="RESET INTEGRAÇÃO" Classes="h1"/>
+                                <TextBlock Text="Iluminação e efeitos do PC · Corsair iCUE, OpenRGB (MSI, Gigabyte, ASUS...) e Razer Chroma (em teste)" Classes="sub" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <Button Name="BtnLightConnect" Theme="{StaticResource OutlineButton}" Content="CONECTAR TUDO" Padding="20,9"
+                                    HorizontalAlignment="Right" VerticalAlignment="Top" Click="BtnLightConnect_Click"/>
+                        </Grid>
+
+                        <Border Classes="card" Margin="0,0,0,14">
+                            <StackPanel>
+                                <TextBlock Text="INTEGRAÇÕES" Classes="label"/>
+
+                                <TextBlock Text="Corsair iCUE / iCUE LINK" FontSize="14" FontWeight="SemiBold" Margin="0,8,0,2"/>
+                                <TextBlock Name="LightStatus" Text="Aguardando…" TextWrapping="Wrap" Foreground="{DynamicResource Muted}"/>
+                                <Button Name="BtnLightSdk" Theme="{StaticResource OutlineButton}" Content="BAIXAR O SDK DA CORSAIR" IsVisible="False"
+                                        HorizontalAlignment="Left" Padding="20,9" Margin="0,10,0,0" Click="BtnLightSdk_Click"/>
+                                <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0"
+                                           Text="Requer o iCUE aberto com o SDK ativado nas configurações (manual, dentro do iCUE). A DLL do SDK é baixada pelo botão acima."/>
+
+                                <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0" Margin="0,14,0,0" Padding="0,12,0,0">
+                                    <StackPanel>
+                                        <TextBlock Text="OpenRGB · MSI Mystic Light, Gigabyte RGB Fusion, ASUS Aura, RAM, Razer, Logitech e outras" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,2"/>
+                                        <TextBlock Name="OrgbStatus" Text="Aguardando…" TextWrapping="Wrap" Foreground="{DynamicResource Muted}"/>
+                                        <Button Name="BtnOrgbOpen" Theme="{StaticResource OutlineButton}" Content="ABRIR O OPENRGB"
+                                                HorizontalAlignment="Left" Padding="20,9" Margin="0,10,0,0" Click="BtnOrgbOpen_Click"/>
+                                        <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0"
+                                                   Text="A MSI, a Gigabyte e a ASUS não oferecem SDK público; o OpenRGB (gratuito, openrgb.org) conversa com os controladores delas. Ele precisa estar aberto com o servidor SDK ligado, e o MSI Center, o Armoury Crate e o RGB Fusion devem estar fechados."/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0" Margin="0,14,0,0" Padding="0,12,0,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Razer Chroma" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,2"/>
+                                        <TextBlock Name="RazerStatus" Text="Aguardando…" TextWrapping="Wrap" Foreground="{DynamicResource Muted}"/>
+                                        <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0"
+                                                   Text="Requer o Razer Synapse instalado e aberto. Controla cada categoria (teclado, mouse, headset...) com uma cor só."/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Classes="card" Margin="0,0,0,14">
+                            <StackPanel>
+                                <TextBlock Text="DISPOSITIVOS" Classes="label"/>
+                                <TextBlock Name="LightDevicesHint" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                <ItemsControl Name="LightDevices">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="local:LightDeviceVm">
+                                            <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0" Padding="0,10">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <CheckBox IsChecked="{Binding Selected}" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                                                    <StackPanel VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Name}" FontSize="14"/>
+                                                        <TextBlock Text="{Binding Detail}" Foreground="{DynamicResource Muted}" FontSize="11"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Classes="card" Margin="0,0,0,14">
+                            <StackPanel>
+                                <TextBlock Text="EFEITO" Classes="label"/>
+                                <WrapPanel Name="LightFxPanel" Margin="0,4,0,12">
+                                    <RadioButton Theme="{StaticResource Chip}" GroupName="LightFx" Content="Cor fixa" Tag="static" IsChecked="True" IsCheckedChanged="LightFx_Checked"/>
+                                    <RadioButton Theme="{StaticResource Chip}" GroupName="LightFx" Content="Respiração" Tag="breath" IsCheckedChanged="LightFx_Checked"/>
+                                    <RadioButton Theme="{StaticResource Chip}" GroupName="LightFx" Content="Arco-íris" Tag="rainbow" IsCheckedChanged="LightFx_Checked"/>
+                                    <RadioButton Theme="{StaticResource Chip}" GroupName="LightFx" Content="Temperatura da CPU" Tag="cpu" IsCheckedChanged="LightFx_Checked"/>
+                                    <RadioButton Theme="{StaticResource Chip}" GroupName="LightFx" Content="Temperatura da GPU" Tag="gpu" IsCheckedChanged="LightFx_Checked"/>
+                                    <RadioButton Theme="{StaticResource Chip}" GroupName="LightFx" Content="Carga da CPU" Tag="load" IsCheckedChanged="LightFx_Checked"/>
+                                    <RadioButton Theme="{StaticResource Chip}" GroupName="LightFx" Content="Apagar" Tag="off" IsCheckedChanged="LightFx_Checked"/>
+                                </WrapPanel>
+                                <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,16"
+                                           Text="Temperatura e carga mudam a cor sozinhas (azul = frio/ocioso, verde, amarelo, vermelho = quente/carga alta). Cor fixa e Respiração usam a cor escolhida abaixo."/>
+
+                                <TextBlock Text="COR" Classes="label"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,6,0,8">
+                                    <Border Name="LightPreview" Width="46" Height="46" Margin="0,0,16,0" BorderBrush="{DynamicResource LineStrong}" BorderThickness="1" VerticalAlignment="Top"/>
+                                    <WrapPanel Name="LightSwatches" Width="360"/>
+                                </StackPanel>
+                                <TextBlock Text="VERMELHO" Classes="label" Margin="0,0,0,2"/>
+                                <Slider Name="LightR" Minimum="0" Maximum="255" Value="255" ValueChanged="LightColor_Changed"/>
+                                <TextBlock Text="VERDE" Classes="label" Margin="0,8,0,2"/>
+                                <Slider Name="LightG" Minimum="0" Maximum="255" Value="255" ValueChanged="LightColor_Changed"/>
+                                <TextBlock Text="AZUL" Classes="label" Margin="0,8,0,2"/>
+                                <Slider Name="LightB" Minimum="0" Maximum="255" Value="255" ValueChanged="LightColor_Changed"/>
+
+                                <Grid Margin="0,16,0,2">
+                                    <TextBlock Text="BRILHO" Classes="label"/>
+                                    <TextBlock Name="LightBrightText" Classes="mono" HorizontalAlignment="Right"/>
+                                </Grid>
+                                <Slider Name="LightBright" Minimum="0" Maximum="100" Value="100" ValueChanged="LightColor_Changed"/>
+                                <Grid Margin="0,8,0,2">
+                                    <TextBlock Text="VELOCIDADE (RESPIRAÇÃO E ARCO-ÍRIS)" Classes="label"/>
+                                    <TextBlock Name="LightSpeedText" Classes="mono" HorizontalAlignment="Right"/>
+                                </Grid>
+                                <Slider Name="LightSpeed" Minimum="1" Maximum="10" Value="5" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="LightColor_Changed"/>
+
+                                <CheckBox Name="LightExclusive" Content="Controle exclusivo (Corsair: se não mudar nada, desmarque e tente de novo)" IsChecked="True" Margin="0,16,0,0"/>
+
+                                <WrapPanel Margin="0,14,0,0">
+                                    <Button Name="BtnLightRun" Theme="{StaticResource PrimaryButton}" Content="ATIVAR CONTROLE"
+                                            Padding="24,10" Margin="0,0,14,0" Click="BtnLightRun_Click"/>
+                                    <TextBlock Name="LightLive" Foreground="{DynamicResource Muted}" VerticalAlignment="Center" Classes="mono"/>
+                                </WrapPanel>
+                                <TextBlock Name="LightRunHint" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,10,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Classes="card" Margin="0,0,0,14">
+                            <StackPanel>
+                                <TextBlock Text="DIAGNÓSTICO" Classes="label"/>
+                                <TextBox Name="LightDiag" IsReadOnly="True" FontFamily="{StaticResource Mono}" FontSize="11" TextWrapping="Wrap"
+                                         MinHeight="90" MaxHeight="260" AcceptsReturn="True"/>
+                                <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,0"
+                                           Text="Se as luzes não mudarem, copie este quadro e me envie."/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
                 <!-- ===== RESET BENCH ===== -->
                 <Grid Name="PageBench" Margin="36,30,36,30" RowDefinitions="Auto,Auto,*" IsVisible="False">
                     <StackPanel Margin="0,0,0,16">

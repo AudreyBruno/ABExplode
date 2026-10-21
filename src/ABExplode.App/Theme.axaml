@@ -240,6 +240,23 @@
             </Grid>
         </DataTemplate>
 
+        <!-- Amostra de cor redonda (Integração) -->
+        <ControlTheme x:Key="Swatch" TargetType="Button">
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Margin" Value="0,0,8,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource LineStrong}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Name="b" CornerRadius="15" Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"/>
+                </ControlTemplate>
+            </Setter>
+            <Style Selector="^:pointerover /template/ Border#b"><Setter Property="BorderBrush" Value="{DynamicResource Fg}"/></Style>
+        </ControlTheme>
+
         <!-- Item de lista sem destaque (registro do Stress test) -->
         <ControlTheme x:Key="PlainItem" TargetType="ListBoxItem">
             <Setter Property="Template">

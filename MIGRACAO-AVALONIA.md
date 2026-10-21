@@ -185,8 +185,15 @@ Ordem, da mais simples para a mais complexa:
       O código veio de um `MainWindow.Oc.cs` com cara de descompilado; foi reescrito legível, com o mesmo comportamento.
     - `Slider` monocromático pelas chaves do tema Fluent (`SliderTrackFill`, `SliderTrackValueFill`, `SliderThumbBackground`),
       trocadas também no modo claro pelo `ThemeManager`.
-  - **Próximas etapas:** RESET FERRAMENTAS (Otimização, Inicialização, Instalar apps, Drivers, Integração);
-    RESET MAKER (Portas COM, Drivers seriais); Overlay (tela, janela sobre o jogo, atalho Ctrl+Shift+O e pausa durante os
+  - **Etapa 7 (feita):** **RESET FERRAMENTAS** (Otimização, Inicialização, Instalar apps, Drivers, Integração).
+    - Otimização, Inicialização, Instalar apps e Drivers usam ferramentas só do Windows (`MainWindow.Tools.cs` em
+      `#if WINDOWS`); no Linux os botões avisam que ainda não estão disponíveis (Fase 5). A barra de RAM vem da plataforma.
+    - Os modelos de item dessas telas são tipos do `Platform.Windows`, que o alvo Linux não referencia: os `DataTemplate`
+      usam binding por reflexão (`x:CompileBindings="False"`) para compilar nos dois alvos.
+    - Integração: OpenRGB e Razer Chroma nos dois sistemas; Corsair iCUE (DLL) em `#if WINDOWS`. Timer dos efeitos em
+      `DispatcherPriority.Normal`. O quadro de diagnóstico rola o `ScrollViewer` de dentro: mover o cursor ou
+      `ScrollToLine` faziam a página inteira rolar até ele.
+  - **Próximas etapas:** RESET MAKER (Portas COM, Drivers seriais); Overlay (tela, janela sobre o jogo, atalho Ctrl+Shift+O e pausa durante os
     benchmarks de GPU); instância única; `app.manifest` de administrador; trocar a publicação para o app Avalonia.
 
 ## Fase 4: Linux básico
