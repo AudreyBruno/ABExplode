@@ -201,8 +201,12 @@ Ordem, da mais simples para a mais complexa:
     atalho Ctrl+Shift+O (`RegisterHotKey` pelo hook de WndProc) e pausa durante os benchmarks de GPU.
   - **Instância única (feita):** `Mutex` em `Program.cs` (só Windows); abrir de novo traz a janela aberta para a frente.
   - **`app.manifest` de administrador (feito):** em `src\ABExplode.App`, só no alvo `net10.0-windows`.
-  - **Próximas etapas:** testar o overlay sobre um jogo (clique-através e atalho); trocar a publicação
-    (`publicar.bat` e `publicar.yml`) para o app Avalonia, que ainda gera o WPF.
+    Testado sem jogo: a janela aparece no canto, os cliques atravessam e o atalho liga e desliga.
+  - **Publicação (feita):** `publicar.bat` e `publicar.yml` publicam o app Avalonia (`-f net10.0-windows -r win-x64`,
+    arquivo único). O `AssemblyName` dele virou `ABExplode`, então o executável continua `ABExplode.exe` e os recursos
+    ficam em `avares://ABExplode/`. Os `.pdb` nativos do Skia e do HarfBuzz (100 MB) saem da publicação. O WPF da raiz
+    não é mais publicado e fica só como referência até a Fase 5.
+  - **Pendente:** testar o overlay sobre um jogo (FPS pelo ETW, por cima de tela cheia sem bordas).
 
 
 ## Fase 4: Linux básico

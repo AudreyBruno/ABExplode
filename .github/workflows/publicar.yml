@@ -2,6 +2,7 @@ name: Publicar
 
 # A cada push na main, gera o ABExplode.exe e atualiza a release "latest" (sempre a versão mais nova).
 # Ao criar uma tag (ex.: v0.12), gera também uma release fixa dessa versão.
+# O app publicado é o Avalonia (src/ABExplode.App, alvo Windows); o WPF da raiz não é mais publicado.
 on:
   push:
     branches: [main]
@@ -26,7 +27,7 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Publicar (arquivo único, com o .NET embutido)
-        run: dotnet publish ABExplode.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -o dist -nologo
+        run: dotnet publish src/ABExplode.App/ABExplode.App.csproj -c Release -f net10.0-windows -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -o dist -nologo
 
       - name: Montar pacote
         shell: pwsh

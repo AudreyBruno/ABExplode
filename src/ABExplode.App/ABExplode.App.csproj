@@ -1,12 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!-- UI em Avalonia. Dois alvos: net10.0-windows usa Platform.Windows, net10.0 usa Platform.Linux.
-       Publicar: -f net10.0-windows -r win-x64  |  -f net10.0 -r linux-x64
-       Até a Fase 5 do MIGRACAO-AVALONIA.md o app oficial continua sendo o WPF (ABExplode.exe); este gera ABExplode.App. -->
+       Publicar: -f net10.0-windows -r win-x64  |  -f net10.0 -r linux-x64 (publicar.bat e publicar.yml).
+       É o app publicado (ABExplode.exe); o WPF da raiz fica só como referência até a Fase 5 do MIGRACAO-AVALONIA.md. -->
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFrameworks>net10.0;net10.0-windows</TargetFrameworks>
     <RootNamespace>ABExplode.App</RootNamespace>
+    <!-- Mesmo nome do executável de antes; os recursos ficam em avares://ABExplode/ -->
+    <AssemblyName>ABExplode</AssemblyName>
     <ApplicationIcon>..\..\Assets\app.ico</ApplicationIcon>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
@@ -33,6 +35,18 @@
   <ItemGroup>
     <ProjectReference Include="..\ABExplode.Core\ABExplode.Core.csproj" />
     <ProjectReference Include="..\ABExplode.Platform\ABExplode.Platform.csproj" />
+  </ItemGroup>
+
+  <!-- Os pacotes nativos do Skia e do HarfBuzz trazem .pdb (100 MB) que o DebugType=None não tira da publicação. -->
+  <Target Name="DropNativePdbs" AfterTargets="ComputeResolvedFilesToPublishList">
+    <ItemGroup>
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(Extension)' == '.pdb'" />
+    </ItemGroup>
+  </Target>
+
+  <!-- iCUE SDK da Corsair (RESET INTEGRAÇÃO): se a DLL estiver em Native\, ela vai junto do .exe. Não é versionada no git. -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
+    <None Include="..\..\Native\iCUESDK.x64_2019.dll" Condition="Exists('..\..\Native\iCUESDK.x64_2019.dll')" Link="iCUESDK.x64_2019.dll" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">

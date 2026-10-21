@@ -95,7 +95,7 @@ public partial class MainWindow
     {
         try
         {
-            using var s = AssetLoader.Open(new Uri("avares://ABExplode.App/Assets/logo-badge.png"));
+            using var s = AssetLoader.Open(new Uri("avares://ABExplode/Assets/logo-badge.png"));
             using var ms = new MemoryStream();
             s.CopyTo(ms);
             return Convert.ToBase64String(ms.ToArray());

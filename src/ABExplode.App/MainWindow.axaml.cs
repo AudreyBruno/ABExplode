@@ -260,7 +260,7 @@ public partial class MainWindow : Window
         bool light = ThemeManager.IsLight;
         BtnTheme.Content = light ? "" : "";
         ToolTip.SetTip(BtnTheme, light ? "Modo escuro" : "Modo claro");
-        using var s = AssetLoader.Open(new Uri(light ? "avares://ABExplode.App/Assets/logo-dark.png" : "avares://ABExplode.App/Assets/logo.png"));
+        using var s = AssetLoader.Open(new Uri(light ? "avares://ABExplode/Assets/logo-dark.png" : "avares://ABExplode/Assets/logo.png"));
         TitleLogo.Source = new Bitmap(s);
     }
 }

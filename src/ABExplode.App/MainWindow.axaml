@@ -4,7 +4,7 @@
         xmlns:plat="clr-namespace:ABExplode.Platform;assembly=ABExplode.Platform"
         xmlns:local="clr-namespace:ABExplode.App"
         x:Class="ABExplode.App.MainWindow"
-        Title="ABExplode" Icon="avares://ABExplode.App/Assets/app.ico"
+        Title="ABExplode" Icon="avares://ABExplode/Assets/app.ico"
         Width="1320" Height="840" MinWidth="1120" MinHeight="660" WindowStartupLocation="CenterScreen"
         ExtendClientAreaToDecorationsHint="True" ExtendClientAreaTitleBarHeightHint="44" WindowDecorations="BorderOnly"
         Background="{DynamicResource Bg}" Foreground="{DynamicResource Fg}"
@@ -40,7 +40,7 @@
                     DoubleTapped="TitleBar_DoubleTapped"/>
             <StackPanel Grid.ColumnSpan="2" Orientation="Horizontal" Margin="30,0,0,0" HorizontalAlignment="Left"
                         VerticalAlignment="Center" IsHitTestVisible="False">
-                <Image Name="TitleLogo" Source="avares://ABExplode.App/Assets/logo.png" Width="22" Height="22" Margin="0,0,12,0"
+                <Image Name="TitleLogo" Source="avares://ABExplode/Assets/logo.png" Width="22" Height="22" Margin="0,0,12,0"
                        VerticalAlignment="Center" RenderOptions.BitmapInterpolationMode="HighQuality"/>
                 <TextBlock Text="AB" FontWeight="Bold" FontSize="13" VerticalAlignment="Center"/>
                 <TextBlock Text="EXPLODE" FontWeight="Light" FontSize="13" VerticalAlignment="Center"/>
