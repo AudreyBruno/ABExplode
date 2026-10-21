@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Implementação Windows: WMI, LibreHardwareMonitor, Direct3D, ETW, registro (código que hoje está no app WPF). -->
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <RootNamespace>ABExplode.Platform.Windows</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ABExplode.Platform\ABExplode.Platform.csproj" />
+  </ItemGroup>
+
+</Project>

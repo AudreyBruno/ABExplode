@@ -1,0 +1,17 @@
+<Project>
+
+  <!-- Configuração comum a todos os projetos: o app WPF atual (ABExplode.csproj) e os novos em src\ (migração para Avalonia). -->
+  <PropertyGroup>
+    <Product>ABExplode</Product>
+    <Version>0.16.0</Version>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <!-- Sempre otimizado: o RESET BENCH e os stress tests precisam do JIT otimizado também em Debug -->
+    <Optimize>true</Optimize>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- Permite restaurar/compilar os alvos net8.0-windows também no Linux (CI) -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+  </PropertyGroup>
+
+</Project>

@@ -34,6 +34,9 @@ Assim há sempre um app funcionando.
 - Criar a solution e os projetos vazios, com `Directory.Build.props` comum (versão, `Optimize=true`, `AllowUnsafeBlocks`).
 - Configurar CI (GitHub Actions) com build em `windows-latest` e `ubuntu-latest`.
 - **Pronto quando:** `dotnet build` passa nos dois sistemas.
+- **Status: feita.** `ABExplode.sln`, `Directory.Build.props`, projetos em `src\` e `.github/workflows/build.yml`.
+  O app Avalonia (`ABExplode.App`) tem dois alvos: `net8.0-windows` (usa Platform.Windows) e `net8.0` (usa Platform.Linux).
+  O app WPF continua na raiz, igual, e o `publicar.yml` não mudou.
 
 ## Fase 1: Extrair o Core (sem mudar comportamento)
 

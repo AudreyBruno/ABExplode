@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- UI em Avalonia. Dois alvos: net8.0-windows usa Platform.Windows, net8.0 usa Platform.Linux.
+       Publicar: -f net8.0-windows -r win-x64  |  -f net8.0 -r linux-x64
+       Até a Fase 5 do MIGRACAO-AVALONIA.md o app oficial continua sendo o WPF (ABExplode.exe); este gera ABExplode.App. -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFrameworks>net8.0;net8.0-windows</TargetFrameworks>
+    <RootNamespace>ABExplode.App</RootNamespace>
+    <ApplicationIcon>..\..\Assets\app.ico</ApplicationIcon>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="..\..\Assets\app.ico" Link="Assets\app.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ABExplode.Core\ABExplode.Core.csproj" />
+    <ProjectReference Include="..\ABExplode.Platform\ABExplode.Platform.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">
+    <ProjectReference Include="..\ABExplode.Platform.Windows\ABExplode.Platform.Windows.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <ProjectReference Include="..\ABExplode.Platform.Linux\ABExplode.Platform.Linux.csproj" />
+  </ItemGroup>
+
+</Project>

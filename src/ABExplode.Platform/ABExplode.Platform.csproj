@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Interfaces do que muda por sistema (ISystemInfo, ISensors, IGpuInfo...). Implementadas em Platform.Windows e Platform.Linux. -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>ABExplode.Platform</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ABExplode.Core\ABExplode.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,12 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ABExplode.App.MainWindow"
+        Title="ABExplode" Icon="avares://ABExplode.App/Assets/app.ico"
+        Width="1320" Height="840" MinWidth="1120" MinHeight="660"
+        WindowStartupLocation="CenterScreen">
+    <!-- Esqueleto da Fase 0: as telas do app WPF entram aqui na Fase 3 -->
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
+        <TextBlock Text="ABExplode" FontSize="32" FontWeight="Bold" HorizontalAlignment="Center" />
+        <TextBlock x:Name="PlatformText" Opacity="0.6" HorizontalAlignment="Center" />
+    </StackPanel>
+</Window>

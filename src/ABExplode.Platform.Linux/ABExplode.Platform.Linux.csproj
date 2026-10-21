@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Implementação Linux: /proc, /sys (hwmon, drm, dmi), NVML (libnvidia-ml.so.1), smartctl, udev. -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>ABExplode.Platform.Linux</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ABExplode.Platform\ABExplode.Platform.csproj" />
+  </ItemGroup>
+
+</Project>
