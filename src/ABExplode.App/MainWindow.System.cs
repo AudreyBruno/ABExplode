@@ -144,6 +144,8 @@ public partial class MainWindow
         var added = present.Values.Where(d => !_usbPresent.ContainsKey(d.InstanceId)).ToList();
         var removed = _usbPresent.Values.Where(d => !present.ContainsKey(d.InstanceId)).ToList();
         _usbPresent = present;
+        if (PageMakerPorts.IsVisible) ScanUsb();
+        if (PageMakerDrv.IsVisible) RefreshMakerDevices(); // placa plugada/removida: atualiza o diagnóstico
 
         // Pendrives já geram aviso de unidade: não repete com o nome genérico "armazenamento em massa".
         bool volumeJustNow = (DateTime.Now - _lastVolumeEvent).TotalSeconds < 4;

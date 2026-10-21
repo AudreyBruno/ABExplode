@@ -193,7 +193,11 @@ Ordem, da mais simples para a mais complexa:
     - Integração: OpenRGB e Razer Chroma nos dois sistemas; Corsair iCUE (DLL) em `#if WINDOWS`. Timer dos efeitos em
       `DispatcherPriority.Normal`. O quadro de diagnóstico rola o `ScrollViewer` de dentro: mover o cursor ou
       `ScrollToLine` faziam a página inteira rolar até ele.
-  - **Próximas etapas:** RESET MAKER (Portas COM, Drivers seriais); Overlay (tela, janela sobre o jogo, atalho Ctrl+Shift+O e pausa durante os
+  - **Etapa 8 (feita):** **RESET MAKER** (Portas COM, Drivers seriais) em `MainWindow.Maker.cs`, em `#if WINDOWS`
+    (SetupAPI, ComDB e pnputil via `UsbCleaner` e `MakerDrivers`); no Linux os botões avisam que ainda não estão
+    disponíveis (Fase 5: `/dev/ttyUSB*`, `/dev/ttyACM*`, grupo `dialout`). As duas telas se atualizam sozinhas quando uma
+    placa é plugada ou removida (`WM_DEVICECHANGE`).
+  - **Próximas etapas:** Overlay (tela, janela sobre o jogo, atalho Ctrl+Shift+O e pausa durante os
     benchmarks de GPU); instância única; `app.manifest` de administrador; trocar a publicação para o app Avalonia.
 
 ## Fase 4: Linux básico

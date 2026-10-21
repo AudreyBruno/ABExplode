@@ -35,7 +35,7 @@ public partial class MainWindow : Window
     {
         _platform = platform;
         InitializeComponent();
-        _pages = new Control[] { PageDash, PageSystem, PageSensors, PageGpu, PageDisks, PageEnergy, PageNet, PageBench, PageLauncher, PageGames, PageBottleneck, PageStress, PageOc, PageOptimize, PageStartup, PageApps, PageDriver, PageInteg }.ToDictionary(p => p.Name!);
+        _pages = new Control[] { PageDash, PageSystem, PageSensors, PageGpu, PageDisks, PageEnergy, PageNet, PageBench, PageLauncher, PageGames, PageBottleneck, PageStress, PageOc, PageOptimize, PageStartup, PageApps, PageDriver, PageInteg, PageMakerPorts, PageMakerDrv }.ToDictionary(p => p.Name!);
         if (platform == null) { _monitor = null!; _timer = null!; return; }
 
         ThemeManager.Apply(_settings.LightTheme);
@@ -230,6 +230,8 @@ public partial class MainWindow : Window
             case "PageApps": InitApps(); break;
             case "PageDriver": InitDriver(); break;
             case "PageInteg": InitInteg(); break;
+            case "PageMakerPorts": ScanUsb(); break;
+            case "PageMakerDrv": InitMakerDrivers(); break;
             case "PageDisks": RefreshDiskHealth(); break;
             case "PageEnergy": RefreshEnergy(); break;
         }
