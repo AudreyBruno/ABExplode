@@ -232,6 +232,43 @@ Implementações em `Platform.Linux`:
 - **Pronto quando:** no Linux funcionam informações, sensores, Placa de vídeo (sem os benchmarks de GPU),
   benchmarks de CPU, memória e disco, Jogos e Gargalo.
 
+### Status da Fase 4
+
+- **Feito (compila, falta testar num Linux de verdade):** `LinuxPlatform` com todas as interfaces.
+  - **Sistema:** `/etc/os-release`, DMI, `/proc/cpuinfo` e caches de `/sys`. Os módulos de RAM vêm do udev (systemd 248+,
+    sem root) ou do `dmidecode` (root). Discos pelo `lsblk`; unidades por `/proc/self/mounts`, passando por LUKS/LVM até o
+    disco físico.
+  - **Sensores, com os mesmos nomes do LibreHardwareMonitor:** carga por `/proc/stat`, clock por cpufreq, temperatura por
+    k10temp/coretemp/zenpower e consumo da CPU por RAPL (só como root). GPU pela NVML, que ganhou temperatura, ventoinha e
+    nome, ou pelo amdgpu/i915. Também memória, outros chips do hwmon (placa-mãe, NVMe, Wi-Fi) e rede.
+  - **Placa de vídeo:** `/sys/class/drm` mais NVML, `pp_dpm_*` e `mem_info_*`. O nome vem da NVML, do `product_name`,
+    do `vulkaninfo` ou do `lspci`.
+  - **Saúde dos discos:** `smartctl -j` (root). Sem root ou sem smartmontools, o cartão explica como liberar.
+  - **Bateria e energia:** `power_supply`, perfil do power-profiles-daemon e GameMode.
+  - **Erros de hardware:** `journalctl -k` (MCE, AER, EDAC; Xid, reset do amdgpu, GPU HANG).
+  - **Jogos:** Steam nativa, Flatpak e Snap, e Heroic (Epic e GOG).
+  - **Chave da API:** AES-GCM com chave em `~/.config/ABExplode/secret.key` (600).
+  - **FPS:** fica indisponível com o motivo na tela (MangoHud na Fase 6).
+  - **Avisos de dispositivo:** montagens e `/sys/bus/usb` comparados a cada 2 s.
+- **Benchmarks de disco:** o `FILE_FLAG_NO_BUFFERING` vira `O_DIRECT` sozinho no .NET. No Linux, o teste de disco roda na
+  pasta pessoal (o usuário não grava em `/`) e ignora tmpfs/squashfs. O de carregamento usa `~/.cache`, porque `/tmp`
+  costuma ser tmpfs.
+- **`ABExplode --diag`:** imprime tudo o que a plataforma leu, sem abrir janela. Serve nos dois sistemas.
+
+### Como testar no Linux
+
+1. **Gerar:** `dotnet publish src/ABExplode.App/ABExplode.App.csproj -c Release -f net10.0 -r linux-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -o dist-linux`
+   (ou baixar o artefato do `build.yml`).
+2. **Pacotes que completam as leituras:** `pciutils` (lspci), `smartmontools`, `lm-sensors` e, se quiser, `vulkan-tools`.
+   Driver NVIDIA proprietário para os dados da NVIDIA.
+3. **Rodar:**
+   - `./ABExplode --diag > diag.txt` e conferir cada seção (o arquivo tem números de série: revise antes de publicar).
+   - `sudo ./ABExplode --diag > diag-root.txt` para ver o que só sai como root (RAPL, S.M.A.R.T., dmidecode).
+     O `--diag` não grava nada. Já o app inteiro com `sudo -E` gravaria configurações como root em `~/.config/ABExplode`.
+   - Depois `./ABExplode` como usuário comum, para as telas.
+4. **Telas a conferir:** Visão geral, Sistema, Sensores, Placa de vídeo, Discos, Energia, Rede, RESET BENCH (CPU, memória,
+   disco), Jogos, FPS estimado e Gargalo.
+
 ## Fase 5: Funções do Linux equivalentes às do Windows
 
 - **RESET MAKER:**

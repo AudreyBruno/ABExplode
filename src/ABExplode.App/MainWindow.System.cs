@@ -166,7 +166,40 @@ public partial class MainWindow
             Toast("Dispositivo USB desconectado", r.Name, "");
     }
 #else
-    private void InitDevices() { }
-    private void CloseDevices() { }
+    // ---------------- Dispositivos (Linux: compara montagens e /sys/bus/usb a cada 2 s) ----------------
+    // TODO(Fase 5): trocar a comparação periódica pelos eventos do udev (netlink).
+
+    private DispatcherTimer? _devPoll;
+    private HashSet<string> _mounts = new();
+    private Dictionary<string, ABExplode.Platform.Linux.LinuxUsbDevice> _usbNow = new();
+
+    private void InitDevices()
+    {
+        _mounts = ABExplode.Platform.Linux.LinuxDevices.Mounts();
+        _usbNow = ABExplode.Platform.Linux.LinuxDevices.Usb().ToDictionary(d => d.Id);
+        _devPoll = new DispatcherTimer(DispatcherPriority.Normal) { Interval = TimeSpan.FromSeconds(2) };
+        _devPoll.Tick += (_, _) => PollDevices();
+        _devPoll.Start();
+    }
+
+    private void CloseDevices() => _devPoll?.Stop();
+
+    private void PollDevices()
+    {
+        var mounts = ABExplode.Platform.Linux.LinuxDevices.Mounts();
+        var added = mounts.Except(_mounts).ToList();
+        var removed = _mounts.Except(mounts).ToList();
+        _mounts = mounts;
+        if (added.Count > 0) OnVolumes(added, true);
+        if (removed.Count > 0) OnVolumes(removed, false);
+
+        var usb = ABExplode.Platform.Linux.LinuxDevices.Usb().ToDictionary(d => d.Id);
+        // Pendrives e HDs externos já geram aviso de unidade.
+        var newUsb = usb.Values.Where(d => !_usbNow.ContainsKey(d.Id) && !d.Storage).ToList();
+        var goneUsb = _usbNow.Values.Where(d => !usb.ContainsKey(d.Id) && !d.Storage).ToList();
+        _usbNow = usb;
+        if (newUsb.FirstOrDefault() is { } a) Toast("Dispositivo USB conectado", a.Name, "");
+        else if (goneUsb.FirstOrDefault() is { } r) Toast("Dispositivo USB desconectado", r.Name, "");
+    }
 #endif
 }

@@ -181,7 +181,7 @@ public partial class MainWindow
             rows.Add(new("", "Memória RAM", $"{total / 1073741824.0:0} GB instalados", "—", $"{used / total:P0}", "—",
                          $"{used / 1073741824.0:0.0} GB", "PageSystem"));
         }
-        if (_drives.FirstOrDefault(d => d.Letter.StartsWith("C", StringComparison.OrdinalIgnoreCase)) is { } c0)
+        if (SystemDrive() is { } c0)
             rows.Add(new("", $"Disco {c0.Letter}", c0.Disk.Length > 0 ? c0.Disk : c0.Kind, "—", c0.UsedPercent, "—",
                          $"{DriveCard.Fmt(c0.Free)} livres", "PageDisks"));
         DashComponents.ItemsSource = rows;
@@ -324,6 +324,10 @@ public partial class MainWindow
         DashChart.Children.Add(bubble);
     }
 
+    /// <summary>Unidade do sistema: C: no Windows, "/" no Linux.</summary>
+    private DriveCard? SystemDrive() =>
+        _drives.FirstOrDefault(d => d.Letter.StartsWith("C", StringComparison.OrdinalIgnoreCase)) ?? _drives.FirstOrDefault(d => d.Letter == "/");
+
     // ---------------- anéis concêntricos ----------------
 
     private void UpdateDashRings()
@@ -333,7 +337,7 @@ public partial class MainWindow
         double? vram = null;
         if (_gpus.Count > 0 && _gpus[0].NvmlHandle != IntPtr.Zero && Nvml.MemoryInfo(_gpus[0].NvmlHandle) is Nvml.Memory m && m.Total > 0)
             vram = (double)m.Used / m.Total;
-        var c0 = _drives.FirstOrDefault(d => d.Letter.StartsWith("C", StringComparison.OrdinalIgnoreCase));
+        var c0 = SystemDrive();
 
         DashMemHero.Text = total > 0 ? $"{(total - avail) / 1073741824.0:0.0} GB" : "—";
         DashMemSub.Text = total > 0 ? $"de RAM em uso · {total / 1073741824.0:0} GB instalados" : "";

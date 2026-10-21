@@ -58,6 +58,9 @@ public static class Nvml
     [DllImport(Dll)] private static extern int nvmlDeviceGetEncoderUtilization(IntPtr device, out uint util, out uint periodUs);
     [DllImport(Dll)] private static extern int nvmlDeviceGetDecoderUtilization(IntPtr device, out uint util, out uint periodUs);
     [DllImport(Dll)] private static extern int nvmlDeviceGetUtilizationRates(IntPtr device, out Utilization util);
+    [DllImport(Dll)] private static extern int nvmlDeviceGetTemperature(IntPtr device, int sensor, out uint celsius);
+    [DllImport(Dll)] private static extern int nvmlDeviceGetFanSpeed(IntPtr device, out uint percent);
+    [DllImport(Dll, CharSet = CharSet.Ansi)] private static extern int nvmlDeviceGetName(IntPtr device, StringBuilder name, uint length);
     [DllImport(Dll)] private static extern int nvmlDeviceSetPowerManagementLimit(IntPtr device, uint mw);
     [DllImport(Dll)] private static extern int nvmlDeviceSetGpuLockedClocks(IntPtr device, uint minMhz, uint maxMhz);
     [DllImport(Dll)] private static extern int nvmlDeviceResetGpuLockedClocks(IntPtr device);
@@ -170,6 +173,16 @@ public static class Nvml
     public static uint? EncoderUtil(IntPtr h) { uint v = 0; return Call(() => nvmlDeviceGetEncoderUtilization(h, out v, out _)) ? v : null; }
     public static uint? DecoderUtil(IntPtr h) { uint v = 0; return Call(() => nvmlDeviceGetDecoderUtilization(h, out v, out _)) ? v : null; }
     public static Utilization? Util(IntPtr h) { Utilization u = default; return Call(() => nvmlDeviceGetUtilizationRates(h, out u)) ? u : null; }
+
+    // Leituras ao vivo que no Windows vêm do LibreHardwareMonitor; no Linux os sensores da NVIDIA saem daqui.
+    public static uint? Temperature(IntPtr h) { uint v = 0; return Call(() => nvmlDeviceGetTemperature(h, 0, out v)) ? v : null; } // 0 = NVML_TEMPERATURE_GPU
+    public static uint? FanPercent(IntPtr h) => U(h, nvmlDeviceGetFanSpeed);
+
+    public static string? Name(IntPtr h)
+    {
+        var sb = new StringBuilder(96);
+        return Call(() => nvmlDeviceGetName(h, sb, (uint)sb.Capacity)) ? sb.ToString() : null;
+    }
 
     private delegate int UFunc(IntPtr h, out uint v);
     private static uint? U(IntPtr h, UFunc f) { uint v = 0; return Call(() => f(h, out v)) ? v : null; }

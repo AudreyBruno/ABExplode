@@ -27,6 +27,7 @@ public static class DiskBench
     /// <summary>Unidades que podem ser testadas (fixas e removíveis, prontas e com pelo menos 1,5 GB livres).</summary>
     public static List<(string Root, string Text)> Drives()
     {
+        if (OperatingSystem.IsLinux()) return LinuxDrives();
         var list = new List<(string, string)>();
         foreach (var d in DriveInfo.GetDrives())
         {
@@ -42,11 +43,56 @@ public static class DiskBench
         return list;
     }
 
+    // Sistemas de arquivos virtuais ou só de leitura: não são disco (e o O_DIRECT nem funciona neles).
+    private static readonly HashSet<string> NotDisk = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "tmpfs", "devtmpfs", "ramfs", "squashfs", "overlay", "proc", "sysfs", "efivarfs", "fuse.portal", "fuse.gvfsd-fuse", "iso9660", "nfs", "nfs4", "cifs",
+    };
+
+    [DllImport("libc", SetLastError = true)] private static extern int access(string path, int mode);
+
+    /// <summary>
+    /// Linux: os pontos de montagem de disco. O usuário comum não grava em "/", então na partição da pasta pessoal o teste
+    /// roda dentro dela; nas outras, só se ele puder gravar no ponto de montagem (pendrive em /media ou /run/media).
+    /// </summary>
+    private static List<(string Root, string Text)> LinuxDrives()
+    {
+        string home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var mounts = new List<DriveInfo>();
+        foreach (var d in DriveInfo.GetDrives())
+        {
+            try
+            {
+                if (!d.IsReady || d.DriveType is not (DriveType.Fixed or DriveType.Removable) || NotDisk.Contains(d.DriveFormat)) continue;
+                string n = d.Name;
+                if (n.StartsWith("/boot") || n == "/efi" || n.StartsWith("/snap") || n.StartsWith("/var/") || n.StartsWith("/proc") ||
+                    n.StartsWith("/sys") || n.StartsWith("/dev") || n.StartsWith("/run") && !n.StartsWith("/run/media")) continue;
+                mounts.Add(d);
+            }
+            catch { }
+        }
+        // A montagem que contém a pasta pessoal é a mais longa que é prefixo dela.
+        string? homeMount = mounts.Select(d => d.Name).Where(n => home == n || home.StartsWith(n.TrimEnd('/') + "/") || n == "/")
+                                  .OrderByDescending(n => n.Length).FirstOrDefault();
+        var list = new List<(string, string)>();
+        foreach (var d in mounts)
+        {
+            try
+            {
+                if (d.AvailableFreeSpace < 1536L << 20) continue;
+                if (d.Name == homeMount) list.Add((home, $"{d.Name} (pasta pessoal)"));
+                else if (access(d.Name, 2) == 0) list.Add((d.Name, string.IsNullOrWhiteSpace(d.VolumeLabel) || d.VolumeLabel == d.Name ? d.Name : $"{d.Name} {d.VolumeLabel}"));
+            }
+            catch { }
+        }
+        return list;
+    }
+
     public static unsafe DiskBenchResult Run(string driveRoot, long fileMb, Action<string, double> progress, CancellationToken ct)
     {
         long fileBytes = fileMb << 20;
         var di = new DriveInfo(driveRoot);
-        if (di.TotalFreeSpace < fileBytes + (512L << 20))
+        if (di.AvailableFreeSpace < fileBytes + (512L << 20))
             throw new IOException($"Pouco espaço livre em {driveRoot} (precisa de {fileMb + 512} MB).");
 
         string dir = Path.Combine(driveRoot, "ABExplodeBench");

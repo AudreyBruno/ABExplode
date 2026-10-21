@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- Implementação Linux: /proc, /sys (hwmon, drm, dmi), NVML (libnvidia-ml.so.1), smartctl, udev. -->
+  <!-- Implementação Linux: /proc, /sys (hwmon, drm, dmi, power_supply, powercap), NVML (libnvidia-ml.so.1),
+       lsblk, lspci, smartctl, dmidecode e journalctl quando existirem. Nada aqui precisa de root para abrir;
+       o que só sai como root (módulos de RAM, S.M.A.R.T., consumo da CPU) avisa na tela. -->
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>ABExplode.Platform.Linux</RootNamespace>
@@ -8,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ABExplode.Platform\ABExplode.Platform.csproj" />
+    <Using Include="ABExplode.Core" />
   </ItemGroup>
 
 </Project>

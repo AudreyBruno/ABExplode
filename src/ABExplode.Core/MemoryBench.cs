@@ -96,8 +96,12 @@ public static class MemoryBench
     /// </summary>
     public static LoadResult MeasureLoading(Action<string, double> progress, CancellationToken ct)
     {
-        string dir = Path.Combine(Path.GetTempPath(), "ABExplodeBench");
-        string drive = Path.GetPathRoot(dir) ?? "";
+        // No Linux o /tmp costuma ser tmpfs (RAM): o teste precisa de um arquivo no disco de verdade.
+        string baseDir = OperatingSystem.IsWindows() ? Path.GetTempPath()
+            : Environment.GetEnvironmentVariable("XDG_CACHE_HOME") is { Length: > 0 } xdg ? xdg
+            : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".cache");
+        string dir = Path.Combine(baseDir, "ABExplodeBench");
+        string drive = OperatingSystem.IsWindows() ? Path.GetPathRoot(dir) ?? "" : "da pasta pessoal";
         try
         {
             Directory.CreateDirectory(dir);

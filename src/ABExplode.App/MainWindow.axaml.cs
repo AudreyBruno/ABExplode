@@ -160,7 +160,7 @@ public partial class MainWindow : Window
         {
             CpuSensorProblem.NotElevated => "Sem permissão de administrador.",
             CpuSensorProblem.PawnIOMissing => "Falta o driver PawnIO.",
-            CpuSensorProblem.ReadFailed => "O driver não respondeu.",
+            CpuSensorProblem.ReadFailed => _platform.Name == "Linux" ? "Módulo de sensores do kernel não carregado." : "O driver não respondeu.",
             _ => ""
         };
     }

@@ -12,6 +12,8 @@ internal static class Program
     [STAThread]
     public static void Main(string[] args)
     {
+        // Relatório de tudo que a plataforma lê, sem abrir janela (ABExplode --diag > diag.txt)
+        if (args.Contains("--diag")) { Environment.ExitCode = Diagnostics.Run(App.CreatePlatform()); return; }
 #if WINDOWS
         if (!AcquireSingleInstance()) return;
 #endif
