@@ -2,7 +2,7 @@
 
   <!-- Implementação Linux: /proc, /sys (hwmon, drm, dmi), NVML (libnvidia-ml.so.1), smartctl, udev. -->
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>ABExplode.Platform.Linux</RootNamespace>
   </PropertyGroup>
 

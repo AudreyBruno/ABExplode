@@ -2,7 +2,7 @@
 
   <!-- Lógica pura, sem dependência de sistema: benchmarks, análise, catálogos, modelos. -->
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>ABExplode.Core</RootNamespace>
   </PropertyGroup>
 

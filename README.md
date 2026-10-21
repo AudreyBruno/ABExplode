@@ -18,7 +18,7 @@
 
 Detalhes em [NOVIDADES.md](NOVIDADES.md) (o mesmo texto vai nas notas da release).
 
-App WPF (.NET 8) com:
+App WPF (.NET 10) com:
 - **Informações do sistema** (categorias + detalhes): SO, placa-mãe/BIOS, CPU, RAM (por módulo), GPU, discos — via WMI.
   Em Armazenamento, cartões por unidade (C:, pendrive, HD externo, rede) com anel de cheio/vazio, tipo e disco físico (`DriveMap.cs`).
 - **Avisos de dispositivo** (`ToastWindow.xaml`): ao conectar/remover pendrive, HD externo ou qualquer dispositivo USB (ex.: Arduino),
@@ -140,7 +140,7 @@ App WPF (.NET 8) com:
 
 ## Requisitos
 - Windows 10/11
-- .NET 8 SDK (https://dotnet.microsoft.com/download)
+- .NET 10 SDK (https://dotnet.microsoft.com/download)
 - Driver **PawnIO** (temperatura/consumo da CPU): `winget install namazso.PawnIO`
   A LibreHardwareMonitorLib 0.9.6+ usa o PawnIO no lugar do antigo WinRing0, que o Windows Defender bloqueia.
 

@@ -2,7 +2,7 @@
 
   <!-- Interfaces do que muda por sistema (ISystemInfo, ISensors, IGpuInfo...). Implementadas em Platform.Windows e Platform.Linux. -->
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>ABExplode.Platform</RootNamespace>
   </PropertyGroup>
 

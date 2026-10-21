@@ -10,7 +10,7 @@
     <!-- Sempre otimizado: o RESET BENCH e os stress tests precisam do JIT otimizado também em Debug -->
     <Optimize>true</Optimize>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <!-- Permite restaurar/compilar os alvos net8.0-windows também no Linux (CI) -->
+    <!-- Permite restaurar/compilar os alvos net10.0-windows também no Linux (CI) -->
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
 

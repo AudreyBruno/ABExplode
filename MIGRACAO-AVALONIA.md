@@ -5,7 +5,7 @@ reaproveitando o máximo do C# atual.
 
 ## Ponto de partida (v0.16)
 
-- ~17,6 mil linhas de C#/XAML, app WPF `net8.0-windows`.
+- ~17,6 mil linhas de C#/XAML, app WPF `net10.0-windows`.
 - **UI em code-behind:** `MainWindow.xaml` (2.905 linhas) + `MainWindow.xaml.cs` e 13 arquivos parciais `MainWindow.*.cs`; só 142 `{Binding}`.
   A migração mantém o code-behind; MVVM não é pré-requisito.
 - **WPF a adaptar** concentrado no `Theme.xaml`: 29 `Trigger`, 7 `DataTrigger`, 21 `ControlTemplate`, 5 colunas de `DataGrid`.
@@ -18,11 +18,11 @@ reaproveitando o máximo do C# atual.
 
 ```
 ABExplode.sln
-├─ src/ABExplode.Core/              net8.0          lógica pura: benchmarks, análise, catálogos, modelos
-├─ src/ABExplode.Platform/          net8.0          interfaces (ISystemInfo, ISensors, ...)
-├─ src/ABExplode.Platform.Windows/  net8.0-windows  código atual: WMI, LHM, D3D, ETW, registro
-├─ src/ABExplode.Platform.Linux/    net8.0          /sys, /proc, hwmon, NVML .so, Vulkan
-├─ src/ABExplode.App/               net8.0          UI Avalonia (escolhe a plataforma no início)
+├─ src/ABExplode.Core/              net10.0          lógica pura: benchmarks, análise, catálogos, modelos
+├─ src/ABExplode.Platform/          net10.0          interfaces (ISystemInfo, ISensors, ...)
+├─ src/ABExplode.Platform.Windows/  net10.0-windows  código atual: WMI, LHM, D3D, ETW, registro
+├─ src/ABExplode.Platform.Linux/    net10.0          /sys, /proc, hwmon, NVML .so, Vulkan
+├─ src/ABExplode.App/               net10.0          UI Avalonia (escolhe a plataforma no início)
 └─ ABExplode.csproj (WPF)           continua funcionando até a Fase 5
 ```
 
@@ -35,7 +35,7 @@ Assim há sempre um app funcionando.
 - Configurar CI (GitHub Actions) com build em `windows-latest` e `ubuntu-latest`.
 - **Pronto quando:** `dotnet build` passa nos dois sistemas.
 - **Status: feita.** `ABExplode.sln`, `Directory.Build.props`, projetos em `src\` e `.github/workflows/build.yml`.
-  O app Avalonia (`ABExplode.App`) tem dois alvos: `net8.0-windows` (usa Platform.Windows) e `net8.0` (usa Platform.Linux).
+  O app Avalonia (`ABExplode.App`) tem dois alvos: `net10.0-windows` (usa Platform.Windows) e `net10.0` (usa Platform.Linux).
   O app WPF continua na raiz, igual, e o `publicar.yml` não mudou.
 
 ## Fase 1: Extrair o Core (sem mudar comportamento)
