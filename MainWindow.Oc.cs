@@ -234,7 +234,7 @@ public partial class MainWindow
 
     private void UpdateRecentErrors()
     {
-        HardwareErrors hardwareErrors = OcCheck.ErrorsSince(DateTime.Now.AddDays(-7.0));
+        HardwareErrors hardwareErrors = _platform.HardwareErrors.ErrorsSince(DateTime.Now.AddDays(-7.0));
         OcRecentErrors.Text = ((hardwareErrors.Error != null) ? ("Não foi possível ler o registro: " + hardwareErrors.Error) : ((hardwareErrors.Total == 0) ? "Nenhum erro de hardware nem reinício do driver de vídeo nos últimos 7 dias." : $"Últimos 7 dias: {hardwareErrors.Whea} erros WHEA · {hardwareErrors.GpuResets} reinícios do driver de vídeo.\nÚltimo: {hardwareErrors.LastDetail}"));
     }
 
@@ -282,7 +282,7 @@ public partial class MainWindow
         int nCpuW = 0;
         int nGpuW = 0;
         string fail = null;
-        StressTester stress = new StressTester(SystemMemory.FreePhysicalBytes);
+        StressTester stress = new StressTester(_platform.SystemInfo.FreePhysicalBytes);
         GpuBurn burn = new GpuBurn();
         try
         {
@@ -410,7 +410,7 @@ public partial class MainWindow
                     }
                     if ((int)sw.Elapsed.TotalSeconds % 5 == 0)
                     {
-                        HardwareErrors hardwareErrors = OcCheck.ErrorsSince(start);
+                        HardwareErrors hardwareErrors = _platform.HardwareErrors.ErrorsSince(start);
                         if (hardwareErrors.Total > 0)
                         {
                             fail = $"o Windows registrou {hardwareErrors.Whea} erros WHEA e {hardwareErrors.GpuResets} reinícios do driver de vídeo";
@@ -441,7 +441,7 @@ public partial class MainWindow
             OcStatus.Text = "Verificação cancelada.";
             return;
         }
-        HardwareErrors hardwareErrors2 = OcCheck.ErrorsSince(start);
+        HardwareErrors hardwareErrors2 = _platform.HardwareErrors.ErrorsSince(start);
         if (fail == null && hardwareErrors2.Total > 0)
         {
             fail = $"o Windows registrou {hardwareErrors2.Whea} erros WHEA e {hardwareErrors2.GpuResets} reinícios do driver de vídeo";
@@ -527,7 +527,7 @@ public partial class MainWindow
 
     private void BuildOcGuide()
     {
-        (string Maker, string Model) tuple = OcCheck.Motherboard();
+        (string Maker, string Model) tuple = _platform.HardwareErrors.Motherboard();
         string item = tuple.Maker;
         string item2 = tuple.Model;
         bool flag = item.Contains("Gigabyte", StringComparison.OrdinalIgnoreCase);

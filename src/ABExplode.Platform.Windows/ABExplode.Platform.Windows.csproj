@@ -1,13 +1,33 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- Implementação Windows: WMI, LibreHardwareMonitor, Direct3D, ETW, registro (código que hoje está no app WPF). -->
+  <!-- Implementação Windows: WMI, LibreHardwareMonitor, Direct3D, ETW, registro.
+       Também as ferramentas que só existem no Windows (drivers, ComDB, ajustes, winget...), usadas direto pela UI por enquanto. -->
   <PropertyGroup>
     <TargetFramework>net10.0-windows</TargetFramework>
     <RootNamespace>ABExplode.Platform.Windows</RootNamespace>
   </PropertyGroup>
 
+  <!-- Drivers seriais oficiais embutidos (RESET MAKER): cada pasta Drivers\<chip> vira recurso e é extraída na hora de instalar.
+       Para incluir outro, basta criar a pasta com o .inf/.cat/.sys e ligá-la em MakerDrivers.Chips (Bundle). -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\Drivers\**\*" Exclude="..\..\Drivers\*.md;..\..\Drivers\*.txt" LogicalName="Drivers/%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.6" />
+    <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.2.8" />
+    <PackageReference Include="System.Diagnostics.EventLog" Version="10.0.2" />
+    <PackageReference Include="System.Management" Version="10.0.2" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.2" />
+    <PackageReference Include="Vortice.D3DCompiler" Version="3.8.3" />
+    <PackageReference Include="Vortice.Direct3D11" Version="3.8.3" />
+    <PackageReference Include="Vortice.Direct3D12" Version="3.8.3" />
+    <PackageReference Include="Vortice.Dxc" Version="3.8.3" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\ABExplode.Platform\ABExplode.Platform.csproj" />
+    <Using Include="ABExplode.Core" />
   </ItemGroup>
 
 </Project>

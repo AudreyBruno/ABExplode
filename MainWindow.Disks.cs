@@ -24,7 +24,7 @@ public partial class MainWindow
         try
         {
             var sensors = _monitor.Rows.ToList();
-            var cards = await Task.Run(() => DiskHealth.Read(sensors));
+            var cards = await Task.Run(() => _platform.DiskHealth.Read(sensors));
             DiskCards.ItemsSource = cards;
             int bad = cards.Count(c => c.Verdict is DiskVerdict.Warning or DiskVerdict.Critical);
             DiskHealthStatus.Text = cards.Count == 0
@@ -160,9 +160,9 @@ public partial class MainWindow
                 Sensors = sensorsSnapshot.Select(s => new ReportSensor(s.Hardware, s.Category, s.Name, s.Value, s.Min, s.Max)).ToList(),
                 Benchmarks = BuildBenchList(),
             };
-            var disks = await Task.Run(() => DiskHealth.Read(sensorsSnapshot));
+            var disks = await Task.Run(() => _platform.DiskHealth.Read(sensorsSnapshot));
             data.Disks.AddRange(disks.Select(d => new ReportDisk(d.Title, d.Meta, d.VerdictText, d.Reasons, d.Metrics)));
-            var power = await Task.Run(() => BatteryInfo.Read(sensorsSnapshot));
+            var power = await Task.Run(() => _platform.SystemInfo.Battery(sensorsSnapshot));
             data.Power.AddRange(power.Select(d => new ReportDisk(d.Title, d.Meta, d.VerdictText, d.Reasons, d.Metrics)));
             if (_lastNet != null)
                 data.Network.AddRange(_lastNet.Select(d => new ReportDisk(d.Title, d.Meta, d.VerdictText, d.Reasons, d.Metrics)));

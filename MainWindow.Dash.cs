@@ -131,7 +131,7 @@ public partial class MainWindow
                          F(MainGpuTemp(), "0", " °C"), F(MainGpuLoad(), "0", " %"), clk is uint c ? $"{c} MHz" : "—",
                          F(MainGpuPower(), "0", " W"), "PageGpu"));
         }
-        var (total, avail) = Optimizer.MemoryStatus();
+        var (total, avail) = _platform.SystemInfo.MemoryStatus();
         if (total > 0)
         {
             double used = total - avail;
@@ -280,7 +280,7 @@ public partial class MainWindow
 
     private void UpdateDashRings()
     {
-        var (total, avail) = Optimizer.MemoryStatus();
+        var (total, avail) = _platform.SystemInfo.MemoryStatus();
         double ram = total > 0 ? (double)(total - avail) / total : 0;
         double? vram = null;
         if (_gpus.Count > 0 && _gpus[0].NvmlHandle != IntPtr.Zero && Nvml.MemoryInfo(_gpus[0].NvmlHandle) is Nvml.Memory m && m.Total > 0)
@@ -341,11 +341,11 @@ public partial class MainWindow
         if (_monitor.IsOpen) // enquanto detecta o hardware, ainda não dá para saber
         {
             var sensors = _monitor.DiagnoseCpuSensors();
-            list.Add(Item(sensors == SensorMonitor.CpuSensorProblem.None, "Sensores da CPU",
-                          "Temperatura e consumo disponíveis.", SensorMonitor.Explain(sensors).Split('.')[0] + "."));
+            list.Add(Item(sensors == CpuSensorProblem.None, "Sensores da CPU",
+                          "Temperatura e consumo disponíveis.", _monitor.Explain(sensors).Split('.')[0] + "."));
         }
 
-        var errs = OcCheck.ErrorsSince(DateTime.Now.AddDays(-7));
+        var errs = _platform.HardwareErrors.ErrorsSince(DateTime.Now.AddDays(-7));
         list.Add(Item(errs.Error == null && errs.Total == 0, "Sem erros de hardware",
                       "Nenhum WHEA ou reinício do driver de vídeo em 7 dias.",
                       errs.Error != null ? "Não foi possível ler o registro do Windows."

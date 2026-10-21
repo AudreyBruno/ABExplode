@@ -15,6 +15,7 @@
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
+        <local:UsedArcConverter x:Key="UsedArc"/>
         <!-- Linha da tela "Sistema": folha = chave/valor; grupo = título + filhos (recursivo) -->
         <DataTemplate DataType="{x:Type core:InfoNode}">
             <StackPanel>
@@ -633,7 +634,7 @@
                                                             <!-- Anel: trilha cinza = vazio, arco branco = usado -->
                                                             <Grid Width="84" Height="84" Margin="0,0,16,0" VerticalAlignment="Center">
                                                                 <Ellipse Width="72" Height="72" Stroke="{DynamicResource Line}" StrokeThickness="8"/>
-                                                                <Path Data="{Binding UsedArc}" Stroke="{DynamicResource Fg}" StrokeThickness="8" StrokeStartLineCap="Flat" StrokeEndLineCap="Flat"/>
+                                                                <Path Data="{Binding UsedFraction, Converter={StaticResource UsedArc}}" Stroke="{DynamicResource Fg}" StrokeThickness="8" StrokeStartLineCap="Flat" StrokeEndLineCap="Flat"/>
                                                                 <TextBlock Text="{Binding UsedPercent}" FontFamily="{StaticResource Mono}" FontSize="15"
                                                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                             </Grid>

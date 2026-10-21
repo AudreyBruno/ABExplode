@@ -127,7 +127,7 @@ public partial class MainWindow
         Line("CPU", cpu);
 
         var ram = new List<string>();
-        var (total, availB) = Optimizer.MemoryStatus();
+        var (total, availB) = _platform.SystemInfo.MemoryStatus();
         if (show.Contains("ram_used")) ram.Add(total > 0 ? $"{(total - availB) / 1073741824.0:0.0} GB" : "—");
         if (show.Contains("ram_pct")) ram.Add(P(s.RamPct));
         Line("RAM", ram);

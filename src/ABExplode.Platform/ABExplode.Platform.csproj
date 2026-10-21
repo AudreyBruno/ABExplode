@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- Interfaces do que muda por sistema (ISystemInfo, ISensors, IGpuInfo...). Implementadas em Platform.Windows e Platform.Linux. -->
+  <!-- Interfaces do que muda por sistema (IPlatform, ISystemInfo, ISensorSource...), modelos que a UI usa,
+       e o que é comum aos dois sistemas: configurações, NVML, iluminação por rede (OpenRGB, Razer Chroma). -->
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>ABExplode.Platform</RootNamespace>
@@ -8,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ABExplode.Core\ABExplode.Core.csproj" />
+    <Using Include="ABExplode.Core" />
   </ItemGroup>
 
 </Project>

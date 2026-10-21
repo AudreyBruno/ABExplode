@@ -87,6 +87,24 @@ Criar as interfaces em `Platform` e mover o código atual para `Platform.Windows
 - Cada interface expõe `bool IsSupported`. A UI esconde as abas que a plataforma não suporta.
 - O código WPF passa a chamar as interfaces, não as classes direto.
 - **Pronto quando:** o WPF funciona igual, agora em cima das interfaces.
+- **Status: feita, com escopo ajustado.**
+  - Todo o backend saiu da raiz: na raiz do app WPF ficaram só as janelas, o tema e o `UsedArcConverter`.
+  - **`Platform`** (comum aos dois sistemas): `IPlatform` e as interfaces `ISystemInfo`, `ISensorSource`, `IGpuInfo`,
+    `IDiskHealth`, `IHardwareErrors`, `IGameLibrary`, `IFrameSource`, `ISecretStore` (todas com `IsSupported`, menos
+    `ISecretStore`); os modelos que a UI usa (`GpuInfo`, `FrameStats`, `DriveCard`, `LibGame`, `StartupBackup`,
+    `CpuSensorProblem`); e o que funciona igual nos dois: `AppSettings`, `Nvml` (no Linux carrega `libnvidia-ml.so.1`),
+    `BottleneckSampler` e a iluminação por rede (`ILightBackend`, OpenRGB, Razer Chroma).
+  - **`Platform.Windows`**: todo o código Windows (WMI, LHM, ETW, D3D, registro), os pacotes, os drivers embutidos do
+    RESET MAKER (`EmbeddedResource`, mesmos nomes de recurso) e `WindowsPlatform`, que liga as interfaces às classes de antes.
+    A chave da API continua no mesmo formato (base64 do DPAPI), então as chaves salvas continuam valendo.
+  - O app cria a `WindowsPlatform` no `App.xaml.cs`, define `AppSettings.Secrets` e passa a plataforma para a `MainWindow`.
+  - `DriveCard.UsedArc` (geometria WPF) virou o `UsedArcConverter` na UI.
+  - **Ajuste de escopo:** as ferramentas que só existem no Windows continuam sendo chamadas direto pela UI, sem interface:
+    `DriverManager`, `MakerDrivers`, `UsbCleaner` (ComDB), `WindowsTweaks`, `Optimizer` (fechar programas, limpar memória),
+    `AppInstaller` (winget), `StartupManager` (registro), `SteamInfo`/`GameLauncher`, Corsair iCUE e os benchmarks D3D
+    (`GpuBurn`, `GpuGameBench`, `GpuRtBench`). No Linux elas funcionam de outro jeito (ver Fase 5) ou viram Vulkan (Fase 6);
+    uma interface desenhada agora a partir do Windows provavelmente sairia errada. Ganham interface na Fase 5/6.
+  - `IDeviceWatcher` (avisos de USB) fica para a Fase 3: hoje depende da janela WPF (`WM_DEVICECHANGE`).
 
 ## Fase 3: UI em Avalonia, só no Windows
 

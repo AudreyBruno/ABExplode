@@ -32,6 +32,8 @@ public partial class App : Application
             return;
         }
         base.OnStartup(e);
-        new MainWindow().Show();
+        var platform = new WindowsPlatform();
+        AppSettings.Secrets = platform.Secrets; // antes de qualquer leitura da chave da API
+        new MainWindow(platform).Show();
     }
 }

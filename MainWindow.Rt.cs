@@ -67,7 +67,7 @@ public partial class MainWindow
             RtStatus.Text = bench.Cancelled ? "Cancelado" : $"Falhou: {bench.Error}";
             return;
         }
-        string driver = await Task.Run(() => DriverVersionOf(r.Adapter));
+        string driver = await Task.Run(() => _platform.Gpu.DriverVersionOf(r.Adapter));
         RtStatus.Text = $"Concluído · {r.Adapter}" + (driver.Length > 0 ? $" · driver {driver}" : "");
         RtVerdict.Text = r.Reliable
             ? $"✔ Resultado confiável: as 3 passadas variaram só {r.VariationPct:0.0}%."
@@ -87,18 +87,5 @@ public partial class MainWindow
         RtResult.ItemsSource = rows;
         SaveBenchRecord($"rt:{r.Preset}:{r.Height}",
                         r.Score, $"{r.Score:N0} pts · {r.MedianFps:0} FPS · {PresetName(r.Preset)} {r.Height}p" + (r.Reliable ? "" : " · instável"));
-    }
-
-    private static string DriverVersionOf(string adapter)
-    {
-        try
-        {
-            using var s = new System.Management.ManagementObjectSearcher("SELECT Name, DriverVersion FROM Win32_VideoController");
-            foreach (System.Management.ManagementObject mo in s.Get())
-                if (mo["Name"] is string n && adapter.Contains(n.Trim(), StringComparison.OrdinalIgnoreCase) || mo["Name"] is string n2 && n2.Contains(adapter, StringComparison.OrdinalIgnoreCase))
-                    return mo["DriverVersion"]?.ToString() ?? "";
-        }
-        catch { }
-        return "";
     }
 }
