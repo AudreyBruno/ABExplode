@@ -1,0 +1,46 @@
+# Flatpak do ABExplode. Empacota o executável já publicado (dist-linux/ABExplode, arquivo único com o .NET embutido):
+#   dotnet publish src/ABExplode.App/ABExplode.App.csproj -c Release -f net10.0 -r linux-x64 --self-contained true \
+#     -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -o dist-linux
+#   flatpak-builder --user --install --force-clean build-flatpak packaging/linux/io.github.audreybruno.ABExplode.yml
+#
+# Permissões: é um app de diagnóstico de hardware, então quase nada fica isolado.
+# - org.freedesktop.Flatpak: roda lspci, smartctl, journalctl, udevadm e o pkexec no sistema (flatpak-spawn --host).
+#   É o mesmo que tirar o isolamento; por isso este pacote é para distribuir por conta própria, não pelo Flathub.
+# - device=all: GPU (DRI), discos e USB em /dev. home, /media, /run/media e /mnt: Steam/Heroic e teste de disco.
+app-id: io.github.audreybruno.ABExplode
+runtime: org.freedesktop.Platform
+runtime-version: '25.08'
+sdk: org.freedesktop.Sdk
+command: ABExplode
+finish-args:
+  - --share=ipc
+  - --share=network
+  - --socket=x11
+  - --device=all
+  - --filesystem=home
+  - --filesystem=/media
+  - --filesystem=/run/media
+  - --filesystem=/mnt
+  - --talk-name=org.freedesktop.Flatpak
+  - --talk-name=org.freedesktop.Notifications
+modules:
+  - name: abexplode
+    buildsystem: simple
+    build-options:
+      # O executável de arquivo único do .NET leva um pacote anexado ao final: o strip o corromperia.
+      no-debuginfo: true
+      strip: false
+    build-commands:
+      - install -Dm755 ABExplode /app/bin/ABExplode
+      - install -Dm644 io.github.audreybruno.ABExplode.desktop /app/share/applications/io.github.audreybruno.ABExplode.desktop
+      - install -Dm644 io.github.audreybruno.ABExplode.png /app/share/icons/hicolor/256x256/apps/io.github.audreybruno.ABExplode.png
+      - install -Dm644 io.github.audreybruno.ABExplode.metainfo.xml /app/share/metainfo/io.github.audreybruno.ABExplode.metainfo.xml
+    sources:
+      - type: file
+        path: ../../dist-linux/ABExplode
+      - type: file
+        path: io.github.audreybruno.ABExplode.desktop
+      - type: file
+        path: io.github.audreybruno.ABExplode.png
+      - type: file
+        path: io.github.audreybruno.ABExplode.metainfo.xml

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=ABExplode
+GenericName=Diagnóstico de hardware
+Comment=Informações do sistema, sensores, benchmarks e ferramentas para jogos
+Exec=ABExplode
+Icon=io.github.audreybruno.ABExplode
+Terminal=false
+Categories=System;Monitor;Utility;
+Keywords=hardware;sensores;benchmark;cpu;gpu;fps;temperatura;
+StartupWMClass=ABExplode

@@ -18,3 +18,11 @@ ABExplode-dist/
 
 # Drivers seriais embutidos (RESET MAKER): as DLLs fazem parte dos pacotes assinados
 !Drivers/**
+
+# Empacotamento Linux (gerados localmente)
+dist-linux/
+.appimagetool/
+.flatpak-builder/
+build-flatpak/
+*.AppImage
+*.flatpak

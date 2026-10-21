@@ -48,29 +48,83 @@ internal static class Sys
         return d;
     }
 
+    /// <summary>
+    /// Rodando dentro do Flatpak. Lá as ferramentas do sistema (lspci, smartctl, journalctl, pkexec...) e as montagens
+    /// do computador ficam fora do sandbox: os comandos vão pelo flatpak-spawn --host (permissão org.freedesktop.Flatpak).
+    /// </summary>
+    public static bool InFlatpak { get; } = File.Exists("/.flatpak-info");
+
+    /// <summary>Processo para rodar um comando no sistema (no Flatpak, fora do sandbox).</summary>
+    public static ProcessStartInfo HostProcess(string file, IEnumerable<string> args, IDictionary<string, string>? env = null)
+    {
+        ProcessStartInfo psi;
+        if (InFlatpak)
+        {
+            psi = new ProcessStartInfo("flatpak-spawn");
+            psi.ArgumentList.Add("--host");
+            foreach (var (k, v) in env ?? new Dictionary<string, string>()) psi.ArgumentList.Add($"--env={k}={v}");
+            psi.ArgumentList.Add(file);
+        }
+        else
+        {
+            psi = new ProcessStartInfo(file);
+            foreach (var (k, v) in env ?? new Dictionary<string, string>()) psi.Environment[k] = v;
+        }
+        foreach (var a in args) psi.ArgumentList.Add(a);
+        psi.RedirectStandardOutput = psi.RedirectStandardError = true;
+        psi.UseShellExecute = false;
+        psi.CreateNoWindow = true;
+        return psi;
+    }
+
+    private static readonly Dictionary<string, string> CLocale = new() { ["LC_ALL"] = "C" }; // saída em inglês, que é o que os parsers esperam
+
     /// <summary>Roda um programa e devolve a saída padrão; null se ele não existir, falhar ou passar do tempo.</summary>
-    public static string? Run(string file, string args, int timeoutMs = 5000, bool acceptNonZero = false)
+    public static string? Run(string file, string args, int timeoutMs = 5000, bool acceptNonZero = false) =>
+        Run(file, args.Split(' ', StringSplitOptions.RemoveEmptyEntries), timeoutMs, acceptNonZero); // argumentos sem espaços dentro
+
+    public static string? Run(string file, IEnumerable<string> args, int timeoutMs = 5000, bool acceptNonZero = false)
     {
         try
         {
-            using var p = Process.Start(new ProcessStartInfo(file, args)
-            {
-                RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false, CreateNoWindow = true,
-                Environment = { ["LC_ALL"] = "C" }, // saída em inglês, que é o que os parsers esperam
-            });
+            using var p = Process.Start(HostProcess(file, args, CLocale));
             if (p == null) return null;
             var stdout = p.StandardOutput.ReadToEndAsync();
             _ = p.StandardError.ReadToEndAsync();
             if (!p.WaitForExit(timeoutMs)) { try { p.Kill(true); } catch { } return null; }
+            // flatpak-spawn devolve 127 quando o programa não existe no sistema
+            if (InFlatpak && p.ExitCode == 127) return null;
             return p.ExitCode == 0 || acceptNonZero ? stdout.Result : null;
         }
         catch { return null; }
     }
 
-    /// <summary>O programa existe em algum diretório do PATH.</summary>
-    public static bool HasCommand(string name) =>
-        (Environment.GetEnvironmentVariable("PATH") ?? "/usr/bin:/bin").Split(':')
-            .Any(dir => dir.Length > 0 && File.Exists(Path.Combine(dir, name)));
+    private static readonly Dictionary<string, bool> CommandCache = new();
+
+    /// <summary>O programa existe em algum diretório do PATH (no Flatpak, no PATH do sistema).</summary>
+    public static bool HasCommand(string name)
+    {
+        if (!InFlatpak)
+            return (Environment.GetEnvironmentVariable("PATH") ?? "/usr/bin:/bin").Split(':')
+                .Any(dir => dir.Length > 0 && File.Exists(Path.Combine(dir, name)));
+        lock (CommandCache)
+        {
+            if (CommandCache.TryGetValue(name, out bool cached)) return cached;
+            bool found = Run("sh", new[] { "-c", "command -v " + name }) != null;
+            return CommandCache[name] = found;
+        }
+    }
+
+    /// <summary>Esquece o que já foi procurado (depois de instalar dependências).</summary>
+    public static void ForgetCommands()
+    {
+        lock (CommandCache) CommandCache.Clear();
+    }
+
+    /// <summary>Linhas de /proc/self/mounts do sistema (no Flatpak, as do sandbox não servem).</summary>
+    public static string[] MountLines() =>
+        InFlatpak ? Run("cat", "/proc/self/mounts")?.Split('\n', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>()
+                  : Lines("/proc/self/mounts");
 
     public static bool IsRoot => Environment.IsPrivilegedProcess;
 

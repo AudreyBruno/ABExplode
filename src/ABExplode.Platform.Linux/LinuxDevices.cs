@@ -13,7 +13,7 @@ public static class LinuxDevices
     public static HashSet<string> Mounts()
     {
         var set = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var line in Sys.Lines("/proc/self/mounts"))
+        foreach (var line in Sys.MountLines())
         {
             var f = line.Split(' ');
             if (f.Length < 3 || !f[0].StartsWith("/dev/") || f[0].StartsWith("/dev/loop")) continue;

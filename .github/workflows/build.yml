@@ -1,8 +1,8 @@
 name: Build
 
 # Compila a solution em Windows e Linux a cada push e pull request (a release oficial é o publicar.yml, só da main).
-# Em push numa branch que não é a main, também gera os executáveis de desenvolvimento (Windows e Linux) como artefatos
-# desta execução: ficam na aba Actions, não em Releases, e somem depois de 30 dias.
+# Em push numa branch que não é a main, também gera as versões de desenvolvimento como artefatos desta execução
+# (Windows .exe; Linux executável, AppImage e Flatpak): ficam na aba Actions, não em Releases, e somem depois de 30 dias.
 on:
   push:
   pull_request:
@@ -90,4 +90,63 @@ jobs:
         with:
           name: ABExplode-linux-${{ env.DEV_NAME }}
           path: ABExplode-linux-x64.tar.gz
+          retention-days: 30
+
+      - name: Montar o AppImage
+        if: env.DEV_BUILD == 'true'
+        run: bash packaging/linux/build-appimage.sh "ABExplode-${DEV_NAME}-x86_64.AppImage"
+
+      # Também em .tar.gz: o AppImage precisa do chmod +x para abrir com dois cliques
+      - name: Guardar o AppImage
+        if: env.DEV_BUILD == 'true'
+        run: tar -czf ABExplode-appimage.tar.gz "ABExplode-${DEV_NAME}-x86_64.AppImage"
+
+      - uses: actions/upload-artifact@v4
+        if: env.DEV_BUILD == 'true'
+        with:
+          name: ABExplode-appimage-${{ env.DEV_NAME }}
+          path: ABExplode-appimage.tar.gz
+          retention-days: 30
+
+      # Entrada do job do Flatpak (some em 1 dia)
+      - uses: actions/upload-artifact@v4
+        if: env.DEV_BUILD == 'true'
+        with:
+          name: flatpak-input
+          path: dist-linux/ABExplode
+          retention-days: 1
+
+  # Flatpak: empacota o mesmo executável num contêiner com o flatpak-builder e o runtime freedesktop
+  flatpak:
+    needs: linux
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-25.08
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: flatpak-input
+          path: dist-linux
+
+      - name: Nome da versão de desenvolvimento
+        shell: bash
+        run: |
+          chmod +x dist-linux/ABExplode
+          echo "DEV_NAME=${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7}" >> "$GITHUB_ENV"
+
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          manifest-path: packaging/linux/io.github.audreybruno.ABExplode.yml
+          bundle: ABExplode-${{ env.DEV_NAME }}.flatpak
+          cache-key: flatpak-builder-${{ github.sha }}
+          upload-artifact: false
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ABExplode-flatpak-${{ env.DEV_NAME }}
+          path: ABExplode-${{ env.DEV_NAME }}.flatpak
           retention-days: 30

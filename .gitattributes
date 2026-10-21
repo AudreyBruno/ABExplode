@@ -1,2 +1,10 @@
 # Drivers embutidos: nunca converter fins de linha (o .cat assina o conteúdo exato de .inf/.sys/.dll)
 Drivers/** -text
+
+# Empacotamento Linux: o shell e o flatpak-builder exigem LF
+packaging/linux/*.sh text eol=lf
+packaging/linux/*.yml text eol=lf
+packaging/linux/*.desktop text eol=lf
+packaging/linux/*.xml text eol=lf
+*.sh text eol=lf
+*.png binary

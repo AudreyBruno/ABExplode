@@ -42,6 +42,7 @@ public static class LinuxDependencies
     public static List<LinuxDependency> MissingGui()
     {
         var list = new List<LinuxDependency>();
+        if (Sys.InFlatpak) return list; // o runtime do Flatpak já traz as bibliotecas gráficas
         foreach (var (lib, pkg) in GuiLibs)
         {
             if (NativeLibrary.TryLoad(lib, out var h)) { NativeLibrary.Free(h); continue; }
@@ -142,10 +143,10 @@ public static class LinuxDependencies
         if (steps.Count == 0) return (true, "");
 
         string script = string.Join(" && ", steps);
-        var psi = Sys.IsRoot ? new ProcessStartInfo("sh", new[] { "-c", script }) : new ProcessStartInfo("pkexec", new[] { "sh", "-c", script });
-        psi.RedirectStandardOutput = psi.RedirectStandardError = true;
-        psi.UseShellExecute = false;
-        psi.Environment["DEBIAN_FRONTEND"] = "noninteractive";
+        // No Flatpak isto roda fora do sandbox (flatpak-spawn --host), onde estão o gerenciador de pacotes e o pkexec.
+        // O pkexec limpa o ambiente: o DEBIAN_FRONTEND vai pelo env, já do lado root.
+        var psi = Sys.IsRoot ? Sys.HostProcess("sh", new[] { "-c", script }, new Dictionary<string, string> { ["DEBIAN_FRONTEND"] = "noninteractive" })
+                             : Sys.HostProcess("pkexec", new[] { "env", "DEBIAN_FRONTEND=noninteractive", "sh", "-c", script });
         try
         {
             using var p = Process.Start(psi)!;
@@ -153,6 +154,7 @@ public static class LinuxDependencies
             var errTask = p.StandardError.ReadToEndAsync();
             await p.WaitForExitAsync();
             string output = (await outTask + "\n" + await errTask).Trim();
+            Sys.ForgetCommands(); // o que acabou de ser instalado passa a ser encontrado
             // pkexec: 126 = o usuário cancelou a janela de senha, 127 = não autorizado
             if (p.ExitCode is 126 or 127 && !Sys.IsRoot) return (false, "A instalação foi cancelada ou não foi autorizada.");
             return (p.ExitCode == 0, output.Length > 1500 ? "…" + output[^1500..] : output);

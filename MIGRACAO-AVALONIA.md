@@ -312,9 +312,20 @@ Implementações em `Platform.Linux`:
 ## Empacotamento
 
 - **Windows:** o `publicar.bat` atual, com `-r win-x64`.
-- **Linux:** `dotnet publish -r linux-x64 --self-contained -p:PublishSingleFile=true`, distribuído como **AppImage**
-  (um arquivo, roda em qualquer distro), mais `.tar.gz`. Flatpak depois, se fizer sentido
-  (o sandbox atrapalha o acesso a `/sys` e `/dev`).
+- **Linux:** `dotnet publish -r linux-x64 --self-contained -p:PublishSingleFile=true`, distribuído em três formas
+  (arquivos em `packaging/linux`):
+  - **Executável avulso**, em `.tar.gz` para manter o `chmod +x`.
+  - **AppImage:** `packaging/linux/build-appimage.sh` monta o AppDir (AppRun, `.desktop`, ícone, metainfo) e roda o
+    appimagetool, que é baixado na primeira vez.
+  - **Flatpak:** `packaging/linux/io.github.audreybruno.ABExplode.yml`, runtime freedesktop 25.08. Empacota o mesmo
+    executável, sem strip, porque o strip corromperia o arquivo único do .NET. O sandbox atrapalharia um app de
+    hardware, então ele tem `device=all`, `home`, `/media`, `/run/media`, `/mnt` e `org.freedesktop.Flatpak`. Com
+    isso, os comandos do sistema (lspci, smartctl, journalctl, pkexec, df e as montagens) rodam fora do sandbox pelo
+    `flatpak-spawn --host` (`Sys.InFlatpak`). Por essa permissão ele não serve para o Flathub, só para distribuir por
+    conta própria.
+  - **Versões de desenvolvimento:** o `build.yml` gera as três em todo push fora da `main`, como artefatos.
+    Instalar o Flatpak: `flatpak install --user ABExplode-*.flatpak` (precisa do remoto flathub para baixar o runtime).
+  - **Pendente:** levar as três para o `publicar.yml` (release oficial) quando o Linux estiver testado.
 
 ## Riscos e cuidados
 

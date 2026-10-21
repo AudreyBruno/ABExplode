@@ -45,6 +45,9 @@ internal sealed class LinuxSystemInfo : ISystemInfo
             n.Add("Ambiente gráfico", string.Join(" · ", new[] { desktop.Replace(':', '/'), session switch { "wayland" => "Wayland", "x11" => "X11", _ => session } }
                                                        .Where(s => s.Length > 0)));
         n.Add("Nome do computador", Environment.MachineName);
+        n.Add("ABExplode rodando como", Sys.InFlatpak ? "Flatpak (comandos do sistema pelo flatpak-spawn)"
+                                      : Environment.GetEnvironmentVariable("APPIMAGE") is { Length: > 0 } ai ? $"AppImage ({Path.GetFileName(ai)})"
+                                      : "executável avulso");
     }
 
     private static string DmiDate(string? s) =>
@@ -427,7 +430,8 @@ internal sealed class LinuxSystemInfo : ISystemInfo
 
         var seen = new HashSet<string>();
         var list = new List<DriveCard>();
-        foreach (var line in Sys.Lines("/proc/self/mounts"))
+        var hostSizes = Sys.InFlatpak ? HostSizes() : null;
+        foreach (var line in Sys.MountLines())
         {
             var f = line.Split(' ');
             if (f.Length < 3) continue;
@@ -441,18 +445,40 @@ internal sealed class LinuxSystemInfo : ISystemInfo
 
             try
             {
-                var di = new DriveInfo(mount);
+                long total, free;
+                if (hostSizes != null)
+                {
+                    if (!hostSizes.TryGetValue(mount, out var hs)) continue;
+                    (total, free) = hs;
+                }
+                else
+                {
+                    var di = new DriveInfo(mount);
+                    (total, free) = (di.TotalSize, di.AvailableFreeSpace);
+                }
                 var (model, usb, removable) = net ? ("", false, false) : DiskOf(realDev);
                 string kind = net ? "Rede" : removable && !usb ? "Removível" : usb ? "Externo (USB)" : "Interno";
                 list.Add(new DriveCard
                 {
                     Letter = mount, Label = labels.GetValueOrDefault(realDev, ""), Kind = kind, FileSystem = fs == "fuseblk" ? "ntfs" : fs,
-                    Disk = model, Total = di.TotalSize, Free = di.AvailableFreeSpace, Removable = removable || usb,
+                    Disk = model, Total = total, Free = free, Removable = removable || usb,
                 });
             }
             catch { /* desmontou no meio da leitura */ }
         }
         return list.OrderBy(c => c.Letter == "/" ? "" : c.Letter, StringComparer.Ordinal).ToList();
+    }
+
+    /// <summary>Flatpak: tamanho e espaço livre de cada montagem pelo df do sistema (o DriveInfo do sandbox vê outro "/").</summary>
+    private static Dictionary<string, (long Total, long Free)> HostSizes()
+    {
+        var d = new Dictionary<string, (long, long)>(StringComparer.Ordinal);
+        foreach (var line in (Sys.Run("df", "-B1 --output=size,avail,target") ?? "").Split('\n').Skip(1))
+        {
+            var f = line.Trim().Split(' ', 3, StringSplitOptions.RemoveEmptyEntries); // o caminho pode ter espaços: fica por último
+            if (f.Length == 3 && long.TryParse(f[0], out long size) && long.TryParse(f[1], out long avail)) d[f[2]] = (size, avail);
+        }
+        return d;
     }
 
     private static string[] SafeFiles(string dir)
