@@ -14,6 +14,9 @@ public static class Dialog
     /// <summary>Pergunta com SIM/NÃO; true se a resposta for SIM.</summary>
     public static Task<bool> Ask(Window owner, string title, string text) => Open(owner, title, text, "SIM", "NÃO");
 
+    /// <summary>Pergunta com os rótulos dados (ex.: INSTALAR / AGORA NÃO); true se a resposta for a primeira.</summary>
+    public static Task<bool> Ask(Window owner, string title, string text, string yes, string no) => Open(owner, title, text, yes, no);
+
     private static async Task<bool> Open(Window owner, string title, string text, string yes, string? no)
     {
         var win = new Window
@@ -37,7 +40,8 @@ public static class Dialog
         bYes.Click += (_, _) => { result = true; win.Close(); };
         buttons.Children.Add(bYes);
 
-        var body = new TextBlock { Text = text, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 20) };
+        // Selecionável: dá para copiar comandos e mensagens de erro.
+        var body = new SelectableTextBlock { Text = text, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 20) };
         body.Bind(TextBlock.ForegroundProperty, win.GetResourceObservable("Fg"));
         win.Content = new StackPanel { Margin = new Thickness(24), Children = { body, buttons } };
 

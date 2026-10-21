@@ -16,8 +16,20 @@ internal static class Program
         if (args.Contains("--diag")) { Environment.ExitCode = Diagnostics.Run(App.CreatePlatform()); return; }
 #if WINDOWS
         if (!AcquireSingleInstance()) return;
-#endif
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+#else
+        // Ferramentas que completam as leituras: ABExplode --deps confere e instala
+        if (args.Contains("--deps")) { Environment.ExitCode = LinuxStartup.CheckTools(); return; }
+        // Sem sessão gráfica ou sem as bibliotecas da janela, explica e oferece instalar em vez de fechar com erro
+        if (!LinuxStartup.CheckGui()) { Environment.ExitCode = 1; return; }
+        try { BuildAvaloniaApp().StartWithClassicDesktopLifetime(args); }
+        catch (Exception ex) when (ex is DllNotFoundException or TypeInitializationException or InvalidOperationException)
+        {
+            Console.Error.WriteLine($"A janela do ABExplode não abriu: {ex.Message}\n" +
+                                    "Rode \"ABExplode --deps\" para conferir as dependências, ou \"ABExplode --diag\" para ver as leituras sem janela.");
+            Environment.ExitCode = 1;
+        }
+#endif
     }
 
     // Usado também pelo designer do Avalonia na IDE

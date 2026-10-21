@@ -180,6 +180,51 @@ public partial class MainWindow
         _devPoll = new DispatcherTimer(DispatcherPriority.Normal) { Interval = TimeSpan.FromSeconds(2) };
         _devPoll.Tick += (_, _) => PollDevices();
         _devPoll.Start();
+        Opened += async (_, _) => { await Task.Delay(1500); await CheckLinuxToolsAsync(); };
+    }
+
+    /// <summary>
+    /// Na abertura: avisa do que falta para ler tudo (lspci, smartctl, módulo de sensores...) e instala pelo pkexec se o
+    /// usuário aceitar. "Agora não" lembra na próxima abertura; sem como instalar pelo app, "Não lembrar mais" silencia
+    /// esses itens. "ABExplode --deps" no terminal confere de novo.
+    /// </summary>
+    private async Task CheckLinuxToolsAsync()
+    {
+        var all = await Task.Run(ABExplode.Platform.Linux.LinuxDependencies.MissingTools);
+        var missing = all.Where(d => !_settings.DepsDismissed.Contains(d.Key)).ToList();
+        if (missing.Count == 0) return;
+
+        var pm = ABExplode.Platform.Linux.LinuxDependencies.Detect();
+        bool can = ABExplode.Platform.Linux.LinuxDependencies.CanInstall(pm);
+        string how = ABExplode.Platform.Linux.LinuxDependencies.Instructions(missing, pm);
+        string text = "Para o ABExplode ler tudo neste sistema, faltam:\n\n" +
+                      string.Join("\n", missing.Select(d => $"• {d.Title}: {d.Why}")) + "\n\n" +
+                      (can ? "O ABExplode pode instalar agora; o sistema vai pedir sua senha.\n\nOu instale pelo terminal:\n"
+                           : "Instale pelo terminal:\n") + how +
+                      (pm?.Immutable == true ? "\n\nEsta distribuição é imutável: depois de instalar, reinicie o computador." : "") +
+                      "\n\nPara conferir de novo depois: ABExplode --deps";
+
+        void Dismiss()
+        {
+            // não pergunta mais por estes itens na abertura (os que surgirem depois ainda são avisados)
+            _settings.DepsDismissed.AddRange(missing.Select(d => d.Key).Except(_settings.DepsDismissed));
+            try { _settings.Save(); } catch { }
+        }
+        if (!can)
+        {
+            // Sem como instalar pelo app (sem pkexec ou distro imutável): só mostra os comandos; OK lembra na próxima abertura.
+            if (!await Dialog.Ask(this, "Dependências", text, "OK", "NÃO LEMBRAR MAIS")) Dismiss();
+            return;
+        }
+        if (!await Dialog.Ask(this, "Dependências", text, "INSTALAR", "AGORA NÃO")) return; // lembra na próxima abertura
+
+        Toast("Instalando dependências", string.Join(", ", missing.Select(d => d.Title)), "");
+        var (ok, output) = await ABExplode.Platform.Linux.LinuxDependencies.InstallAsync(missing, pm!);
+        if (ok)
+            await Dialog.Show(this, "Dependências", "Instalado. Feche e abra o ABExplode para ele usar as ferramentas novas " +
+                                                    "(o sensor da CPU já começa a aparecer).");
+        else
+            await Dialog.Show(this, "Dependências", $"A instalação não terminou:\n\n{output}\n\nTente pelo terminal:\n{how}");
     }
 
     private void CloseDevices() => _devPoll?.Stop();

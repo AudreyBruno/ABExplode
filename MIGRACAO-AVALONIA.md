@@ -254,6 +254,16 @@ Implementações em `Platform.Linux`:
   pasta pessoal (o usuário não grava em `/`) e ignora tmpfs/squashfs. O de carregamento usa `~/.cache`, porque `/tmp`
   costuma ser tmpfs.
 - **`ABExplode --diag`:** imprime tudo o que a plataforma leu, sem abrir janela. Serve nos dois sistemas.
+- **Dependências (`LinuxDependencies`):** o app detecta apt, dnf, pacman, zypper ou rpm-ostree e instala pelo `pkexec`,
+  que abre a janela de senha do sistema.
+  - **Antes da janela:** sem sessão gráfica, ou faltando as bibliotecas que a janela usa (libX11, libICE, libSM, libXi,
+    libXrandr, libXcursor, fontconfig), explica e oferece instalar. No terminal pergunta ali mesmo; aberto pelo
+    gerenciador de arquivos, usa zenity ou kdialog, e no mínimo notify-send.
+  - **Com a janela aberta:** avisa do que completa as leituras e oferece INSTALAR: pciutils, smartmontools, util-linux,
+    vulkan-tools (só sem NVIDIA), dmidecode (só como root) e o módulo de sensores da CPU (coretemp/k10temp: carrega agora
+    e em todo boot). "Agora não" lembra na próxima abertura. Sem como instalar pelo app (sem pkexec ou distro imutável),
+    mostra os comandos com "Não lembrar mais".
+  - **`ABExplode --deps`:** confere e instala pelo terminal.
 
 ### Como testar no Linux
 
