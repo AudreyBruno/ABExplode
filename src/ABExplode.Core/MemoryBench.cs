@@ -3,7 +3,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
 
-namespace ABExplode;
+namespace ABExplode.Core;
 
 public sealed record MemoryResult(double LatencyNs, double ReadGBs, double CopyGBs);
 public sealed record LoadResult(double SeqReadMBs, double SmallFilesMBs, double FilesPerSec, double MapLoadSeconds, string Drive);

@@ -282,7 +282,7 @@ public partial class MainWindow
         int nCpuW = 0;
         int nGpuW = 0;
         string fail = null;
-        StressTester stress = new StressTester();
+        StressTester stress = new StressTester(SystemMemory.FreePhysicalBytes);
         GpuBurn burn = new GpuBurn();
         try
         {

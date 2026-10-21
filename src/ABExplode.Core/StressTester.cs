@@ -1,10 +1,13 @@
-using System.Management;
-
-namespace ABExplode;
+namespace ABExplode.Core;
 
 /// <summary>Gera carga sintética de CPU (todos os threads) e/ou RAM (escrita + verificação).</summary>
 public sealed class StressTester
 {
+    private readonly Func<long> _freePhysicalMemory;
+
+    /// <param name="freePhysicalMemory">Memória física livre em bytes, lida do sistema (cada plataforma tem a sua fonte).</param>
+    public StressTester(Func<long> freePhysicalMemory) => _freePhysicalMemory = freePhysicalMemory;
+
     private CancellationTokenSource? _cts;
     private readonly List<Thread> _threads = new();
     private long _memErrors;
@@ -40,7 +43,7 @@ public sealed class StressTester
 
         if (ram)
         {
-            long bytes = (long)(FreePhysicalMemory() * Math.Clamp(ramFraction, 0.1, 0.9));
+            long bytes = (long)(_freePhysicalMemory() * Math.Clamp(ramFraction, 0.1, 0.9));
             MemoryAllocatedBytes = bytes;
             StartThread(() => RamWorker(token, bytes), "Stress RAM");
         }
@@ -137,17 +140,5 @@ public sealed class StressTester
         {
             chunks.Clear();
         }
-    }
-
-    private static long FreePhysicalMemory()
-    {
-        try
-        {
-            using var s = new ManagementObjectSearcher("SELECT FreePhysicalMemory FROM Win32_OperatingSystem");
-            foreach (ManagementObject mo in s.Get())
-                return Convert.ToInt64(mo["FreePhysicalMemory"]) * 1024; // vem em KB
-        }
-        catch { }
-        return 1L << 30;
     }
 }

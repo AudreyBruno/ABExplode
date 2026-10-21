@@ -1,6 +1,5 @@
 using System.Windows;
 using System.Windows.Controls;
-using LibreHardwareMonitor.Hardware;
 
 namespace ABExplode;
 
@@ -57,14 +56,14 @@ public partial class MainWindow
 
     // ------------------------------------------------------------------ leitura dos sensores
 
-    private SensorRow? GpuRow(SensorType type, string name, bool startsWith = false) =>
+    private SensorRow? GpuRow(SensorKind type, string name, bool startsWith = false) =>
         _gpus.Count == 0 ? null : _monitor.Rows.FirstOrDefault(r => r.Hardware == _gpus[0].Name && r.Type == type &&
                                                                    (startsWith ? r.Name.StartsWith(name) : r.Name == name) && r.RawValue != null);
 
     private uint? MainGpuClock(int nvmlType, string lhmName)
     {
         if (_gpus.Count > 0 && _gpus[0].NvmlHandle != IntPtr.Zero && Nvml.Clock(_gpus[0].NvmlHandle, nvmlType) is uint c) return c;
-        return GpuRow(SensorType.Clock, lhmName)?.RawValue is float v && v > 0 ? (uint)v : null;
+        return GpuRow(SensorKind.Clock, lhmName)?.RawValue is float v && v > 0 ? (uint)v : null;
     }
 
     /// <summary>VRAM usada e total em GB: NVML quando disponível, senão LibreHardwareMonitor (MB).</summary>
@@ -73,14 +72,14 @@ public partial class MainWindow
         if (_gpus.Count == 0) return null;
         if (_gpus[0].NvmlHandle != IntPtr.Zero && Nvml.MemoryInfo(_gpus[0].NvmlHandle) is Nvml.Memory m && m.Total > 0)
             return (m.Used / 1073741824.0, m.Total / 1073741824.0);
-        if (GpuRow(SensorType.SmallData, "GPU Memory Used")?.RawValue is float u && GpuRow(SensorType.SmallData, "GPU Memory Total")?.RawValue is float t && t > 0)
+        if (GpuRow(SensorKind.SmallData, "GPU Memory Used")?.RawValue is float u && GpuRow(SensorKind.SmallData, "GPU Memory Total")?.RawValue is float t && t > 0)
             return (u / 1024.0, t / 1024.0);
         return null;
     }
 
     private (float? Avg, float? Max) CpuClocks()
     {
-        var cores = _monitor.Rows.Where(r => r.HardwareType == HardwareType.Cpu && r.Type == SensorType.Clock &&
+        var cores = _monitor.Rows.Where(r => r.HardwareType == HardwareKind.Cpu && r.Type == SensorKind.Clock &&
                                              r.Name.StartsWith("Core #") && !r.Name.Contains("Effective") && r.RawValue > 0)
                                  .Select(r => r.RawValue!.Value).ToList();
         return cores.Count > 0 ? (cores.Average(), cores.Max()) : (null, null);
@@ -90,7 +89,7 @@ public partial class MainWindow
     private List<OverlayLine> BuildOverlayLines(FrameStats? f)
     {
         var show = OvShow;
-        var s = BottleneckAnalyzer.Sample(_monitor, _gpus.FirstOrDefault(), f);
+        var s = BottleneckSampler.Sample(_monitor, _gpus.FirstOrDefault(), f);
         var lines = new List<OverlayLine>();
         string T(float? v) => v is float x ? $"{x:0} °C" : "—";
         string P(double? v) => v is double x ? $"{x:0}%" : "—";
@@ -99,14 +98,14 @@ public partial class MainWindow
         var gpu = new List<string>();
         if (show.Contains("gpu_load")) gpu.Add(P(s.GpuLoad));
         if (show.Contains("gpu_temp")) gpu.Add(T(s.GpuTemp));
-        if (show.Contains("gpu_hotspot")) gpu.Add("HS " + T(GpuRow(SensorType.Temperature, "GPU Hot Spot")?.RawValue));
+        if (show.Contains("gpu_hotspot")) gpu.Add("HS " + T(GpuRow(SensorKind.Temperature, "GPU Hot Spot")?.RawValue));
         if (show.Contains("gpu_clock")) gpu.Add(MainGpuClock(Nvml.ClockGraphics, "GPU Core") is uint c ? $"{c} MHz" : "— MHz");
         if (show.Contains("gpu_memclock")) gpu.Add(MainGpuClock(Nvml.ClockMem, "GPU Memory") is uint mc ? $"mem {mc} MHz" : "mem —");
         if (show.Contains("gpu_power")) gpu.Add(MainGpuPower() is float w ? $"{w:0} W" : "— W");
-        if (show.Contains("gpu_volt")) gpu.Add(GpuRow(SensorType.Voltage, "GPU Core")?.RawValue is float v ? $"{v:0.000} V" : "— V");
+        if (show.Contains("gpu_volt")) gpu.Add(GpuRow(SensorKind.Voltage, "GPU Core")?.RawValue is float v ? $"{v:0.000} V" : "— V");
         if (show.Contains("gpu_fan"))
-            gpu.Add(GpuRow(SensorType.Fan, "GPU Fan", true)?.RawValue is float rpm && rpm > 0 ? $"{rpm:0} RPM"
-                  : GpuRow(SensorType.Control, "GPU Fan", true)?.RawValue is float pct ? $"fan {pct:0}%" : "fan —");
+            gpu.Add(GpuRow(SensorKind.Fan, "GPU Fan", true)?.RawValue is float rpm && rpm > 0 ? $"{rpm:0} RPM"
+                  : GpuRow(SensorKind.Control, "GPU Fan", true)?.RawValue is float pct ? $"fan {pct:0}%" : "fan —");
         if (show.Contains("gpu_perfcap") && MainGpuPerfCap() is { Length: > 0 } cap) gpu.Add(cap);
         Line("GPU", gpu);
 
@@ -114,7 +113,7 @@ public partial class MainWindow
         var vr = MainGpuVram();
         if (show.Contains("vram_used")) vram.Add(vr is { } a ? $"{a.Used:0.0} GB" : "—");
         if (show.Contains("vram_pct")) vram.Add(P(s.VramPct));
-        if (show.Contains("vram_temp")) vram.Add(T(GpuRow(SensorType.Temperature, "GPU Memory")?.RawValue));
+        if (show.Contains("vram_temp")) vram.Add(T(GpuRow(SensorKind.Temperature, "GPU Memory")?.RawValue));
         Line("VRAM", vram);
 
         var cpu = new List<string>();

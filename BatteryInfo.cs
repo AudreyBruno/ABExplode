@@ -1,5 +1,4 @@
 ﻿using System.Management;
-using LibreHardwareMonitor.Hardware;
 
 namespace ABExplode;
 
@@ -134,7 +133,7 @@ public static class BatteryInfo
         };
         if (plan != null) em.Add(new("Plano de energia", plan));
         if (sensors != null)
-            foreach (var s in sensors.Where(x => x.Type == SensorType.Power && x.RawValue.GetValueOrDefault() > 0).Take(6))
+            foreach (var s in sensors.Where(x => x.Type == SensorKind.Power && x.RawValue.GetValueOrDefault() > 0).Take(6))
                 em.Add(new($"{s.Hardware} · {s.Name}", s.Value));
         string advice = plan != null && !plan.Contains("alto", StringComparison.OrdinalIgnoreCase) && !plan.Contains("high", StringComparison.OrdinalIgnoreCase)
             && !plan.Contains("máximo", StringComparison.OrdinalIgnoreCase) && !plan.Contains("ultimate", StringComparison.OrdinalIgnoreCase)

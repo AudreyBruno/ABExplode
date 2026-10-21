@@ -7,7 +7,6 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using LibreHardwareMonitor.Hardware;
 
 namespace ABExplode;
 
@@ -24,7 +23,7 @@ public partial class MainWindow : Window
     private GpuInfo? _gpu;
 
     // Stress test
-    private readonly StressTester _stress = new();
+    private readonly StressTester _stress = new(SystemMemory.FreePhysicalBytes);
     private readonly List<double> _tempHistory = new();
     private const int HistoryLength = 300; // 5 min a 1 amostra/s
     private DateTime _stressStart;
@@ -34,7 +33,7 @@ public partial class MainWindow : Window
 
     // Jogos
     private readonly AppSettings _settings = AppSettings.Load();
-    private readonly HowManyFpsClient _fpsApi = new();
+    private readonly HowManyFpsClient _fpsApi = new(AppSettings.Folder);
     private List<GameRow> _gameRows = new();
     private ListCollectionView? _gameView;
     private CancellationTokenSource? _gameFetch;
@@ -442,7 +441,7 @@ public partial class MainWindow : Window
         // Barra lateral: GPU principal (dedicada = primeira da lista).
         if (_gpus.Count > 0)
         {
-            var load = _monitor.Rows.FirstOrDefault(r => r.Hardware == _gpus[0].Name && r.Type == SensorType.Load
+            var load = _monitor.Rows.FirstOrDefault(r => r.Hardware == _gpus[0].Name && r.Type == SensorKind.Load
                                                          && r.Name == "GPU Core");
             SideGpuTemp.Text = MainGpuTemp() is float t ? $"{t:0.#} °C" : "—";
             SideGpuLoad.Text = load?.RawValue is float l ? $"{l:0} %" : "—";
@@ -600,7 +599,7 @@ public partial class MainWindow : Window
     private void UpdateBottleneck()
     {
         var frames = _frames.GetForegroundStats();
-        var s = BottleneckAnalyzer.Sample(_monitor, _gpus.FirstOrDefault(), frames);
+        var s = BottleneckSampler.Sample(_monitor, _gpus.FirstOrDefault(), frames);
         var lim = s.Classify();
 
         if (PageBottleneck.IsVisible || _bnSession != null)
@@ -796,7 +795,7 @@ public partial class MainWindow : Window
     /// <summary>Temperatura, clock médio dos núcleos e consumo da CPU (atualizado junto com os sensores).</summary>
     private void UpdateBenchLive()
     {
-        var clocks = _monitor.Rows.Where(r => r.HardwareType == HardwareType.Cpu && r.Type == SensorType.Clock &&
+        var clocks = _monitor.Rows.Where(r => r.HardwareType == HardwareKind.Cpu && r.Type == SensorKind.Clock &&
                                               r.Name.StartsWith("Core #") && r.RawValue > 0).Select(r => r.RawValue!.Value).ToList();
         BenchLive.ItemsSource = new[]
         {
@@ -1546,7 +1545,7 @@ public partial class MainWindow : Window
     private float? MainGpuTemp()
     {
         if (_gpus.Count == 0) return null;
-        var temps = _monitor.Rows.Where(r => r.Hardware == _gpus[0].Name && r.Type == SensorType.Temperature).ToList();
+        var temps = _monitor.Rows.Where(r => r.Hardware == _gpus[0].Name && r.Type == SensorKind.Temperature).ToList();
         return (temps.FirstOrDefault(r => r.Name == "GPU Core") ?? temps.FirstOrDefault())?.RawValue;
     }
 
@@ -1556,7 +1555,7 @@ public partial class MainWindow : Window
         if (_gpus.Count == 0) return null;
         var g = _gpus[0];
         if (g.NvmlHandle != IntPtr.Zero && Nvml.PowerUsageMw(g.NvmlHandle) is uint mw) return mw / 1000f;
-        return _monitor.Rows.FirstOrDefault(r => r.Hardware == g.Name && r.Type == SensorType.Power)?.RawValue;
+        return _monitor.Rows.FirstOrDefault(r => r.Hardware == g.Name && r.Type == SensorKind.Power)?.RawValue;
     }
 
     private string MainGpuPerfCap()

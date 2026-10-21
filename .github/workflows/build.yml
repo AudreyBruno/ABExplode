@@ -19,6 +19,9 @@ jobs:
       - name: Build (app WPF + projetos da migração, os dois alvos do app Avalonia)
         run: dotnet build ABExplode.sln -c Release -nologo
 
+      - name: Testes (Core)
+        run: dotnet test --project tests/ABExplode.Core.Tests/ABExplode.Core.Tests.csproj -c Release
+
   linux:
     runs-on: ubuntu-latest
     steps:
@@ -31,6 +34,9 @@ jobs:
       # O app WPF só compila no Windows; aqui vai o app Avalonia no alvo Linux (puxa Core, Platform e Platform.Linux)
       - name: Build (app Avalonia, alvo Linux)
         run: dotnet build src/ABExplode.App/ABExplode.App.csproj -c Release -f net10.0 -nologo
+
+      - name: Testes (Core)
+        run: dotnet test --project tests/ABExplode.Core.Tests/ABExplode.Core.Tests.csproj -c Release
 
       - name: Publish de teste (linux-x64)
         run: dotnet publish src/ABExplode.App/ABExplode.App.csproj -c Release -f net10.0 -r linux-x64 --self-contained true -o dist-linux -nologo

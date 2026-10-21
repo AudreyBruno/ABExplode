@@ -37,6 +37,10 @@ public sealed class SensorMonitor : IDisposable
             Walk(hw);
     }
 
+    // Os enums do LibreHardwareMonitor viram os do ABExplode.Core pelo nome (o que não existir lá vira Other)
+    private static SensorKind Kind(SensorType t) => Enum.TryParse(t.ToString(), out SensorKind k) ? k : SensorKind.Other;
+    private static HardwareKind Kind(HardwareType t) => Enum.TryParse(t.ToString(), out HardwareKind k) ? k : HardwareKind.Other;
+
     private void Walk(IHardware hw)
     {
         hw.Update();
@@ -49,10 +53,10 @@ public sealed class SensorMonitor : IDisposable
                 {
                     Id = id,
                     Hardware = hw.Name,
-                    Category = SensorRow.CategoryName(s.SensorType),
+                    Category = SensorRow.CategoryName(Kind(s.SensorType)),
                     Name = s.Name,
-                    Type = s.SensorType,
-                    HardwareType = hw.HardwareType
+                    Type = Kind(s.SensorType),
+                    HardwareType = Kind(hw.HardwareType)
                 };
                 _index[id] = row;
                 Rows.Add(row);
@@ -68,8 +72,8 @@ public sealed class SensorMonitor : IDisposable
     {
         get
         {
-            var temps = Rows.Where(r => r.HardwareType == HardwareType.Cpu
-                                     && r.Type == SensorType.Temperature
+            var temps = Rows.Where(r => r.HardwareType == HardwareKind.Cpu
+                                     && r.Type == SensorKind.Temperature
                                      && r.RawValue is > 0).ToList();
             var main = temps.FirstOrDefault(r => r.Name.Contains("Package") || r.Name.Contains("Tctl") || r.Name.Contains("Tdie"));
             return main?.RawValue ?? temps.Max(r => r.RawValue);
@@ -77,13 +81,13 @@ public sealed class SensorMonitor : IDisposable
     }
 
     /// <summary>Carga total da CPU em %.</summary>
-    public float? CpuLoad => Rows.FirstOrDefault(r => r.HardwareType == HardwareType.Cpu
-                                                   && r.Type == SensorType.Load
+    public float? CpuLoad => Rows.FirstOrDefault(r => r.HardwareType == HardwareKind.Cpu
+                                                   && r.Type == SensorKind.Load
                                                    && r.Name == "CPU Total")?.RawValue;
 
     /// <summary>Consumo do pacote da CPU em W.</summary>
-    public float? CpuPower => Rows.FirstOrDefault(r => r.HardwareType == HardwareType.Cpu
-                                                    && r.Type == SensorType.Power
+    public float? CpuPower => Rows.FirstOrDefault(r => r.HardwareType == HardwareKind.Cpu
+                                                    && r.Type == SensorKind.Power
                                                     && r.Name.Contains("Package"))?.RawValue;
 
     /// <summary>

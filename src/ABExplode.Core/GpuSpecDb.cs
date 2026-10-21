@@ -1,4 +1,4 @@
-namespace ABExplode;
+namespace ABExplode.Core;
 
 /// <summary>Especificações de referência que o hardware não reporta (como o banco de dados do GPU-Z).</summary>
 public record GpuSpec(

@@ -4,7 +4,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
-using LibreHardwareMonitor.Hardware;
 
 namespace ABExplode;
 
@@ -388,8 +387,8 @@ public partial class MainWindow
 
     private float? GpuTemperature()
     {
-        var r = _monitor.Rows.Where(x => (x.HardwareType is HardwareType.GpuNvidia or HardwareType.GpuAmd or HardwareType.GpuIntel)
-                                         && x.Type == SensorType.Temperature && x.RawValue is > 0).ToList();
+        var r = _monitor.Rows.Where(x => (x.HardwareType is HardwareKind.GpuNvidia or HardwareKind.GpuAmd or HardwareKind.GpuIntel)
+                                         && x.Type == SensorKind.Temperature && x.RawValue is > 0).ToList();
         return (r.FirstOrDefault(x => x.Name.Contains("Core")) ?? r.FirstOrDefault())?.RawValue;
     }
 

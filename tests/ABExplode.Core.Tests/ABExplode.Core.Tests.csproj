@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Roda pelo Microsoft.Testing.Platform (global.json): dotnet test, ou direto pelo executável do projeto -->
+    <PackageReference Include="xunit.v3" Version="4.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ABExplode.Core\ABExplode.Core.csproj" />
+    <Using Include="Xunit" />
+    <Using Include="ABExplode.Core" />
+  </ItemGroup>
+
+</Project>

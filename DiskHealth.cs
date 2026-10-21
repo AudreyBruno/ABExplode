@@ -1,33 +1,7 @@
 ﻿using System.Management;
 using System.Text.RegularExpressions;
-using LibreHardwareMonitor.Hardware;
 
 namespace ABExplode;
-
-public enum DiskVerdict { Good, Warning, Critical, Unknown }
-
-/// <summary>Cartão de saúde de um disco físico (já com os textos prontos para a tela e para o relatório).</summary>
-public sealed class DiskHealthCard
-{
-    public int Index { get; init; }
-    public string Title { get; init; } = "";
-    public string Meta { get; init; } = "";
-    public string Serial { get; init; } = "";
-    public DiskVerdict Verdict { get; init; } = DiskVerdict.Unknown;
-    /// <summary>Texto do selo; quando vazio, usa o padrão de saúde de disco. (Também usado por Energia e Rede.)</summary>
-    public string? Label { get; init; }
-    public string VerdictText => Label ?? Verdict switch
-    {
-        DiskVerdict.Good => "SAUDÁVEL",
-        DiskVerdict.Warning => "ATENÇÃO",
-        DiskVerdict.Critical => "CRÍTICO",
-        _ => "SEM DADOS"
-    };
-    /// <summary>Atenção, crítico e "sem dados" ganham destaque (selo preenchido); saudável fica só com contorno.</summary>
-    public bool IsAlert => Verdict != DiskVerdict.Good;
-    public string Reasons { get; init; } = "";
-    public List<KeyValuePair<string, string>> Metrics { get; init; } = new();
-}
 
 /// <summary>
 /// Lê a saúde dos discos pelo próprio Windows (API de armazenamento + S.M.A.R.T. do WMI) e, quando faltar dado,
@@ -136,14 +110,14 @@ public static class DiskHealth
         // 5) Completa com os sensores do LibreHardwareMonitor
         if (sensors != null)
         {
-            var list = sensors.Where(x => x.HardwareType == HardwareType.Storage).ToList();
+            var list = sensors.Where(x => x.HardwareType == HardwareKind.Storage).ToList();
             foreach (var r in raws.Values)
             {
                 var mine = list.Where(x => x.Hardware.Contains(r.Model, StringComparison.OrdinalIgnoreCase) ||
                                            r.Model.Contains(x.Hardware, StringComparison.OrdinalIgnoreCase)).ToList();
                 if (mine.Count == 0) continue;
                 if (r.Temp == null)
-                    r.Temp = mine.FirstOrDefault(x => x.Type == SensorType.Temperature && x.RawValue is > 0)?.RawValue;
+                    r.Temp = mine.FirstOrDefault(x => x.Type == SensorKind.Temperature && x.RawValue is > 0)?.RawValue;
                 if (r.Wear == null)
                 {
                     var used = mine.FirstOrDefault(x => x.Name.Contains("Percentage Used", StringComparison.OrdinalIgnoreCase))?.RawValue;

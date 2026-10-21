@@ -8,8 +8,8 @@
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <AssemblyName>ABExplode</AssemblyName>
     <!-- Versão, Optimize, Nullable etc. vêm do Directory.Build.props.
-         Os projetos novos (src\) têm csproj próprio e não podem entrar no glob deste. -->
-    <DefaultItemExcludes>$(DefaultItemExcludes);src\**</DefaultItemExcludes>
+         Os projetos novos (src\ e tests\) têm csproj próprio e não podem entrar no glob deste. -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);src\**;tests\**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -38,6 +38,12 @@
     <PackageReference Include="Vortice.Direct3D11" Version="3.8.3" />
     <PackageReference Include="Vortice.Direct3D12" Version="3.8.3" />
     <PackageReference Include="Vortice.Dxc" Version="3.8.3" />
+  </ItemGroup>
+
+  <!-- Lógica sem dependência de sistema, compartilhada com o app Avalonia (MIGRACAO-AVALONIA.md, Fase 1) -->
+  <ItemGroup>
+    <ProjectReference Include="src\ABExplode.Core\ABExplode.Core.csproj" />
+    <Using Include="ABExplode.Core" />
   </ItemGroup>
 
 </Project>

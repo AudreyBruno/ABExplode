@@ -1,4 +1,4 @@
-namespace ABExplode;
+namespace ABExplode.Core;
 
 /// <summary>
 /// Jogo do catálogo. Valores de referência APROXIMADOS (compilados de benchmarks públicos) usados só

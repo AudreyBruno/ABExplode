@@ -2,7 +2,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using LibreHardwareMonitor.Hardware;
 
 namespace ABExplode;
 
@@ -31,11 +30,11 @@ public partial class MainWindow
     // ---------------- coleta (a cada segundo, mesmo com a página fechada) ----------------
 
     private float? MainGpuLoad() => _gpus.Count == 0 ? null :
-        _monitor.Rows.FirstOrDefault(r => r.Hardware == _gpus[0].Name && r.Type == SensorType.Load && r.Name == "GPU Core")?.RawValue;
+        _monitor.Rows.FirstOrDefault(r => r.Hardware == _gpus[0].Name && r.Type == SensorKind.Load && r.Name == "GPU Core")?.RawValue;
 
     private float? CpuClockAvg()
     {
-        var c = _monitor.Rows.Where(r => r.HardwareType == HardwareType.Cpu && r.Type == SensorType.Clock &&
+        var c = _monitor.Rows.Where(r => r.HardwareType == HardwareKind.Cpu && r.Type == SensorKind.Clock &&
                                          r.Name.StartsWith("Core #") && r.RawValue > 0).Select(r => r.RawValue!.Value).ToList();
         return c.Count > 0 ? c.Average() : null;
     }

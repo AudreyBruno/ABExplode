@@ -4,7 +4,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ABExplode;
+namespace ABExplode.Core;
 
 /// <summary>
 /// Cliente da API da HowManyFPS (POST howmanyfps.com/api → FPS médio e 1% low medidos em sessões reais).
@@ -15,7 +15,8 @@ public sealed class HowManyFpsClient
 {
     private const string Endpoint = "https://howmanyfps.com/api";
     private static readonly TimeSpan CacheTtl = TimeSpan.FromDays(7);
-    private static string CachePath => Path.Combine(AppSettings.Folder, "fps-cache.json");
+    private readonly string _folder;
+    private string CachePath => Path.Combine(_folder, "fps-cache.json");
 
     private readonly HttpClient _http = new() { Timeout = TimeSpan.FromSeconds(15) };
     private readonly Dictionary<string, CacheEntry> _cache;
@@ -32,8 +33,10 @@ public sealed class HowManyFpsClient
         [JsonPropertyName("min1Fps")] public double? Min1Fps { get; set; }
     }
 
-    public HowManyFpsClient()
+    /// <param name="folder">Pasta de dados do app, onde fica o cache das respostas.</param>
+    public HowManyFpsClient(string folder)
     {
+        _folder = folder;
         try
         {
             _cache = File.Exists(CachePath)
@@ -87,7 +90,7 @@ public sealed class HowManyFpsClient
     {
         try
         {
-            Directory.CreateDirectory(AppSettings.Folder);
+            Directory.CreateDirectory(_folder);
             File.WriteAllText(CachePath, JsonSerializer.Serialize(_cache));
         }
         catch { }

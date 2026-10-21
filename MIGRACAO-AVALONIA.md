@@ -51,6 +51,22 @@ Mover para `ABExplode.Core` o que não depende do Windows:
 - O app WPF passa a **referenciar o Core**.
 - **Pronto quando:** o WPF continua igual e o RESET BENCH dá **a mesma nota** de antes
   (conferir no 7700X: ≈4.500 multi / 530 single).
+- **Status: feita.**
+  - Foram para `src\ABExplode.Core` (namespace `ABExplode.Core`, `global using` no WPF): `BenchRenderer`, `GameSimBench`,
+    `BottleneckAnalyzer`, `GameCatalog`, `GpuSpecDb`, `HowManyFpsClient`, `Vdf`, `ReportBuilder`, `NetworkTest`,
+    `OverlayMetrics`, `InfoNode`, `GameRow`, `SensorRow`, `HardwareErrors`, `StressTester`, `MemoryBench`, `DiskBench`,
+    mais `DiskHealthCard` (tirado do `DiskHealth.cs`).
+  - `SensorRow` usa enums próprios (`SensorKind`, `HardwareKind` em `SensorKinds.cs`); o `SensorMonitor` converte os do
+    LibreHardwareMonitor pelo nome.
+  - `BottleneckAnalyzer.Sample` (lê LHM + NVML) ficou no WPF como `BottleneckSampler`.
+  - `StressTester` recebe a memória livre de fora (`SystemMemory.FreePhysicalBytes`, WMI, no WPF);
+    `HowManyFpsClient` recebe a pasta do cache.
+  - `MemoryBench`/`DiskBench` não precisaram de ajuste: usam `File.OpenHandle` com `FileOptions` 0x20000000
+    (no Linux o .NET deve traduzir para `O_DIRECT`; conferir na Fase 4).
+  - **Ficaram para a Fase 2:** `AppSettings` (DPAPI → `ISecretStore`; também usa `StartupBackup`) e
+    `LightBackends` + `CorsairSdk` (DLL do iCUE; `ILightBackend` já é uma interface).
+  - Teste de regressão em `tests\ABExplode.Core.Tests`: hash SHA-256 da imagem do RESET BENCH, gravado antes da mudança.
+    Só compara no Windows (`MathF.Sin/Cos/Pow/Tan` podem diferir no último bit no Linux).
 
 ## Fase 2: Separar o que é de cada plataforma
 

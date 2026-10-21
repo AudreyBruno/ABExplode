@@ -1,4 +1,4 @@
-namespace ABExplode;
+namespace ABExplode.Core;
 
 /// <summary>Item que pode aparecer no overlay. Group: "FPS", "GPU", "VRAM", "CPU", "RAM" ou "Outros".</summary>
 public sealed record OverlayMetric(string Key, string Group, string Label, bool Default);

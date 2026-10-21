@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Numerics;
 
-namespace ABExplode;
+namespace ABExplode.Core;
 
 public sealed record BenchResult(int Threads, double Seconds, long Samples, int Passes)
 {

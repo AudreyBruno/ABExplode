@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-namespace ABExplode;
+namespace ABExplode.Core;
 
 /// <summary>Cartão de um jogo na aba Jogos.</summary>
 public sealed class GameRow : INotifyPropertyChanged
