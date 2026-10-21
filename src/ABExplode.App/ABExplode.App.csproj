@@ -9,8 +9,11 @@
     <RootNamespace>ABExplode.App</RootNamespace>
     <ApplicationIcon>..\..\Assets\app.ico</ApplicationIcon>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-    <!-- Sem app.manifest de administrador durante a migração: abre sem o pedido do UAC (sensores da CPU pedem
-         "executar como administrador"). O app oficial continua sendo o WPF, que já abre como administrador. -->
+  </PropertyGroup>
+
+  <!-- Administrador só no Windows: necessário para MSRs, Super I/O e outros sensores de baixo nível. -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
+    <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <ItemGroup>

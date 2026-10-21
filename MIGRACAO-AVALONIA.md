@@ -197,8 +197,13 @@ Ordem, da mais simples para a mais complexa:
     (SetupAPI, ComDB e pnputil via `UsbCleaner` e `MakerDrivers`); no Linux os botões avisam que ainda não estão
     disponíveis (Fase 5: `/dev/ttyUSB*`, `/dev/ttyACM*`, grupo `dialout`). As duas telas se atualizam sozinhas quando uma
     placa é plugada ou removida (`WM_DEVICECHANGE`).
-  - **Próximas etapas:** Overlay (tela, janela sobre o jogo, atalho Ctrl+Shift+O e pausa durante os
-    benchmarks de GPU); instância única; `app.manifest` de administrador; trocar a publicação para o app Avalonia.
+  - **Etapa 9 (feita, falta testar com jogo):** **Overlay**: tela de configuração, janela transparente sobre o jogo,
+    atalho Ctrl+Shift+O (`RegisterHotKey` pelo hook de WndProc) e pausa durante os benchmarks de GPU.
+  - **Instância única (feita):** `Mutex` em `Program.cs` (só Windows); abrir de novo traz a janela aberta para a frente.
+  - **`app.manifest` de administrador (feito):** em `src\ABExplode.App`, só no alvo `net10.0-windows`.
+  - **Próximas etapas:** testar o overlay sobre um jogo (clique-através e atalho); trocar a publicação
+    (`publicar.bat` e `publicar.yml`) para o app Avalonia, que ainda gera o WPF.
+
 
 ## Fase 4: Linux básico
 
