@@ -1,10 +1,16 @@
 name: Build
 
-# Compila a solution em Windows e Linux a cada push e pull request (não publica nada; a release é o publicar.yml).
+# Compila a solution em Windows e Linux a cada push e pull request (a release oficial é o publicar.yml, só da main).
+# Em push numa branch que não é a main, também gera os executáveis de desenvolvimento (Windows e Linux) como artefatos
+# desta execução: ficam na aba Actions, não em Releases, e somem depois de 30 dias.
 on:
   push:
   pull_request:
   workflow_dispatch:
+
+env:
+  # Build de desenvolvimento: push (ou execução manual) fora da main
+  DEV_BUILD: ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref != 'refs/heads/main' }}
 
 jobs:
   windows:
@@ -22,6 +28,27 @@ jobs:
       - name: Testes (Core)
         run: dotnet test --project tests/ABExplode.Core.Tests/ABExplode.Core.Tests.csproj -c Release
 
+      - name: Nome da versão de desenvolvimento
+        if: env.DEV_BUILD == 'true'
+        shell: bash
+        run: |
+          echo "DEV_NAME=${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7}" >> "$GITHUB_ENV"
+          echo "DEV_VERSION=dev-${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7}" >> "$GITHUB_ENV"
+
+      - name: Publicar (Windows, arquivo único, versão dev)
+        if: env.DEV_BUILD == 'true'
+        run: dotnet publish src/ABExplode.App/ABExplode.App.csproj -c Release -f net10.0-windows -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -p:InformationalVersion=${{ env.DEV_VERSION }} -o dist-win -nologo
+
+      - name: Guardar o executável do Windows
+        if: env.DEV_BUILD == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ABExplode-windows-${{ env.DEV_NAME }}
+          path: |
+            dist-win/ABExplode.exe
+            LEIA-ME.txt
+          retention-days: 30
+
   linux:
     runs-on: ubuntu-latest
     steps:
@@ -38,5 +65,29 @@ jobs:
       - name: Testes (Core)
         run: dotnet test --project tests/ABExplode.Core.Tests/ABExplode.Core.Tests.csproj -c Release
 
-      - name: Publish de teste (linux-x64)
-        run: dotnet publish src/ABExplode.App/ABExplode.App.csproj -c Release -f net10.0 -r linux-x64 --self-contained true -o dist-linux -nologo
+      - name: Nome da versão de desenvolvimento
+        if: env.DEV_BUILD == 'true'
+        run: |
+          echo "DEV_NAME=${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7}" >> "$GITHUB_ENV"
+          echo "DEV_VERSION=dev-${GITHUB_REF_NAME//\//-}-${GITHUB_SHA::7}" >> "$GITHUB_ENV"
+
+      # Fora da main sai em arquivo único (versão dev); na main e em pull requests só confere que a publicação funciona
+      - name: Publicar (linux-x64)
+        run: >-
+          dotnet publish src/ABExplode.App/ABExplode.App.csproj -c Release -f net10.0 -r linux-x64 --self-contained true
+          -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None
+          ${{ env.DEV_BUILD == 'true' && format('-p:InformationalVersion={0}', env.DEV_VERSION) || '' }}
+          -o dist-linux -nologo
+
+      # O zip do artefato perde a permissão de execução; dentro do .tar.gz ela vai junto.
+      - name: Empacotar (mantém o chmod +x)
+        if: env.DEV_BUILD == 'true'
+        run: tar -czf ABExplode-linux-x64.tar.gz -C dist-linux ABExplode
+
+      - name: Guardar o executável do Linux
+        if: env.DEV_BUILD == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ABExplode-linux-${{ env.DEV_NAME }}
+          path: ABExplode-linux-x64.tar.gz
+          retention-days: 30

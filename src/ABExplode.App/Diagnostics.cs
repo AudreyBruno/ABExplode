@@ -26,7 +26,7 @@ internal static class Diagnostics
             foreach (var c in n.Children) Tree(c, depth + 1);
         }
 
-        o.Append($"ABExplode {typeof(Diagnostics).Assembly.GetName().Version} · {p.Name} · {(p.IsElevated ? "administrador/root" : "usuário comum")} · {Environment.OSVersion}\n");
+        o.Append($"ABExplode {AppVersion.Full} · {p.Name} · {(p.IsElevated ? "administrador/root" : "usuário comum")} · {Environment.OSVersion}\n");
         Try("Sistema", () => { foreach (var n in p.SystemInfo.Collect()) Tree(n, 0); });
         Try("Memória", () =>
         {

@@ -80,7 +80,8 @@
                                 <TextBlock Name="SideStress" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Text="parado" Classes="mono" FontSize="12" Margin="0,3"/>
                             </Grid>
                         </Border>
-                        <TextBlock Name="SideVersion" Text="v0.16" Foreground="{DynamicResource Faint}" FontSize="11" Margin="4,10,0,0"/>
+                        <TextBlock Name="SideVersion" Text="v0.16" Foreground="{DynamicResource Faint}" FontSize="11" Margin="4,10,0,0"
+                                   TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Text, RelativeSource={RelativeSource Self}}"/>
                     </StackPanel>
 
                     <!-- Navegação por categorias (Tag = página; o grupo da categoria é o ToggleButton logo acima) -->

@@ -40,7 +40,7 @@ public partial class MainWindow : Window
 
         ThemeManager.Apply(_settings.LightTheme);
         UpdateThemeButton();
-        SideVersion.Text = "v" + (typeof(MainWindow).Assembly.GetName().Version?.ToString(2) ?? "");
+        SideVersion.Text = AppVersion.Display;
 
         _monitor = _platform.CreateSensors();
         SystemSub.Text = "Lendo informações do sistema…";
