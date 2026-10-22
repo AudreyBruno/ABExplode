@@ -1,8 +1,12 @@
 name: Publicar
 
-# A cada push na main, gera o ABExplode.exe e atualiza a release "latest" (sempre a versão mais nova).
+# A cada push na main, gera o ABExplode do Windows e do Linux e atualiza a release "latest" (sempre a versão mais nova).
 # Ao criar uma tag (ex.: v0.12), gera também uma release fixa dessa versão.
-# O app publicado é o Avalonia (src/ABExplode.App, alvo Windows); o WPF da raiz não é mais publicado.
+# O app publicado é o Avalonia (src/ABExplode.App); o WPF da raiz não é mais publicado.
+# Arquivos da release:
+#   Windows: ABExplode.exe e ABExplode.zip (com o LEIA-ME)
+#   Linux:   ABExplode-x86_64.AppImage, ABExplode.flatpak e ABExplode-linux-x64.tar.gz (executável avulso + LEIA-ME)
+# Cada sistema é montado num job; o último junta tudo e cria a release, então ela só sai se todos derem certo.
 on:
   push:
     branches: [main]
@@ -17,7 +21,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
+  windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -35,20 +39,111 @@ jobs:
           Copy-Item LEIA-ME.txt dist/LEIA-ME.txt
           Compress-Archive -Path dist/ABExplode.exe, dist/LEIA-ME.txt -DestinationPath ABExplode.zip
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-windows
+          path: |
+            ABExplode.zip
+            dist/ABExplode.exe
+          retention-days: 1
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Publicar (linux-x64, arquivo único, com o .NET embutido)
+        run: >-
+          dotnet publish src/ABExplode.App/ABExplode.App.csproj -c Release -f net10.0 -r linux-x64 --self-contained true
+          -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -o dist-linux -nologo
+
+      # No .tar.gz a permissão de execução vai junto
+      - name: Montar o executável avulso
+        run: |
+          cp LEIA-ME.txt dist-linux/LEIA-ME.txt
+          tar -czf ABExplode-linux-x64.tar.gz -C dist-linux ABExplode LEIA-ME.txt
+
+      - name: Montar o AppImage
+        run: bash packaging/linux/build-appimage.sh "$PWD/ABExplode-x86_64.AppImage"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-linux
+          path: |
+            ABExplode-linux-x64.tar.gz
+            ABExplode-x86_64.AppImage
+          retention-days: 1
+
+      # Entrada do job do Flatpak
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flatpak-input
+          path: dist-linux/ABExplode
+          retention-days: 1
+
+  # Flatpak: empacota o mesmo executável num contêiner com o flatpak-builder e o runtime freedesktop
+  flatpak:
+    needs: linux
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-25.08
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: flatpak-input
+          path: dist-linux
+
+      - name: Permissão de execução (o artefato a perde)
+        run: chmod +x dist-linux/ABExplode
+
+      - uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          manifest-path: packaging/linux/io.github.audreybruno.ABExplode.yml
+          bundle: ABExplode.flatpak
+          cache-key: flatpak-builder-${{ github.sha }}
+          upload-artifact: false
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-flatpak
+          path: ABExplode.flatpak
+          retention-days: 1
+
+  release:
+    needs: [windows, linux, flatpak]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          path: assets
+          merge-multiple: true
+
+      - name: Arquivos da release
+        run: |
+          mv assets/dist/ABExplode.exe assets/ABExplode.exe
+          rmdir assets/dist
+          ls -l assets
+
       - name: Atualizar release "latest"
         if: startsWith(github.ref, 'refs/heads/')
-        shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $sha = "$env:GITHUB_SHA".Substring(0, 7)
-          gh release delete latest --cleanup-tag --yes
-          gh release create latest ABExplode.zip dist/ABExplode.exe --target $env:GITHUB_SHA --latest --title "ABExplode (versão mais recente)" --notes-file NOVIDADES.md
+          gh release delete latest --cleanup-tag --yes || true
+          gh release create latest assets/* --target "$GITHUB_SHA" --latest --title "ABExplode (versão mais recente)" --notes-file NOVIDADES.md
 
       - name: Release da versão (tag)
         if: startsWith(github.ref, 'refs/tags/')
-        shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release create $env:GITHUB_REF_NAME ABExplode.zip dist/ABExplode.exe --title "ABExplode $env:GITHUB_REF_NAME" --generate-notes --latest=false
+        run: gh release create "$GITHUB_REF_NAME" assets/* --title "ABExplode $GITHUB_REF_NAME" --generate-notes --latest=false

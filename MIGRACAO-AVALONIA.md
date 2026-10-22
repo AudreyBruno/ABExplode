@@ -447,7 +447,11 @@ Implementações em `Platform.Linux`:
     conta própria.
   - **Versões de desenvolvimento:** o `build.yml` gera as três em todo push fora da `main`, como artefatos.
     Instalar o Flatpak: `flatpak install --user ABExplode-*.flatpak` (precisa do remoto flathub para baixar o runtime).
-  - **Pendente:** levar as três para o `publicar.yml` (release oficial) quando o Linux estiver testado.
+  - **Release oficial (`publicar.yml`):** em todo push na `main` (release "latest") e em tags `v*`. Um job por sistema
+    (Windows, Linux, Flatpak no contêiner); o último junta os arquivos e cria a release, que só sai se todos derem
+    certo. Arquivos: `ABExplode.exe`, `ABExplode.zip`, `ABExplode-x86_64.AppImage`, `ABExplode.flatpak` e
+    `ABExplode-linux-x64.tar.gz`. O `LEIA-ME.txt` ganhou a parte do Linux (como abrir cada formato, pkexec, MangoHud,
+    onde ficam as configurações).
 
 ## Riscos e cuidados
 
