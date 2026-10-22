@@ -99,6 +99,30 @@ internal static class Sys
         catch { return null; }
     }
 
+    /// <summary>
+    /// Roda um script de shell como root numa única pedida de senha: pkexec abre a janela do sistema (no Flatpak, fora do
+    /// sandbox). env: variáveis "NOME=valor" para o lado root (o pkexec limpa o ambiente). Devolve se deu certo e a saída.
+    /// </summary>
+    public static async Task<(bool Ok, string Output)> RunAsRootAsync(string script, params string[] env)
+    {
+        var args = new List<string>();
+        if (env.Length > 0) { args.Add("env"); args.AddRange(env); }
+        args.AddRange(new[] { "sh", "-c", script });
+        var psi = IsRoot ? HostProcess(args[0], args.Skip(1)) : HostProcess("pkexec", args);
+        try
+        {
+            using var p = Process.Start(psi)!;
+            var outTask = p.StandardOutput.ReadToEndAsync();
+            var errTask = p.StandardError.ReadToEndAsync();
+            await p.WaitForExitAsync();
+            string output = (await outTask + "\n" + await errTask).Trim();
+            // pkexec: 126 = o usuário cancelou a janela de senha, 127 = não autorizado
+            if (p.ExitCode is 126 or 127 && !IsRoot) return (false, "Cancelado ou não autorizado.");
+            return (p.ExitCode == 0, output.Length > 1500 ? "…" + output[^1500..] : output);
+        }
+        catch (Exception ex) { return (false, ex.Message); }
+    }
+
     private static readonly Dictionary<string, bool> CommandCache = new();
 
     /// <summary>O programa existe em algum diretório do PATH (no Flatpak, no PATH do sistema).</summary>

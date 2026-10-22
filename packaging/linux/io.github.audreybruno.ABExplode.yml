@@ -7,6 +7,7 @@
 # - org.freedesktop.Flatpak: roda lspci, smartctl, journalctl, udevadm e o pkexec no sistema (flatpak-spawn --host).
 #   É o mesmo que tirar o isolamento; por isso este pacote é para distribuir por conta própria, não pelo Flathub.
 # - device=all: GPU (DRI), discos e USB em /dev. home, /media, /run/media e /mnt: Steam/Heroic e teste de disco.
+# - host-os e host-etc (só leitura, em /run/host): atalhos de menu e inicialização do sistema (RESET OTIMIZA, Inicialização).
 app-id: io.github.audreybruno.ABExplode
 runtime: org.freedesktop.Platform
 runtime-version: '25.08'
@@ -21,6 +22,8 @@ finish-args:
   - --filesystem=/media
   - --filesystem=/run/media
   - --filesystem=/mnt
+  - --filesystem=host-os:ro
+  - --filesystem=host-etc:ro
   - --talk-name=org.freedesktop.Flatpak
   - --talk-name=org.freedesktop.Notifications
 modules:

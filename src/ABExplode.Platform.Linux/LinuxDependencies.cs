@@ -142,23 +142,8 @@ public static class LinuxDependencies
         steps.AddRange(deps.Where(d => d.RootCommand != null).Select(d => d.RootCommand!));
         if (steps.Count == 0) return (true, "");
 
-        string script = string.Join(" && ", steps);
-        // No Flatpak isto roda fora do sandbox (flatpak-spawn --host), onde estão o gerenciador de pacotes e o pkexec.
-        // O pkexec limpa o ambiente: o DEBIAN_FRONTEND vai pelo env, já do lado root.
-        var psi = Sys.IsRoot ? Sys.HostProcess("sh", new[] { "-c", script }, new Dictionary<string, string> { ["DEBIAN_FRONTEND"] = "noninteractive" })
-                             : Sys.HostProcess("pkexec", new[] { "env", "DEBIAN_FRONTEND=noninteractive", "sh", "-c", script });
-        try
-        {
-            using var p = Process.Start(psi)!;
-            var outTask = p.StandardOutput.ReadToEndAsync();
-            var errTask = p.StandardError.ReadToEndAsync();
-            await p.WaitForExitAsync();
-            string output = (await outTask + "\n" + await errTask).Trim();
-            Sys.ForgetCommands(); // o que acabou de ser instalado passa a ser encontrado
-            // pkexec: 126 = o usuário cancelou a janela de senha, 127 = não autorizado
-            if (p.ExitCode is 126 or 127 && !Sys.IsRoot) return (false, "A instalação foi cancelada ou não foi autorizada.");
-            return (p.ExitCode == 0, output.Length > 1500 ? "…" + output[^1500..] : output);
-        }
-        catch (Exception ex) { return (false, ex.Message); }
+        var r = await Sys.RunAsRootAsync(string.Join(" && ", steps), "DEBIAN_FRONTEND=noninteractive");
+        Sys.ForgetCommands(); // o que acabou de ser instalado passa a ser encontrado
+        return r;
     }
 }

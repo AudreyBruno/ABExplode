@@ -5,14 +5,16 @@ using Avalonia.Interactivity;
 using Avalonia.Threading;
 #if WINDOWS
 using ABExplode.Platform.Windows;
+#else
+using ABExplode.Platform.Linux;
 #endif
 
 namespace ABExplode.App;
 
 /// <summary>
-/// RESET FERRAMENTAS: Otimização, Inicialização, Instalar apps e Drivers. As quatro usam ferramentas que só existem no
-/// Windows (Optimizer, WindowsTweaks, StartupManager, AppInstaller, DriverManager); no Linux os botões avisam que ainda
-/// não estão disponíveis (equivalentes na Fase 5 do MIGRACAO-AVALONIA.md). A barra de RAM vem da plataforma.
+/// RESET FERRAMENTAS: Otimização, Inicialização, Instalar apps e Drivers. No Windows usam Optimizer, WindowsTweaks,
+/// StartupManager, AppInstaller e DriverManager; no Linux, LinuxOptimizer, LinuxTweaks e LinuxAutostart (Instalar apps e
+/// Drivers ainda avisam que não estão disponíveis: Fase 5 do MIGRACAO-AVALONIA.md). A barra de RAM vem da plataforma.
 /// </summary>
 public partial class MainWindow
 {
@@ -428,18 +430,181 @@ public partial class MainWindow
         finally { DrvBusy(false); }
     }
 #else
-    // TODO(Fase 5): equivalentes no Linux (powerprofilesctl/gamemode, autostart/systemctl --user, Flatpak/apt/dnf, drivers).
+    // TODO(Fase 5): Instalar apps (Flatpak/apt/dnf) e Drivers no Linux.
     private const string NotYet = "Ainda não disponível neste sistema.";
-    private void InitOptimize() { OptResult.Text = NotYet; UpdateRamStatus(); }
-    private void BtnRefreshApps_Click(object? sender, RoutedEventArgs e) => OptResult.Text = NotYet;
-    private void BtnOptimize_Click(object? sender, RoutedEventArgs e) => OptResult.Text = NotYet;
-    private void Tweak_Click(object? sender, RoutedEventArgs e) { }
-    private void BtnRestoreTweaks_Click(object? sender, RoutedEventArgs e) => OptResult.Text = NotYet;
-    private void ScanStartup() => StartupResult.Text = NotYet;
-    private void BtnStartupScan_Click(object? sender, RoutedEventArgs e) => ScanStartup();
-    private void StartupToggle_Click(object? sender, RoutedEventArgs e) { }
-    private void StartupRemove_Click(object? sender, RoutedEventArgs e) { }
-    private void BtnStartupRestore_Click(object? sender, RoutedEventArgs e) => ScanStartup();
+    // ================= RESET OTIMIZA (Linux) =================
+
+    private List<LinuxApp> _apps = new();
+    private List<LinuxTweak>? _linuxTweaks;
+
+    private void InitOptimize()
+    {
+        if (_linuxTweaks == null)
+        {
+            OptSubtitle.Text = "Libera memória, fecha o que atrapalha e ajusta o Linux para jogos";
+            OptHint.Text = "Um clique: esvazia o cache de memória do sistema (pede a senha) e fecha os programas marcados na lista abaixo. Use antes de abrir um jogo.";
+            OptTweaksLabel.Text = "AJUSTES DO LINUX PARA JOGOS";
+            OptTweaksHint.Text = "O interruptor mostra o estado atual e aplica na hora; os que dizem PEDE SENHA abrem a janela de senha do sistema. " +
+                                 "O valor original é guardado na primeira alteração. Não mexemos em segurança (firewall, SELinux/AppArmor, atualizações).";
+            _linuxTweaks = LinuxTweaks.All();
+            foreach (var t in _linuxTweaks)
+            {
+                try { t.Refresh(); } catch (Exception ex) { t.Status = $"Não foi possível ler: {ex.Message}"; }
+                if (t.Unavailable && t.Status.Length == 0)
+                    t.Status = t.Id == "power" ? "Indisponível: falta o power-profiles-daemon (ou tuned-ppd)." : "Indisponível neste kernel.";
+            }
+            OptTweaks.ItemsSource = _linuxTweaks;
+        }
+        RefreshApps();
+        UpdateRamStatus();
+    }
+
+    private async void RefreshApps()
+    {
+        _apps = await Task.Run(LinuxOptimizer.ListApps);
+        OptApps.ItemsSource = _apps;
+    }
+
+    private void BtnRefreshApps_Click(object? sender, RoutedEventArgs e) => RefreshApps();
+
+    private async void BtnOptimize_Click(object? sender, RoutedEventArgs e)
+    {
+        var toClose = _apps.Where(a => a.Selected).ToList();
+        string list = toClose.Count == 0 ? "nenhum programa marcado" : string.Join("\n", toClose.Select(a => $"  • {a.Title}"));
+        if (!await Dialog.Ask(this, "RESET OTIMIZA", "O RESET OTIMIZA vai:\n\n" +
+                                                     "1. Esvaziar o cache de memória do sistema (o sistema vai pedir sua senha).\n" +
+                                                     $"2. Fechar os programas marcados:\n{list}\n\n" +
+                                                     "Salve o que estiver aberto nesses programas antes. Continuar?")) return;
+
+        BtnOptimize.IsEnabled = false;
+        BtnOptimize.Content = "OTIMIZANDO…";
+        OptResult.Text = "";
+        var (closed, notClosed) = await Task.Run(() => LinuxOptimizer.CloseApps(toClose));
+        var mem = await LinuxOptimizer.CleanMemoryAsync(); // depois de fechar, para contar a memória liberada por eles também
+        BtnOptimize.IsEnabled = true;
+        BtnOptimize.Content = "RESET OTIMIZA";
+
+        var parts = new List<string> { $"Memória livre a mais: {mem.FreedBytes / 1048576.0:N0} MB" };
+        parts.Add(mem.CacheDropped ? "cache do sistema esvaziado" : $"cache não esvaziado ({mem.Error})");
+        if (closed.Count > 0) parts.Add($"fechados: {string.Join(", ", closed)}");
+        if (notClosed.Count > 0) parts.Add($"não fecharam (podem ter algo não salvo ou pedir confirmação): {string.Join(", ", notClosed)}");
+        OptResult.Text = string.Join(" · ", parts) + ".";
+        RefreshApps();
+        UpdateRamStatus();
+    }
+
+    private async void Tweak_Click(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not CheckBox { Tag: LinuxTweak t } box) return;
+        bool turnOn = box.IsChecked == true;
+        box.IsEnabled = false;
+        t.Status = t.NeedsRoot ? "Aguardando a senha…" : "Aplicando…";
+        try
+        {
+            string? error = await t.WriteAsync(turnOn, _settings);
+            _settings.Save();
+            t.Refresh();
+            t.Status = error ?? (t.IsOn == turnOn ? (turnOn ? "Aplicado." : "Desligado.") : "O sistema não aceitou a mudança.");
+        }
+        catch (Exception ex)
+        {
+            t.Refresh();
+            t.Status = $"Falhou: {ex.Message}";
+        }
+        box.IsChecked = t.IsOn; // o binding é só leitura: volta ao estado real
+        box.IsEnabled = true;
+    }
+
+    private async void BtnRestoreTweaks_Click(object? sender, RoutedEventArgs e)
+    {
+        if (_linuxTweaks == null) return;
+        if (!_settings.TweakBackup.Keys.Any(k => k.StartsWith("linux.")))
+        {
+            await Dialog.Show(this, "RESET OTIMIZA", "Nenhum ajuste foi alterado pelo ABExplode ainda.");
+            return;
+        }
+        if (!await Dialog.Ask(this, "RESET OTIMIZA", "Voltar todos os ajustes do Linux para como estavam antes do ABExplode alterá-los?")) return;
+        var errors = await LinuxTweaks.RestoreAllAsync(_linuxTweaks, _settings);
+        _settings.Save();
+        foreach (var t in _linuxTweaks) { t.Refresh(); t.Status = errors.Count == 0 ? "Restaurado." : ""; }
+        if (errors.Count > 0) await Dialog.Show(this, "RESET OTIMIZA", "Alguns ajustes não voltaram:\n\n" + string.Join("\n", errors));
+    }
+
+    // ================= Inicialização (Linux) =================
+
+    private void ScanStartup()
+    {
+        StartupSubtitle.Text = "Programas que abrem junto com a sessão · desative ou remova o que não precisa";
+        StartupHint.Text = "O interruptor ativa ou desativa na hora, como as configurações de inicialização do GNOME e do KDE (a entrada continua lá " +
+                           "e pode ser religada). REMOVER tira o item da inicialização; o programa continua instalado e dá para desfazer em " +
+                           "\"Restaurar removidos\". Vale na próxima vez que você entrar na sessão. Nada aqui pede senha.";
+        List<LinuxStartupEntry> list;
+        try { list = LinuxAutostart.List(); }
+        catch (Exception ex) { StartupResult.Text = $"Não foi possível listar: {ex.Message}"; return; }
+
+        StartupList.ItemsSource = list;
+        int on = list.Count(e => e.Enabled);
+        StartupSummary.Text = list.Count == 0 ? "NENHUM PROGRAMA NA INICIALIZAÇÃO"
+                            : $"{list.Count} PROGRAMAS · {on} ATIVADOS · {list.Count - on} DESATIVADOS";
+        BtnStartupRestore.IsEnabled = _settings.StartupRemoved.Count > 0;
+        BtnStartupRestore.Content = _settings.StartupRemoved.Count > 0
+            ? $"RESTAURAR REMOVIDOS ({_settings.StartupRemoved.Count})" : "RESTAURAR REMOVIDOS";
+    }
+
+    private void BtnStartupScan_Click(object? sender, RoutedEventArgs e)
+    {
+        StartupResult.Text = "";
+        ScanStartup();
+    }
+
+    private void StartupToggle_Click(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not CheckBox { Tag: LinuxStartupEntry item }) return;
+        bool turnOn = (sender as CheckBox)!.IsChecked == true;
+        try
+        {
+            LinuxAutostart.SetEnabled(item, turnOn);
+            StartupResult.Text = $"{item.Name}: {(turnOn ? "ativado" : "desativado")}. Vale na próxima vez que você entrar na sessão.";
+        }
+        catch (Exception ex) { StartupResult.Text = $"{item.Name}: falhou ({ex.Message})."; }
+        ScanStartup();
+    }
+
+    private async void StartupRemove_Click(object? sender, RoutedEventArgs e)
+    {
+        if ((sender as Control)?.Tag is not LinuxStartupEntry item) return;
+        if (!await Dialog.Ask(this, "Inicialização", $"Remover \"{item.Name}\" da inicialização?\n\n{item.Command}\n\n" +
+                                                     "O programa continua instalado, só deixa de abrir sozinho. " +
+                                                     "Dá para desfazer em \"Restaurar removidos\".\n\n" +
+                                                     "Se só quiser testar, prefira desligar o interruptor.")) return;
+        try
+        {
+            _settings.StartupRemoved.Add(LinuxAutostart.Remove(item));
+            _settings.Save();
+            StartupResult.Text = $"{item.Name} removido da inicialização.";
+        }
+        catch (Exception ex) { StartupResult.Text = $"{item.Name}: não foi possível remover ({ex.Message})."; }
+        ScanStartup();
+    }
+
+    private async void BtnStartupRestore_Click(object? sender, RoutedEventArgs e)
+    {
+        var removed = _settings.StartupRemoved;
+        if (removed.Count == 0) return;
+        string names = string.Join("\n", removed.Take(12).Select(b => $"  • {b.Name}"))
+                       + (removed.Count > 12 ? $"\n  … e mais {removed.Count - 12}" : "");
+        if (!await Dialog.Ask(this, "Inicialização", $"Devolver {removed.Count} programas à inicialização?\n\n{names}")) return;
+
+        var failed = new List<string>();
+        foreach (var b in removed.ToList())
+        {
+            try { LinuxAutostart.Restore(b); removed.Remove(b); }
+            catch (Exception ex) { failed.Add($"{b.Name} ({ex.Message})"); }
+        }
+        _settings.Save();
+        StartupResult.Text = failed.Count == 0 ? "Programas restaurados." : $"Não restaurados: {string.Join("; ", failed)}";
+        ScanStartup();
+    }
     private void InitApps() { AppsStatus.Text = NotYet; BtnAppsInstall.IsEnabled = false; }
     private void BtnAppsAll_Click(object? sender, RoutedEventArgs e) { }
     private void BtnAppsNone_Click(object? sender, RoutedEventArgs e) { }

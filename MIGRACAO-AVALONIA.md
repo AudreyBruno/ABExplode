@@ -303,6 +303,25 @@ Implementações em `Platform.Linux`:
   o app inteiro não roda como root.
 - **A partir daqui**, o projeto WPF antigo pode ser removido.
 
+### Status da Fase 5
+
+- **Etapa 1 (feita, falta testar no Linux):** Otimização e Inicialização.
+  - **Programas para fechar (`LinuxOptimizer`):** processos do usuário com atalho no menu (`.desktop`), mais indexadores e
+    sincronizadores conhecidos, pré-marcados. A Steam, o GameMode, a sessão gráfica e o áudio ficam protegidos.
+    - **Fechar:** pela janela (`wmctrl -c`) quando dá; senão SIGTERM, nunca SIGKILL.
+    - **Limpar memória:** `drop_caches` pelo `pkexec`.
+    - **No Flatpak:** a lista vem do `ps` do sistema, porque o `/proc` do sandbox só mostra o sandbox.
+  - **Ajustes (`LinuxTweaks`):** perfil de energia Desempenho (`powerprofilesctl`, sem senha), GameMode (instala),
+    `vm.max_map_count`, `kernel.split_lock_mitigate` e `vm.swappiness`. Os parâmetros do kernel vão pelo `sysctl` e por
+    `/etc/sysctl.d/99-abexplode-*.conf`, com pedido de senha. O original fica no TweakBackup (`linux.*`), e "Restaurar
+    originais" volta tudo numa pedida de senha só.
+  - **Inicialização (`LinuxAutostart`):** XDG autostart do usuário e do sistema, e serviços do usuário no systemd.
+    Desativar usa `Hidden=true` na cópia do usuário, como o GNOME e o KDE; nada pede senha. Remover guarda cópia para
+    "Restaurar removidos".
+  - `Sys.RunAsRootAsync`: um script, uma pedida de senha (pkexec; no Flatpak, fora do sandbox).
+- **Próximas etapas:** Instalar apps (Flatpak/apt/dnf); Drivers; RESET MAKER (portas seriais, grupo dialout, brltty);
+  Biblioteca (abrir jogos pela Steam/Heroic); atalho global do overlay.
+
 ## Fase 6: GPU no Linux (a mais pesada)
 
 - **Benchmarks de GPU em Vulkan** (Silk.NET ou Vortice.Vulkan), com janela via SDL3/GLFW:
