@@ -366,7 +366,7 @@ public partial class MainWindow
     private string BuildLaunchArgs(GameProfile p)
     {
         LinuxLauncherTexts();
-        return _lg?.IsSteam == true ? LinuxGameLauncher.BuildSteamOptions(p) : GameArgs.Build(p);
+        return _lg?.IsSteam == true ? LinuxGameLauncher.BuildSteamOptions(p, _settings.MangoHudInGames) : GameArgs.Build(p);
     }
 
     private static string? SteamLaunchOptions(string appId) => LinuxGameLauncher.GetLaunchOptions(appId);
@@ -375,7 +375,7 @@ public partial class MainWindow
     {
         var g = _lg;
         if (g == null || !g.IsSteam || _lp == null) return;
-        string opts = LinuxGameLauncher.BuildSteamOptions(_lp);
+        string opts = LinuxGameLauncher.BuildSteamOptions(_lp, _settings.MangoHudInGames);
         BtnSteamApply.IsEnabled = false;
         try
         {
@@ -406,7 +406,7 @@ public partial class MainWindow
         BtnPlay.Content = "PARAR ACOMPANHAMENTO";
         try
         {
-            await LinuxGameLauncher.RunAsync(g, p,
+            await LinuxGameLauncher.RunAsync(g, p, _settings.MangoHudInGames,
                 t => Dispatcher.UIThread.Post(() => LStatus.Text = t),
                 exe => Dispatcher.UIThread.Post(() =>
                 {

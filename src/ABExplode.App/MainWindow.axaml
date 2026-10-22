@@ -733,6 +733,24 @@
                             </StackPanel>
                         </Border>
 
+                        <!-- Linux: o FPS dentro do jogo vem do MangoHud, configurado com as mesmas escolhas desta tela -->
+                        <Border Name="OvMangoCard" Classes="card" Margin="0,0,0,14" IsVisible="False">
+                            <StackPanel>
+                                <TextBlock Text="MANGOHUD (FPS DENTRO DO JOGO)" Classes="label" Margin="0,0,0,6"/>
+                                <TextBlock Name="OvMangoStatus" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                <CheckBox Name="ChkMangoGames" Content="Abrir os jogos da Biblioteca com o MangoHud" Margin="0,0,0,10" Click="ChkMangoGames_Click"/>
+                                <WrapPanel>
+                                    <Button Name="BtnMangoInstall" Theme="{StaticResource OutlineButton}" Content="INSTALAR O MANGOHUD" Padding="14,6" FontSize="11"
+                                            Margin="0,0,8,8" Click="BtnMangoInstall_Click"/>
+                                    <Button Name="BtnMangoApply" Theme="{StaticResource OutlineButton}" Content="APLICAR ESTAS ESCOLHAS NO MANGOHUD" Padding="14,6" FontSize="11"
+                                            Margin="0,0,8,8" Click="BtnMangoApply_Click"/>
+                                </WrapPanel>
+                                <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap"
+                                           Text="O Linux não tem um medidor de quadros para apps e, no Wayland, nenhuma janela aparece por cima de jogo em tela cheia. O MangoHud desenha dentro do próprio jogo (Vulkan e OpenGL, também pelo Proton). O ABExplode grava a configuração dele com o que você escolheu aqui (itens, canto, tamanho) e o atalho Ctrl + Shift + O liga e desliga dentro do jogo. Jogos da Steam: depois de marcar acima, use APLICAR NAS OPÇÕES DA STEAM na Biblioteca (entra mangohud antes do %command%)."/>
+                                <TextBlock Name="OvMangoResult" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
+
                         <Border Classes="card" Margin="0,0,0,14">
                             <WrapPanel>
                                 <StackPanel Margin="0,0,36,8">

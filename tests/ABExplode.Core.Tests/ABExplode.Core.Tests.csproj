@@ -15,6 +15,8 @@
     <ProjectReference Include="..\..\src\ABExplode.Core\ABExplode.Core.csproj" />
     <!-- O que é comum aos dois sistemas e não depende de hardware (GameArgs...) -->
     <ProjectReference Include="..\..\src\ABExplode.Platform\ABExplode.Platform.csproj" />
+    <!-- Partes do Linux que são só texto (ex.: MangoHud.conf) rodam em qualquer sistema -->
+    <ProjectReference Include="..\..\src\ABExplode.Platform.Linux\ABExplode.Platform.Linux.csproj" />
     <Using Include="Xunit" />
     <Using Include="ABExplode.Core" />
   </ItemGroup>

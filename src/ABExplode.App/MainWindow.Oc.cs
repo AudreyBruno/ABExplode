@@ -30,6 +30,29 @@ public partial class MainWindow
         _ocInited = true;
         var h = OcGpu;
         OcGpuTitle.Text = _gpus.Count > 0 ? "GPU · " + GameCatalog.ShortGpuName(_gpus[0].Name).ToUpperInvariant() : "GPU";
+#if !WINDOWS
+        // Linux: nvidia-smi (NVIDIA) ou power1_cap do amdgpu, pelo pkexec
+        _ocTune = _gpus.Count > 0 ? ABExplode.Platform.Linux.LinuxGpuTuning.For(_gpus[0].Name) : null;
+        if (_ocTune == null)
+        {
+            OcGpuState.Text = "Ajustes disponíveis para NVIDIA (driver proprietário, com o nvidia-smi) e AMD (driver amdgpu).";
+            OcPower.IsEnabled = BtnOcApply.IsEnabled = BtnOcReset.IsEnabled = false;
+        }
+        else
+        {
+            if (_ocTune.MaxW > _ocTune.MinW) { OcPower.Minimum = _ocTune.MinW; OcPower.Maximum = _ocTune.MaxW; }
+            if (_ocTune.CurrentW is double cur) OcPower.Value = cur;
+            if (_ocTune.CanCapClock)
+            {
+                uint maxClock = Nvml.MaxClock(h, Nvml.ClockGraphics) ?? 3000;
+                Chip("Sem teto", null, on: true);
+                Chip($"Leve · {maxClock - 300} MHz", maxClock - 300, on: false);
+                Chip($"Equilibrado · {maxClock - 500} MHz", maxClock - 500, on: false);
+                Chip($"Econômico · {maxClock - 800} MHz", maxClock - 800, on: false);
+            }
+            UpdateOcGpuState();
+        }
+#else
         if (h == IntPtr.Zero)
         {
             OcGpuState.Text = "Ajustes disponíveis só para placas NVIDIA (via driver oficial).";
@@ -50,6 +73,7 @@ public partial class MainWindow
             Chip($"Econômico · {maxClock - 800} MHz", maxClock - 800, on: false);
             UpdateOcGpuState();
         }
+#endif
         OcPowerValue.Text = $"{OcPower.Value:0} W";
 #if !WINDOWS
         // TODO(Fase 6): verificação de GPU (cena + stress) em Vulkan.
@@ -75,14 +99,25 @@ public partial class MainWindow
         }
     }
 
+#if !WINDOWS
+    private ABExplode.Platform.Linux.LinuxGpuTuning? _ocTune;
+#endif
+
     private void UpdateOcGpuState()
     {
+#if WINDOWS
         var h = OcGpu;
         if (h == IntPtr.Zero) return;
         string W(uint? mw) => mw is uint v ? $"{v / 1000.0:0} W" : "—";
         OcGpuState.Text = $"Limite de energia atual {W(Nvml.PowerLimitMw(h))} (padrão {W(Nvml.PowerDefaultMw(h))}) · teto de clock: " +
                           (_ocClockCap is uint cap ? $"{cap} MHz" : "nenhum") +
                           " · clock máximo atual: " + (Nvml.Clock(h, Nvml.ClockGraphics) is uint c ? $"{c} MHz" : "—");
+#else
+        if (_ocTune == null) return;
+        OcGpuState.Text = $"Limite de energia atual {(_ocTune.CurrentW is double w ? $"{w:0} W" : "—")} (padrão {_ocTune.DefaultW:0} W)" +
+                          (_ocTune.CanCapClock ? " · teto de clock: " + (_ocClockCap is uint cap ? $"{cap} MHz" : "nenhum") : " · teto de clock: só na NVIDIA") +
+                          ". Ajustar pede a senha; vale até reiniciar.";
+#endif
     }
 
     private void OcPower_Changed(object? sender, RangeBaseValueChangedEventArgs e)
@@ -97,6 +132,33 @@ public partial class MainWindow
         return false;
     }
 
+#if !WINDOWS
+    // Linux: uma pedida de senha (pkexec) aplica energia e teto de clock
+    private async void BtnOcApply_Click(object? sender, RoutedEventArgs e)
+    {
+        if (_ocTune == null) return;
+        BtnOcApply.IsEnabled = false;
+        OcGpuResult.Text = "Aplicando… (o sistema vai pedir sua senha)";
+        string r = await _ocTune.ApplyAsync(OcPower.Value, _ocTune.CanCapClock ? _ocPendingCap : null);
+        if (!r.StartsWith("Não")) _ocClockCap = _ocTune.CanCapClock ? _ocPendingCap : null;
+        OcGpuResult.Text = r + " Rode o verificador para confirmar a estabilidade.";
+        BtnOcApply.IsEnabled = true;
+        UpdateOcGpuState();
+    }
+
+    private async void BtnOcReset_Click(object? sender, RoutedEventArgs e)
+    {
+        if (_ocTune == null) return;
+        BtnOcReset.IsEnabled = false;
+        OcGpuResult.Text = await _ocTune.ResetAsync();
+        OcPower.Value = _ocTune.DefaultW;
+        foreach (var rb in OcClockPanel.Children.OfType<RadioButton>())
+            rb.IsChecked = rb.Content as string == "Sem teto";
+        _ocClockCap = null;
+        BtnOcReset.IsEnabled = true;
+        UpdateOcGpuState();
+    }
+#else
     private async void BtnOcApply_Click(object? sender, RoutedEventArgs e)
     {
         var h = OcGpu;
@@ -130,6 +192,7 @@ public partial class MainWindow
         OcGpuResult.Text = err != null ? $"Restauração parcial: {err}." : "GPU de volta ao padrão de fábrica.";
         UpdateOcGpuState();
     }
+#endif
 
     private void UpdateRecentErrors()
     {

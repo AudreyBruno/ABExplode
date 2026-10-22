@@ -68,6 +68,9 @@ public sealed class AppSettings
     // Aparência
     public bool LightTheme { get; set; }
 
+    /// <summary>Linux: abrir os jogos da Biblioteca com o MangoHud (overlay dentro do jogo).</summary>
+    public bool MangoHudInGames { get; set; }
+
     /// <summary>Linux: dependências que o usuário pediu para não lembrar mais na abertura (chaves de LinuxDependency).</summary>
     public List<string> DepsDismissed { get; set; } = new();
 

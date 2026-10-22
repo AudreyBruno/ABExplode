@@ -107,11 +107,12 @@ public static class LinuxGameLauncher
     /// Opções de inicialização para a Steam no Linux: prefixos (gamemoderun, PRIME) antes do %command% e os argumentos depois.
     /// Sem prefixo, ficam só os argumentos (a Steam os acrescenta ao comando do jogo).
     /// </summary>
-    public static string BuildSteamOptions(GameProfile p)
+    public static string BuildSteamOptions(GameProfile p, bool mangohud)
     {
         var prefix = new List<string>();
         if (p.GpuHigh) prefix.AddRange(PrimeEnv().Select(kv => $"{kv.Key}={kv.Value}"));
         if (UseGameMode(p)) prefix.Add("gamemoderun");
+        if (mangohud) prefix.Add(LinuxMangoHud.SteamPrefix);
         string args = GameArgs.Build(p);
         return prefix.Count == 0 ? args : $"{string.Join(' ', prefix)} %command% {args}".Trim();
     }
@@ -178,7 +179,7 @@ public static class LinuxGameLauncher
     /// Aplica o perfil, abre o jogo e acompanha até ele fechar; ao terminar (ou cancelar) volta o perfil de energia e fecha os
     /// programas auxiliares marcados. <paramref name="learnedExe"/> é chamado quando o executável real é descoberto.
     /// </summary>
-    public static async Task RunAsync(LibGame g, GameProfile p, Action<string> status, Action<string> learnedExe, CancellationToken ct)
+    public static async Task RunAsync(LibGame g, GameProfile p, bool mangohud, Action<string> status, Action<string> learnedExe, CancellationToken ct)
     {
         string? oldProfile = null;
         var helpers = new List<(Process Proc, bool Close)>();
@@ -218,9 +219,13 @@ public static class LinuxGameLauncher
                     throw new InvalidOperationException("É um jogo de Windows (.exe) e o Wine não está instalado. O jeito mais fácil é adicionar na Steam " +
                                                         "como jogo não-Steam e ativar o Proton nas propriedades.");
                 var env = p.GpuHigh ? PrimeEnv() : new Dictionary<string, string>();
+                // Overlay dentro do jogo: o comando mangohud cobre Vulkan e OpenGL; sem ele, a variável liga a camada do Vulkan
+                bool mangoWrapper = mangohud && Sys.HasCommand("mangohud");
+                if (mangohud && !mangoWrapper) env["MANGOHUD"] = "1";
                 // [gamemoderun] [wine] jogo argumentos...
                 var cmd = new List<string>();
                 if (UseGameMode(p)) cmd.Add("gamemoderun");
+                if (mangoWrapper) cmd.Add("mangohud");
                 if (windowsExe) cmd.Add("wine");
                 cmd.Add(exe);
                 cmd.AddRange((g.Args + " " + GameArgs.Build(p)).Split(' ', StringSplitOptions.RemoveEmptyEntries));

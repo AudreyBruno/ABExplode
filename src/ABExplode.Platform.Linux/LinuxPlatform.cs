@@ -21,14 +21,14 @@ public sealed class LinuxPlatform : IPlatform
 }
 
 /// <summary>
-/// O Linux não tem um rastreamento de quadros como o ETW. O FPS vai vir do log do MangoHud (Fase 6 do MIGRACAO-AVALONIA.md);
-/// até lá, a medição fica indisponível e a UI mostra o motivo.
+/// O Linux não tem um rastreamento de quadros como o ETW, e o log do MangoHud só é gravado quando a coleta termina (não dá
+/// para ler ao vivo). O FPS aparece dentro do jogo pelo MangoHud (LinuxMangoHud); aqui a medição fica indisponível com o motivo.
 /// </summary>
 internal sealed class NoFrameSource : IFrameSource
 {
     public bool IsSupported => false;
     public bool Running => false;
-    public string? Error => "ainda não disponível no Linux (vai usar o MangoHud)";
+    public string? Error => "o Linux não tem um medidor de quadros para apps; o FPS aparece dentro do jogo pelo MangoHud (quadro abaixo)";
     public void Start() { }
     public FrameStats? GetStats(int processId) => null;
     public FrameStats? GetForegroundStats() => null;

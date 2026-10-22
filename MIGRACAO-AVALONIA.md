@@ -373,6 +373,22 @@ Implementações em `Platform.Linux`:
   - Janela transparente sempre no topo funciona no X11. **No Wayland não**: lá vale só o MangoHud.
 - **RESET OC:** NVML (`nvmlDeviceSetPowerManagementLimit`, `SetGpuLockedClocks`, precisa de root). AMD via `pp_od_clk_voltage`.
 
+### Status da Fase 6
+
+- **Etapa 1 (feita, falta testar no Linux):** overlay pelo MangoHud e RESET OC.
+  - **Overlay:** o log do MangoHud só é gravado quando a coleta termina, então não serve para FPS ao vivo. O app passa a
+    **configurar o MangoHud** (`LinuxMangoHud`).
+    - **Configuração:** grava o `MangoHud.conf` com as escolhas da tela Overlay (itens, canto, tamanho, Ctrl+Shift+O).
+      Um arquivo feito à mão só é substituído depois de perguntar, e fica uma cópia.
+    - **Instalação:** pacote da distribuição e, para a Steam do Flatpak, a camada `VulkanLayer.MangoHud` da mesma versão
+      do runtime.
+    - **Nos jogos:** a Biblioteca abre com `mangohud` (ou `MANGOHUD=1`) e coloca `mangohud` antes do `%command%` nas
+      opções da Steam.
+    - **Testes:** a geração do arquivo tem testes.
+  - **RESET OC (`LinuxGpuTuning`):** pelo `pkexec`. Na NVIDIA, limite de energia e teto de clock pelo `nvidia-smi`
+    (`-pl`, `-lgc`, `-rgc`); na AMD, limite de energia pelo `power1_cap` do amdgpu. Vale até reiniciar, como no Windows.
+- **Próximas etapas:** base Vulkan e stress de GPU; cena de jogo em Vulkan; ray tracing (`VK_KHR_ray_query`).
+
 ## Empacotamento
 
 - **Windows:** o `publicar.bat` atual, com `-r win-x64`.

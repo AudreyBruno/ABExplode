@@ -51,14 +51,79 @@ public partial class MainWindow
             : "Atalho: o Linux não deixa um app pegar teclas globais. Crie um atalho personalizado nas configurações de teclado do " +
               $"sistema (por exemplo Ctrl + Shift + O) com o comando:\n{cmd}";
         BtnOvShortcut.IsVisible = auto;
-        OvFpsHelp.Text = "A detecção de FPS deste sistema chega numa próxima versão.";
+        OvFpsHelp.Text = "No Linux não há um medidor de quadros para apps: o FPS aparece dentro do jogo pelo MangoHud (quadro acima). " +
+                         "Esta janela do ABExplode mostra os sensores por cima de jogos em janela no X11; no Wayland, use o MangoHud.";
+        InitMangoHud();
 #endif
         UpdateOverlayStatus(null);
     }
 
 #if WINDOWS
     private void BtnOvShortcut_Click(object? sender, RoutedEventArgs e) { } // o atalho global do Windows é registrado sozinho
+    // O quadro do MangoHud só aparece no Linux
+    private void ChkMangoGames_Click(object? sender, RoutedEventArgs e) { }
+    private void BtnMangoInstall_Click(object? sender, RoutedEventArgs e) { }
+    private void BtnMangoApply_Click(object? sender, RoutedEventArgs e) { }
+    private void SyncMangoHud() { }
 #else
+    // ---------------- MangoHud (overlay dentro do jogo) ----------------
+
+    private async void InitMangoHud()
+    {
+        OvMangoCard.IsVisible = true;
+        ChkMangoGames.IsChecked = _settings.MangoHudInGames;
+        await RefreshMangoStatus();
+    }
+
+    private async Task RefreshMangoStatus()
+    {
+        bool installed = await Task.Run(() => ABExplode.Platform.Linux.LinuxMangoHud.Installed);
+        bool userConf = ABExplode.Platform.Linux.LinuxMangoHud.HasUserConfig;
+        OvMangoStatus.Text = (installed ? "MangoHud instalado." : "MangoHud não instalado: use o botão abaixo.") +
+                             (userConf ? " Há uma configuração do MangoHud feita à mão: APLICAR pergunta antes de substituir." : "");
+        BtnMangoInstall.IsVisible = !installed;
+    }
+
+    private void ChkMangoGames_Click(object? sender, RoutedEventArgs e)
+    {
+        _settings.MangoHudInGames = ChkMangoGames.IsChecked == true;
+        try { _settings.Save(); } catch { }
+        if (_settings.MangoHudInGames) SyncMangoHud();
+        OvMangoResult.Text = _settings.MangoHudInGames
+            ? "Os jogos abertos pelo JOGAR da Biblioteca vêm com o MangoHud. Na Steam, aplique nas opções de inicialização do jogo."
+            : "Os jogos deixam de abrir com o MangoHud (nas opções da Steam, aplique de novo para tirar).";
+    }
+
+    private async void BtnMangoInstall_Click(object? sender, RoutedEventArgs e)
+    {
+        BtnMangoInstall.IsEnabled = false;
+        OvMangoResult.Text = "Instalando o MangoHud… (o sistema pode pedir sua senha)";
+        OvMangoResult.Text = await ABExplode.Platform.Linux.LinuxMangoHud.InstallAsync();
+        BtnMangoInstall.IsEnabled = true;
+        SyncMangoHud();
+        await RefreshMangoStatus();
+    }
+
+    private async void BtnMangoApply_Click(object? sender, RoutedEventArgs e)
+    {
+        bool overwrite = false;
+        if (ABExplode.Platform.Linux.LinuxMangoHud.HasUserConfig)
+        {
+            overwrite = await Dialog.Ask(this, "Overlay", "Já existe uma configuração do MangoHud feita à mão. Substituir pela da tela Overlay?\n\n" +
+                                                          "Uma cópia do arquivo atual fica ao lado, com o final .antes-do-abexplode.");
+            if (!overwrite) return;
+        }
+        int n = ABExplode.Platform.Linux.LinuxMangoHud.WriteConfig(OvShow, _settings.OverlayCorner, _settings.OverlayScale, overwrite);
+        OvMangoResult.Text = n > 0 ? "Configuração do MangoHud gravada. Vale na próxima vez que o jogo abrir." : "Não foi possível gravar a configuração do MangoHud.";
+        await RefreshMangoStatus();
+    }
+
+    /// <summary>Mantém o MangoHud.conf igual à tela Overlay (só o arquivo gerado pelo ABExplode; o feito à mão fica como está).</summary>
+    private void SyncMangoHud()
+    {
+        if (!_settings.MangoHudInGames) return;
+        try { ABExplode.Platform.Linux.LinuxMangoHud.WriteConfig(OvShow, _settings.OverlayCorner, _settings.OverlayScale, overwrite: false); } catch { }
+    }
     private async void BtnOvShortcut_Click(object? sender, RoutedEventArgs e)
     {
         string? err = ABExplode.Platform.Linux.LinuxInstance.CreateGnomeShortcut();
@@ -120,6 +185,7 @@ public partial class MainWindow
         _settings.OverlayScale = double.Parse(CheckedTag(OvScalePanel) ?? "1", CultureInfo.InvariantCulture);
         _settings.Save();
         ApplyOverlayOptions();
+        SyncMangoHud();
     }
 
     private void ApplyOverlayOptions()
@@ -180,6 +246,7 @@ public partial class MainWindow
         _settings.OverlayItems = OverlayMetrics.All.Select(m => m.Key).Where(OvShow.Contains).ToList();
         _settings.Save();
         UpdateOverlay();
+        SyncMangoHud();
     }
 
     private void OvPreset_Click(object? sender, RoutedEventArgs e)
