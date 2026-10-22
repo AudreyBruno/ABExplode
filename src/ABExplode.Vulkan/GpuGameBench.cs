@@ -62,7 +62,7 @@ public sealed unsafe class GpuGameBench
             double scale = Math.Min(1.0, Math.Min(screen.X * 0.85 / Width, screen.Y * 0.85 / Height));
             var opts = WindowOptions.DefaultVulkan with
             {
-                Size = new Vector2D<int>((int)(Width * scale), (int)(Height * scale)), Title = "RESET BENCH · Cena de jogo (Vulkan)", VSync = false,
+                Size = new Vector2D<int>((int)(Width * scale), (int)(Height * scale)), Title = "ABExplode · Cena de jogo (Vulkan)", VSync = false,
             };
             window = Window.Create(opts);
             window.Initialize();
@@ -468,7 +468,7 @@ public sealed unsafe class GpuGameBench
                     owner.CurrentFps = titleFrames / (now - lastTitle);
                     titleFrames = 0; lastTitle = now;
                     owner.Progress = now / owner.Duration.TotalSeconds;
-                    window.Title = $"RESET BENCH · Cena de jogo (Vulkan) · {_w}x{_h} · {owner.CurrentFps:0} FPS · {owner.Progress:P0}";
+                    window.Title = $"ABExplode · Cena de jogo (Vulkan) · {_w}x{_h} · {owner.CurrentFps:0} FPS · {owner.Progress:P0}";
                 }
             }
             return frameTimes;

@@ -74,7 +74,7 @@ public sealed class BenchRenderer
                         Interlocked.Increment(ref _bucketsDone);
                     }
                     Active[ti] = -1;
-                }) { IsBackground = true, Name = $"RESET BENCH {ti}" };
+                }) { IsBackground = true, Name = $"Benchmark {ti}" };
                 workers[t].Start();
             }
             foreach (var w in workers) w.Join();

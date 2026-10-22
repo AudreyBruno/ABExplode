@@ -60,7 +60,7 @@ public partial class MainWindow
         if (!await RequireAdmin()) return;
         string names = string.Join("\n", sel.Take(12).Select(d => $"  • {d.Name}{(d.Port != null ? "" : $" ({d.Class})")}"))
                        + (sel.Count > 12 ? $"\n  … e mais {sel.Count - 12}" : "");
-        if (!await Dialog.Ask(this, "RESET MAKER", $"Remover {sel.Count} registros de dispositivos que não estão conectados?\n\n{names}\n\n" +
+        if (!await Dialog.Ask(this, "Maker", $"Remover {sel.Count} registros de dispositivos que não estão conectados?\n\n{names}\n\n" +
                                                    "Se plugar algum deles de novo, o Windows reinstala automaticamente.")) return;
 
         BtnUsbRemove.IsEnabled = false;
@@ -79,7 +79,7 @@ public partial class MainWindow
         var (reserved, inUse) = UsbCleaner.ComStatus();
         var freed = reserved.Except(inUse).ToList();
         if (freed.Count == 0) { UsbResult.Text = "Nenhum número COM preso: todos os reservados estão em uso."; return; }
-        if (!await Dialog.Ask(this, "RESET MAKER", $"Liberar {freed.Count} números COM presos por dispositivos que não estão conectados?\n\n" +
+        if (!await Dialog.Ask(this, "Maker", $"Liberar {freed.Count} números COM presos por dispositivos que não estão conectados?\n\n" +
                                                    $"Liberados: {string.Join(", ", freed.Select(n => $"COM{n}"))}\n" +
                                                    $"Mantidos (em uso): {(inUse.Count > 0 ? string.Join(", ", inUse.Select(n => $"COM{n}")) : "nenhum")}\n\n" +
                                                    "A próxima placa plugada vai receber um número baixo (COM3, COM4…). " +
@@ -221,7 +221,7 @@ public partial class MainWindow
     {
         if ((sender as Control)?.Tag is not SerialDriverPackage p || _makerBusy) return;
         if (!await RequireAdmin()) return;
-        if (!await Dialog.Ask(this, "RESET MAKER", $"Remover o driver {p.Title} ({p.PublishedName}) do Windows?\n\n" +
+        if (!await Dialog.Ask(this, "Maker", $"Remover o driver {p.Title} ({p.PublishedName}) do Windows?\n\n" +
                                                    (p.InUse ? "Ele está EM USO por uma placa conectada: o Windows troca para outra versão guardada, " +
                                                               "ou a placa fica sem driver se esta for a única.\n\n" : "") +
                                                    "Um backup é feito antes; dá para desfazer em \"Restaurar removidos\".")) return;
@@ -237,7 +237,7 @@ public partial class MainWindow
     private async void BtnMakerRestore_Click(object? sender, RoutedEventArgs e)
     {
         if (_makerBusy || !await RequireAdmin()) return;
-        if (!await Dialog.Ask(this, "RESET MAKER", "Devolver ao Windows todos os drivers seriais removidos pelo RESET MAKER?")) return;
+        if (!await Dialog.Ask(this, "Maker", "Devolver ao Windows todos os drivers seriais removidos pelo ABExplode?")) return;
         MakerBusy(true, "Restaurando drivers…");
         try { MakerStatus.Text = await MakerDrivers.RestoreBackupsAsync(); }
         catch (Exception ex) { MakerStatus.Text = $"Falhou: {ex.Message}"; }
@@ -251,7 +251,7 @@ public partial class MainWindow
         if (_makerBusy) return;
         if (!AppInstaller.WingetAvailable)
         {
-            MakerIdeResult.Text = "O winget não foi encontrado: abra RESET FERRAMENTAS › Instalar apps para ver como resolver, ou baixe a IDE no site.";
+            MakerIdeResult.Text = "O winget não foi encontrado: abra FERRAMENTAS › Instalar apps para ver como resolver, ou baixe a IDE no site.";
             return;
         }
         if (MakerDrivers.IdeRunning)
@@ -279,7 +279,7 @@ public partial class MainWindow
         var procs = MakerDrivers.RunningPortHolders();
         if (procs.Count == 0) { MakerIdeResult.Text = "Nenhum programa conhecido prendendo portas COM."; RefreshMakerIde(); return; }
         var names = procs.Select(p => p.ProcessName).Distinct().ToList();
-        if (!await Dialog.Ask(this, "RESET MAKER", "Fechar estes programas? Trabalho não salvo neles pode ser perdido.\n\n" +
+        if (!await Dialog.Ask(this, "Maker", "Fechar estes programas? Trabalho não salvo neles pode ser perdido.\n\n" +
                                                    string.Join("\n", names.Select(n => "  • " + n)))) return;
         int closed = 0;
         foreach (var p in procs)
@@ -350,7 +350,7 @@ public partial class MainWindow
     private async void BtnUsbRemove_Click(object? sender, RoutedEventArgs e)
     {
         var acc = LinuxMaker.Access();
-        if (!await Dialog.Ask(this, "RESET MAKER", $"Colocar seu usuário no grupo {acc.Group}? Assim a Arduino IDE e outros programas " +
+        if (!await Dialog.Ask(this, "Maker", $"Colocar seu usuário no grupo {acc.Group}? Assim a Arduino IDE e outros programas " +
                                                    "conseguem abrir as portas seriais.\n\nO sistema vai pedir sua senha. Depois é preciso sair e entrar " +
                                                    "na sessão (ou reiniciar) para valer.")) return;
         BtnUsbRemove.IsEnabled = false;
@@ -361,7 +361,7 @@ public partial class MainWindow
     // No Linux: desativa o brltty.
     private async void BtnComDb_Click(object? sender, RoutedEventArgs e)
     {
-        if (!await Dialog.Ask(this, "RESET MAKER", "Desativar o brltty?\n\nEle é o leitor de tela para linhas braille e, no Ubuntu, pega placas com CH340 " +
+        if (!await Dialog.Ask(this, "Maker", "Desativar o brltty?\n\nEle é o leitor de tela para linhas braille e, no Ubuntu, pega placas com CH340 " +
                                                    "achando que são uma linha braille: a porta /dev/ttyUSB0 nem chega a aparecer. Desativar não desinstala " +
                                                    "nada e dá para reativar aqui. Se você usa uma linha braille, não desative.\n\nO sistema vai pedir sua senha.")) return;
         UsbResult.Text = await LinuxMaker.SetBrlttyAsync(disable: true);
@@ -464,7 +464,7 @@ public partial class MainWindow
         if (_makerBusy) return;
         if (!LinuxAppInstaller.FlatpakAvailable)
         {
-            MakerIdeResult.Text = "O Flatpak não está instalado: abra RESET FERRAMENTAS › Instalar apps para instalá-lo, ou instale a IDE pela distribuição.";
+            MakerIdeResult.Text = "O Flatpak não está instalado: abra FERRAMENTAS › Instalar apps para instalá-lo, ou instale a IDE pela distribuição.";
             return;
         }
         if (LinuxMaker.IdeRunning)
@@ -506,7 +506,7 @@ public partial class MainWindow
         var holders = LinuxMaker.PortHolderProcesses().Where(h => !h.Name.Equals("arduino-ide", StringComparison.OrdinalIgnoreCase)).ToList();
         if (holders.Count == 0) { MakerIdeResult.Text = "Nenhum programa com porta serial aberta."; await RefreshMakerIde(); return; }
         var names = holders.Select(h => h.Name).Distinct().ToList();
-        if (!await Dialog.Ask(this, "RESET MAKER", "Fechar estes programas? Trabalho não salvo neles pode ser perdido.\n\n" +
+        if (!await Dialog.Ask(this, "Maker", "Fechar estes programas? Trabalho não salvo neles pode ser perdido.\n\n" +
                                                    string.Join("\n", names.Select(n => "  • " + n)))) return;
         int closed = LinuxMaker.CloseHolders(holders.Select(h => h.Pid));
         MakerIdeResult.Text = $"{closed} programas fechados. Tente o upload de novo.";

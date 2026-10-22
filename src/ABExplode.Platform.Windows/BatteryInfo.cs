@@ -1,4 +1,4 @@
-﻿using System.Management;
+﻿﻿using System.Management;
 
 namespace ABExplode.Platform.Windows;
 
@@ -137,7 +137,7 @@ public static class BatteryInfo
                 em.Add(new($"{s.Hardware} · {s.Name}", s.Value));
         string advice = plan != null && !plan.Contains("alto", StringComparison.OrdinalIgnoreCase) && !plan.Contains("high", StringComparison.OrdinalIgnoreCase)
             && !plan.Contains("máximo", StringComparison.OrdinalIgnoreCase) && !plan.Contains("ultimate", StringComparison.OrdinalIgnoreCase)
-            ? " Para jogos e benchmarks, o plano Alto desempenho (aba RESET OTIMIZA) evita que o PC diminua o clock." : "";
+            ? " Para jogos e benchmarks, o plano Alto desempenho (página Otimização) evita que o PC diminua o clock." : "";
         cards.Add(new DiskHealthCard
         {
             Title = "Energia",

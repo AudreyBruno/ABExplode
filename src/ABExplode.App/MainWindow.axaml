@@ -119,7 +119,7 @@
                                 </RadioButton>
                             </StackPanel>
 
-                            <ToggleButton Name="GrpGames" Theme="{StaticResource NavGroup}" Content="RESET JOGOS"/>
+                            <ToggleButton Name="GrpGames" Theme="{StaticResource NavGroup}" Content="JOGOS"/>
                             <StackPanel Name="GrpGamesItems" Margin="10,0,0,4" IsVisible="{Binding #GrpGames.IsChecked}">
                                 <RadioButton Theme="{StaticResource NavItem}" Tag="PageLauncher" AutomationProperties.Name="Biblioteca" IsCheckedChanged="Nav_Checked">
                                     <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE762;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Biblioteca" VerticalAlignment="Center"/></StackPanel>
@@ -135,7 +135,7 @@
                                 </RadioButton>
                             </StackPanel>
 
-                            <ToggleButton Name="GrpPerf" Theme="{StaticResource NavGroup}" Content="RESET DESEMPENHO"/>
+                            <ToggleButton Name="GrpPerf" Theme="{StaticResource NavGroup}" Content="DESEMPENHO"/>
                             <StackPanel Name="GrpPerfItems" Margin="10,0,0,4" IsVisible="{Binding #GrpPerf.IsChecked}">
                                 <RadioButton Name="NavBench" Theme="{StaticResource NavItem}" Tag="PageBench" AutomationProperties.Name="Benchmark" IsCheckedChanged="Nav_Checked">
                                     <StackPanel Orientation="Horizontal"><TextBlock Text="&#xF836;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Benchmark" VerticalAlignment="Center"/></StackPanel>
@@ -148,7 +148,7 @@
                                 </RadioButton>
                             </StackPanel>
 
-                            <ToggleButton Name="GrpTools" Theme="{StaticResource NavGroup}" Content="RESET FERRAMENTAS"/>
+                            <ToggleButton Name="GrpTools" Theme="{StaticResource NavGroup}" Content="FERRAMENTAS"/>
                             <StackPanel Name="GrpToolsItems" Margin="10,0,0,4" IsVisible="{Binding #GrpTools.IsChecked}">
                                 <RadioButton Theme="{StaticResource NavItem}" Tag="PageOptimize" AutomationProperties.Name="Otimização" IsCheckedChanged="Nav_Checked">
                                     <StackPanel Orientation="Horizontal"><TextBlock Text="&#xF201;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Otimização" VerticalAlignment="Center"/></StackPanel>
@@ -167,7 +167,7 @@
                                 </RadioButton>
                             </StackPanel>
 
-                            <ToggleButton Name="GrpMaker" Theme="{StaticResource NavGroup}" Content="RESET MAKER"/>
+                            <ToggleButton Name="GrpMaker" Theme="{StaticResource NavGroup}" Content="MAKER"/>
                             <StackPanel Name="GrpMakerItems" Margin="10,0,0,4" IsVisible="{Binding #GrpMaker.IsChecked}">
                                 <RadioButton Theme="{StaticResource NavItem}" Tag="PageMakerPorts" AutomationProperties.Name="Portas COM" IsCheckedChanged="Nav_Checked">
                                     <StackPanel Orientation="Horizontal"><TextBlock Text="&#xF83F;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Portas COM" VerticalAlignment="Center"/></StackPanel>
@@ -232,7 +232,7 @@
                                     <Button DockPanel.Dock="Bottom" Theme="{StaticResource PrimaryButton}" Content="RODAR BENCHMARK" Margin="0,14,0,0"
                                             Padding="20,13" HorizontalAlignment="Stretch" Click="DashBench_Click"/>
                                     <StackPanel>
-                                        <TextBlock Text="DESEMPENHO · RESET BENCH" Classes="label" Margin="0,0,0,4"/>
+                                        <TextBlock Text="DESEMPENHO · BENCHMARK" Classes="label" Margin="0,0,0,4"/>
                                         <Grid>
                                             <TextBlock Name="DashScore" Text="—" Classes="hero mono"/>
                                             <TextBlock Name="DashScoreDelta" Foreground="{DynamicResource Muted}" FontSize="12"
@@ -358,7 +358,7 @@
                             <!-- Saúde do PC: lista de verificação + ação -->
                             <Border Grid.Column="4" Classes="card" Padding="22,20">
                                 <DockPanel>
-                                    <Button DockPanel.Dock="Bottom" Theme="{StaticResource PrimaryButton}" Content="RESET OTIMIZA" Padding="20,13"
+                                    <Button DockPanel.Dock="Bottom" Theme="{StaticResource PrimaryButton}" Content="OTIMIZAR" Padding="20,13"
                                             Margin="0,14,0,0" HorizontalAlignment="Stretch" Click="DashOptimize_Click"/>
                                     <StackPanel>
                                         <TextBlock Text="Saúde do PC" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,10"/>
@@ -390,7 +390,7 @@
                     <!-- Lista de jogos -->
                     <Grid RowDefinitions="Auto,Auto,*">
                         <StackPanel Margin="0,0,0,14">
-                            <TextBlock Text="RESET JOGOS" Classes="h1"/>
+                            <TextBlock Text="BIBLIOTECA" Classes="h1"/>
                             <TextBlock Name="LGameCount" Text="Procurando seus jogos…" Classes="sub" TextWrapping="Wrap"/>
                         </StackPanel>
                         <StackPanel Grid.Row="1" Margin="0,0,0,10">
@@ -503,7 +503,7 @@
                                 <StackPanel>
                                     <TextBlock Text="PROGRAMAS AUXILIARES" Classes="label"/>
                                     <TextBlock Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,10"
-                                               Text="Ferramentas de terceiros que abrem antes do jogo (monitoramento, comandos, mixer de áudio, script...). O RESET JOGOS as abre sozinho ao clicar em JOGAR e pode fechá-las junto com o jogo. Nada é escrito nas opções da Steam."/>
+                                               Text="Ferramentas de terceiros que abrem antes do jogo (monitoramento, comandos, mixer de áudio, script...). O ABExplode as abre sozinho ao clicar em JOGAR e pode fechá-las junto com o jogo. Nada é escrito nas opções da Steam."/>
                                     <ItemsControl Name="LHelpers">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate x:DataType="plat:HelperProgram">
@@ -988,7 +988,7 @@
                 <ScrollViewer Name="PageOc" IsVisible="False" VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="36,30,36,30">
                         <StackPanel Margin="0,0,0,20">
-                            <TextBlock Text="RESET OC" Classes="h1"/>
+                            <TextBlock Text="OVERCLOCK" Classes="h1"/>
                             <TextBlock Text="Ajustes da GPU, verificador de estabilidade e guia de overclock na BIOS" Classes="sub"/>
                         </StackPanel>
 
@@ -1120,7 +1120,7 @@
                 <ScrollViewer Name="PageOptimize" IsVisible="False" VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="36,30,36,30">
                         <StackPanel Margin="0,0,0,20">
-                            <TextBlock Text="RESET OTIMIZA" Classes="h1"/>
+                            <TextBlock Text="OTIMIZAÇÃO" Classes="h1"/>
                             <TextBlock Name="OptSubtitle" Text="Libera memória, fecha o que atrapalha e ajusta o Windows para jogos" Classes="sub"/>
                         </StackPanel>
 
@@ -1137,7 +1137,7 @@
                                                Text="Um clique: limpa a memória em espera e fecha os programas marcados na lista abaixo. Use antes de abrir um jogo."/>
                                     <TextBlock Name="OptResult" TextWrapping="Wrap" Margin="0,10,0,0"/>
                                 </StackPanel>
-                                <Button Name="BtnOptimize" Grid.Column="1" Theme="{StaticResource PrimaryButton}" Content="RESET OTIMIZA"
+                                <Button Name="BtnOptimize" Grid.Column="1" Theme="{StaticResource PrimaryButton}" Content="OTIMIZAR"
                                         FontSize="16" Padding="34,16" VerticalAlignment="Center" Click="BtnOptimize_Click"/>
                             </Grid>
                         </Border>
@@ -1319,7 +1319,7 @@
                     <StackPanel Margin="36,30,36,30">
                         <Grid Margin="0,0,0,20">
                             <StackPanel Margin="0,0,190,0">
-                                <TextBlock Text="RESET DRIVER" Classes="h1"/>
+                                <TextBlock Text="DRIVERS" Classes="h1"/>
                                 <TextBlock Name="DrvSubtitle" Text="Verifique, baixe e instale drivers · NVIDIA e AMD automáticos, fabricantes pela página oficial" Classes="sub" TextWrapping="Wrap"/>
                             </StackPanel>
                             <Button Name="BtnDrvScan" Theme="{StaticResource PrimaryButton}" Content="VERIFICAR TUDO" Padding="20,9"
@@ -1620,7 +1620,7 @@
                     <StackPanel Margin="36,30,36,30">
                         <Grid Margin="0,0,0,20">
                             <StackPanel Margin="0,0,190,0">
-                                <TextBlock Text="RESET INTEGRAÇÃO" Classes="h1"/>
+                                <TextBlock Text="INTEGRAÇÃO" Classes="h1"/>
                                 <TextBlock Text="Iluminação e efeitos do PC · Corsair iCUE, OpenRGB (MSI, Gigabyte, ASUS...) e Razer Chroma (em teste)" Classes="sub" TextWrapping="Wrap"/>
                             </StackPanel>
                             <Button Name="BtnLightConnect" Theme="{StaticResource OutlineButton}" Content="CONECTAR TUDO" Padding="20,9"
@@ -1746,7 +1746,7 @@
                 <!-- ===== RESET BENCH ===== -->
                 <Grid Name="PageBench" Margin="36,30,36,30" RowDefinitions="Auto,Auto,*" IsVisible="False">
                     <StackPanel Margin="0,0,0,16">
-                        <TextBlock Text="RESET BENCH" Classes="h1"/>
+                        <TextBlock Text="BENCHMARK" Classes="h1"/>
                         <TextBlock Name="BenchSub" Text="Benchmark de CPU por renderização 3D (path tracing), no mesmo princípio do Cinebench" Classes="sub"/>
                     </StackPanel>
 

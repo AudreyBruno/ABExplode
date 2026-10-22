@@ -98,7 +98,7 @@ public sealed unsafe class GpuRtBench
             double scale = Math.Min(1.0, Math.Min(screen.X * 0.85 / Width, screen.Y * 0.85 / Height));
             var opts = WindowOptions.DefaultVulkan with
             {
-                Size = new Vector2D<int>((int)(Width * scale), (int)(Height * scale)), Title = "RESET BENCH · Ray tracing (Vulkan)", VSync = false,
+                Size = new Vector2D<int>((int)(Width * scale), (int)(Height * scale)), Title = "ABExplode · Ray tracing (Vulkan)", VSync = false,
             };
             window = Window.Create(opts);
             window.Initialize();
@@ -542,7 +542,7 @@ public sealed unsafe class GpuRtBench
                     owner.CurrentFps = titleFrames / (now - lastTitle);
                     titleFrames = 0; lastTitle = now;
                     owner.Progress = (phase + now / duration.TotalSeconds) / totalPhases;
-                    window.Title = $"RESET BENCH · Ray tracing (Vulkan) · {_w}x{_h} · {owner.Preset} · {owner.Phase} · {owner.CurrentFps:0} FPS";
+                    window.Title = $"ABExplode · Ray tracing (Vulkan) · {_w}x{_h} · {owner.Preset} · {owner.Phase} · {owner.CurrentFps:0} FPS";
                 }
             }
             _vk.DeviceWaitIdle(_g.Device);

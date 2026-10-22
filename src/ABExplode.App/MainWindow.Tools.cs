@@ -64,7 +64,7 @@ public partial class MainWindow
     {
         var toClose = _apps.Where(a => a.Selected).ToList();
         string list = toClose.Count == 0 ? "nenhum programa marcado" : string.Join("\n", toClose.Select(a => $"  • {a.Title}"));
-        if (!await Dialog.Ask(this, "RESET OTIMIZA", "O RESET OTIMIZA vai:\n\n" +
+        if (!await Dialog.Ask(this, "Otimização", "A otimização vai:\n\n" +
                                                      "1. Limpar a memória em espera e enxugar a RAM dos programas.\n" +
                                                      $"2. Fechar os programas marcados:\n{list}\n\n" +
                                                      "Salve o que estiver aberto nesses programas antes. Continuar?")) return;
@@ -75,7 +75,7 @@ public partial class MainWindow
         var closeResult = await Task.Run(() => Optimizer.CloseApps(toClose));
         var mem = await Task.Run(Optimizer.CleanMemory); // depois de fechar, para contar a memória liberada por eles também
         BtnOptimize.IsEnabled = true;
-        BtnOptimize.Content = "RESET OTIMIZA";
+        BtnOptimize.Content = "OTIMIZAR";
 
         var parts = new List<string> { $"Memória liberada: {mem.FreedBytes / 1048576.0:N0} MB" };
         parts.Add(mem.StandbyPurged ? "memória em espera limpa" : $"memória em espera não limpa ({mem.StandbyError})");
@@ -112,14 +112,14 @@ public partial class MainWindow
     {
         if (_settings.TweakBackup.Count == 0)
         {
-            await Dialog.Show(this, "RESET OTIMIZA", "Nenhum ajuste foi alterado pelo ABExplode ainda.");
+            await Dialog.Show(this, "Otimização", "Nenhum ajuste foi alterado pelo ABExplode ainda.");
             return;
         }
-        if (!await Dialog.Ask(this, "RESET OTIMIZA", "Voltar todos os ajustes do Windows para como estavam antes do ABExplode alterá-los?")) return;
+        if (!await Dialog.Ask(this, "Otimização", "Voltar todos os ajustes do Windows para como estavam antes do ABExplode alterá-los?")) return;
         bool restart = _tweaks.Any(t => t.NeedsRestart && _settings.TweakBackup.ContainsKey(t.Id));
         WindowsTweaks.RestoreAll(_tweaks, _settings);
         foreach (var t in _tweaks) { t.Refresh(); t.Status = "Restaurado."; }
-        if (restart) await Dialog.Show(this, "RESET OTIMIZA", "Alguns ajustes só voltam ao original depois de reiniciar o PC.");
+        if (restart) await Dialog.Show(this, "Otimização", "Alguns ajustes só voltam ao original depois de reiniciar o PC.");
     }
 
     // ================= Inicialização =================
@@ -370,7 +370,7 @@ public partial class MainWindow
             : g.UpdateAvailable
             ? $"Instalar o driver NVIDIA {g.Latest} ({g.SizeText})?\nO instalador oficial será baixado e aberto."
             : $"Você já está com a versão {g.Installed}. Baixar e abrir o instalador {g.Latest} mesmo assim (reinstalação)?";
-        if (!await Dialog.Ask(this, "RESET DRIVER", msg)) return;
+        if (!await Dialog.Ask(this, "Drivers", msg)) return;
 
         DrvBusy(true);
         _drvCts = new CancellationTokenSource();
@@ -403,7 +403,7 @@ public partial class MainWindow
     private async void BtnDrvWuInstall_Click(object? sender, RoutedEventArgs e)
     {
         if (_drvBusy || _drvWu.Count == 0) return;
-        if (!await Dialog.Ask(this, "RESET DRIVER", $"Instalar {_drvWu.Count} driver(s) do Windows Update? Pode ser preciso reiniciar.")) return;
+        if (!await Dialog.Ask(this, "Drivers", $"Instalar {_drvWu.Count} driver(s) do Windows Update? Pode ser preciso reiniciar.")) return;
         DrvBusy(true);
         try
         {
@@ -469,7 +469,7 @@ public partial class MainWindow
     {
         var toClose = _apps.Where(a => a.Selected).ToList();
         string list = toClose.Count == 0 ? "nenhum programa marcado" : string.Join("\n", toClose.Select(a => $"  • {a.Title}"));
-        if (!await Dialog.Ask(this, "RESET OTIMIZA", "O RESET OTIMIZA vai:\n\n" +
+        if (!await Dialog.Ask(this, "Otimização", "A otimização vai:\n\n" +
                                                      "1. Esvaziar o cache de memória do sistema (o sistema vai pedir sua senha).\n" +
                                                      $"2. Fechar os programas marcados:\n{list}\n\n" +
                                                      "Salve o que estiver aberto nesses programas antes. Continuar?")) return;
@@ -480,7 +480,7 @@ public partial class MainWindow
         var (closed, notClosed) = await Task.Run(() => LinuxOptimizer.CloseApps(toClose));
         var mem = await LinuxOptimizer.CleanMemoryAsync(); // depois de fechar, para contar a memória liberada por eles também
         BtnOptimize.IsEnabled = true;
-        BtnOptimize.Content = "RESET OTIMIZA";
+        BtnOptimize.Content = "OTIMIZAR";
 
         var parts = new List<string> { $"Memória livre a mais: {mem.FreedBytes / 1048576.0:N0} MB" };
         parts.Add(mem.CacheDropped ? "cache do sistema esvaziado" : $"cache não esvaziado ({mem.Error})");
@@ -518,14 +518,14 @@ public partial class MainWindow
         if (_linuxTweaks == null) return;
         if (!_settings.TweakBackup.Keys.Any(k => k.StartsWith("linux.")))
         {
-            await Dialog.Show(this, "RESET OTIMIZA", "Nenhum ajuste foi alterado pelo ABExplode ainda.");
+            await Dialog.Show(this, "Otimização", "Nenhum ajuste foi alterado pelo ABExplode ainda.");
             return;
         }
-        if (!await Dialog.Ask(this, "RESET OTIMIZA", "Voltar todos os ajustes do Linux para como estavam antes do ABExplode alterá-los?")) return;
+        if (!await Dialog.Ask(this, "Otimização", "Voltar todos os ajustes do Linux para como estavam antes do ABExplode alterá-los?")) return;
         var errors = await LinuxTweaks.RestoreAllAsync(_linuxTweaks, _settings);
         _settings.Save();
         foreach (var t in _linuxTweaks) { t.Refresh(); t.Status = errors.Count == 0 ? "Restaurado." : ""; }
-        if (errors.Count > 0) await Dialog.Show(this, "RESET OTIMIZA", "Alguns ajustes não voltaram:\n\n" + string.Join("\n", errors));
+        if (errors.Count > 0) await Dialog.Show(this, "Otimização", "Alguns ajustes não voltaram:\n\n" + string.Join("\n", errors));
     }
 
     // ================= Inicialização (Linux) =================
@@ -778,7 +778,7 @@ public partial class MainWindow
     {
         var g = _drvGpus.FirstOrDefault(x => x.CanAutoInstall);
         if (g == null || _drvBusy) return;
-        if (!await Dialog.Ask(this, "RESET DRIVER", $"Instalar o driver NVIDIA recomendado para {g.GpuName}?\n\n{g.Latest}\n\n" +
+        if (!await Dialog.Ask(this, "Drivers", $"Instalar o driver NVIDIA recomendado para {g.GpuName}?\n\n{g.Latest}\n\n" +
                                                     "O sistema vai pedir sua senha. Depois é preciso reiniciar o computador.")) return;
         DrvBusy(true);
         DrvSet("Instalando o driver NVIDIA… (pode levar alguns minutos)", 0.5);
@@ -799,7 +799,7 @@ public partial class MainWindow
                 DrvWuList.Text = "Instale o fwupd pelo terminal: " + LinuxDependencies.Instructions(dep, pm);
                 return;
             }
-            if (!await Dialog.Ask(this, "RESET DRIVER", "Para procurar atualizações de firmware é preciso o fwupd. Instalar agora? O sistema vai pedir sua senha.")) return;
+            if (!await Dialog.Ask(this, "Drivers", "Para procurar atualizações de firmware é preciso o fwupd. Instalar agora? O sistema vai pedir sua senha.")) return;
             DrvBusy(true);
             DrvSet("Instalando o fwupd…", 0.3);
             var (ok, output) = await LinuxDependencies.InstallAsync(dep, pm!);
@@ -823,7 +823,7 @@ public partial class MainWindow
     private async void BtnDrvWuInstall_Click(object? sender, RoutedEventArgs e)
     {
         if (_drvBusy || _drvFw.Count == 0) return;
-        if (!await Dialog.Ask(this, "RESET DRIVER", $"Instalar {_drvFw.Count} atualização(ões) de firmware?\n\n" +
+        if (!await Dialog.Ask(this, "Drivers", $"Instalar {_drvFw.Count} atualização(ões) de firmware?\n\n" +
                                                     "Não desligue o computador durante a atualização. Algumas (como a da BIOS) terminam ao reiniciar.")) return;
         DrvBusy(true);
         DrvSet("Atualizando o firmware…", 0.5);

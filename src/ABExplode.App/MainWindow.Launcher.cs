@@ -291,7 +291,7 @@ public partial class MainWindow
         {
             if (SteamInfo.IsRunning)
             {
-                bool yes = await Dialog.Ask(this, "RESET JOGOS · Steam",
+                bool yes = await Dialog.Ask(this, "Biblioteca · Steam",
                     "A Steam precisa ser fechada para gravar as opções de inicialização (senão ela as sobrescreve ao sair).\n\n" +
                     "Fechar a Steam agora? Jogos abertos serão encerrados. Feito um backup do arquivo antes de alterar.");
                 if (!yes) return;
@@ -356,7 +356,7 @@ public partial class MainWindow
         LChkGpu.Content = "Usar a placa de vídeo dedicada (notebooks com duas placas: PRIME offload)";
         LChkFso.IsVisible = false; // não existe no Linux
         LPerfHint.Text = "Prioridade e perfil de energia valem só durante o jogo. A prioridade usa o GameMode (gamemoderun), que precisa estar " +
-                         "instalado (RESET OTIMIZA). Na Steam, prioridade e placa dedicada viram prefixos antes do %command% nas opções de " +
+                         "instalado (Otimização). Na Steam, prioridade e placa dedicada viram prefixos antes do %command% nas opções de " +
                          "inicialização; jogos de Windows rodam pelo Proton da própria Steam.";
     }
 
@@ -381,7 +381,7 @@ public partial class MainWindow
         {
             if (LinuxGameLauncher.SteamRunning)
             {
-                bool yes = await Dialog.Ask(this, "RESET JOGOS · Steam",
+                bool yes = await Dialog.Ask(this, "Biblioteca · Steam",
                     "A Steam precisa ser fechada para gravar as opções de inicialização (senão ela as sobrescreve ao sair).\n\n" +
                     "Fechar a Steam agora? Jogos abertos serão encerrados. É feito um backup do arquivo antes de alterar.");
                 if (!yes) return;

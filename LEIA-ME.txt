@@ -2,8 +2,8 @@ ABExplode
 =============
 
 Ferramenta de diagnóstico de hardware: informações do sistema, sensores, placa de vídeo,
-FPS estimado em jogos, detector de gargalo, overlay de FPS, RESET BENCH (benchmarks de CPU, GPU, memória e disco)
-RESET OTIMIZA (limpeza de memória e ajustes para jogos) e stress test de CPU / RAM / GPU.
+FPS estimado em jogos, detector de gargalo, overlay de FPS, benchmarks (CPU, GPU, memória e disco),
+otimização (limpeza de memória e ajustes para jogos) e stress test de CPU / RAM / GPU.
 
 REQUISITOS (WINDOWS)
 - Windows 10 ou 11, 64 bits. Não precisa instalar o .NET (já vem dentro do .exe).
@@ -29,12 +29,12 @@ Três formas, escolha uma (todas trazem o .NET embutido):
   Precisa do repositório Flathub configurado (para baixar o runtime freedesktop na primeira vez).
 - Executável avulso: extraia o ABExplode-linux-x64.tar.gz e rode ./ABExplode.
 Se faltar alguma biblioteca ou ferramenta (sensores, smartctl...), o app diz o que é e oferece instalar.
-Ações de administrador (otimizações, RESET OC, drivers) pedem a senha pela janela do sistema (pkexec).
+Ações de administrador (otimizações, overclock, drivers) pedem a senha pela janela do sistema (pkexec).
 No Linux o overlay é o MangoHud: o app configura e o Ctrl + Shift + O liga e desliga dentro do jogo.
 
 OBSERVAÇÕES
 - Placas NVIDIA mostram mais detalhes (VBIOS, limites de energia, CUDA).
 - Configurações e histórico ficam em %AppData%\ABExplode (não vão junto com o .exe). No Linux, em
   ~/.config/ABExplode (no Flatpak, ~/.var/app/io.github.audreybruno.ABExplode/config/ABExplode).
-- As notas de GPU do RESET BENCH no Linux são em Vulkan e não se comparam com as do Windows (Direct3D).
+- As notas de GPU do Benchmark no Linux são em Vulkan e não se comparam com as do Windows (Direct3D).
 - Use os stress tests com o limite de temperatura ligado e boa ventilação.

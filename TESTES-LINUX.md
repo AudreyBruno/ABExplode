@@ -70,7 +70,7 @@ Depois desta rodada, o projeto WPF antigo pode ser removido.
 ### Visão geral
 - [ ] Os cartões de CPU, GPU, RAM e disco mostram valores e se atualizam
 - [ ] O gráfico troca entre Temperatura, Carga e Consumo
-- [ ] RODAR BENCHMARK e RESET OTIMIZA levam às páginas certas
+- [ ] RODAR BENCHMARK e OTIMIZAR levam às páginas certas
 
 ### ABExplode
 - [ ] **Sistema:** SO e versão, CPU (modelo, núcleos, caches), placa-mãe e BIOS, módulos de RAM (com ou sem root,
@@ -93,7 +93,7 @@ Depois desta rodada, o projeto WPF antigo pode ser removido.
   - [ ] perfil de energia (power-profiles-daemon) e GameMode
 - [ ] **Rede:** interfaces, velocidade do link e diagnóstico de lag (ping e perda)
 
-### RESET JOGOS
+### JOGOS
 - [ ] **Biblioteca:**
   - [ ] lista os jogos da Steam nativa, da Steam Flatpak, da Steam Snap e do Heroic (Epic e GOG)
   - [ ] JOGAR abre o jogo pela loja (Steam ou Heroic)
@@ -117,7 +117,7 @@ Depois desta rodada, o projeto WPF antigo pode ser removido.
   - [ ] GNOME: o app cria o atalho do sistema para `--toggle-overlay`
   - [ ] KDE e outros: o app mostra o comando para colar nas configurações de teclado
 
-### RESET DESEMPENHO
+### DESEMPENHO
 - [ ] **Benchmark:**
   - [ ] CPU (render): roda e dá nota; ESC/CANCELAR para
   - [ ] Cena de jogo (GPU, Vulkan): abre a janela, mostra o FPS e termina com nota; no histórico sai marcado "Vulkan"
@@ -130,13 +130,13 @@ Depois desta rodada, o projeto WPF antigo pode ser removido.
 - [ ] **Stress test:**
   - [ ] CPU e RAM: roda; o limite de temperatura para o teste
   - [ ] GPU (Vulkan): abre a janela; as resoluções e as intensidades mudam a carga
-- [ ] **Overclock (RESET OC):**
+- [ ] **Overclock:**
   - [ ] NVIDIA: APLICAR pede a senha e muda o limite de energia e o teto de clock (`nvidia-smi -q -d POWER,CLOCK`)
   - [ ] AMD: APLICAR muda o limite de energia (`power1_cap`)
   - [ ] RESTAURAR PADRÃO volta os valores; depois de reiniciar, os valores também voltam
   - [ ] O verificador roda o stress de GPU e dá a nota de GPU (Vulkan)
 
-### RESET FERRAMENTAS
+### FERRAMENTAS
 - [ ] **Otimização:**
   - [ ] a lista de programas para fechar tem os apps abertos, e a Steam, o áudio e a sessão gráfica não aparecem
   - [ ] fechar encerra os programas escolhidos (pela janela, sem matar à força)
@@ -164,7 +164,7 @@ Depois desta rodada, o projeto WPF antigo pode ser removido.
   - [ ] OpenRGB aberto com o servidor SDK ligado: o app acha os dispositivos e muda as cores
   - [ ] Corsair iCUE: mostra o aviso para usar o OpenRGB
 
-### RESET MAKER
+### MAKER
 Para estes testes, use uma placa com CH340, CP2102 ou FTDI, ou um Arduino Uno/Nano.
 
 - [ ] **Portas COM:**
