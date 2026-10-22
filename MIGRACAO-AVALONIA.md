@@ -331,8 +331,20 @@ Implementações em `Platform.Linux`:
     - **Dispositivos:** módulo do kernel de cada um (`lspci -k`), marcado como do kernel, fora do kernel ou proprietário.
     - **Backup de drivers:** escondido, porque no Linux não se aplica.
   - O mapeamento "fabricante → página de suporte" foi para o Core (`BoardSupport`), com testes, e serve aos dois sistemas.
-- **Próximas etapas:** RESET MAKER (portas seriais, grupo dialout, brltty); Biblioteca (abrir jogos pela Steam/Heroic);
-  atalho global do overlay.
+- **Etapa 3 (feita, falta testar no Linux):** RESET MAKER (`LinuxMaker`).
+  - **Portas COM:** portas `/dev/ttyUSB*`/`ttyACM*` com a placa de cada uma e o diagnóstico de permissão.
+    - **Permissão:** grupo `dialout`/`uucp`; avisa quando falta sair e entrar na sessão. ENTRAR NO GRUPO usa `usermod -aG`.
+    - **brltty:** DESATIVAR/REATIVAR por `systemctl mask/unmask`, reversível e sem desinstalar.
+    - **Escondido:** a lista de fantasmas, porque não existe no Linux.
+  - **Drivers seriais:**
+    - **Diagnóstico de cada placa:** porta criada, sem permissão, pega pelo brltty, sem driver ou em outro modo.
+    - **REINSTALAR:** reconecta pelo `/sys` (`authorized` 0 → 1).
+    - **Módulos do kernel:** ch341, cp210x, ftdi_sio, pl2303, cdc_acm. O cartão de drivers incluídos fica escondido.
+    - **Arduino IDE:** instala e atualiza pelo Flatpak (`cc.arduino.IDE2`).
+    - **Programas com a porta aberta:** pelos descritores em `/proc`; no Flatpak, pelo `fuser` do sistema.
+    - **Limpar cache:** `~/.arduino15`, nativa e Flatpak.
+  - As telas se atualizam quando uma placa é plugada ou removida.
+- **Próximas etapas:** Biblioteca (abrir jogos pela Steam/Heroic); atalho global do overlay.
 
 ## Fase 6: GPU no Linux (a mais pesada)
 

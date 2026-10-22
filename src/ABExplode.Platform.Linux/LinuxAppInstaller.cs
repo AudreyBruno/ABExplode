@@ -74,6 +74,9 @@ public static class LinuxAppInstaller
         }
     }
 
+    /// <summary>Atualiza um app Flatpak (do usuário ou do sistema); devolve a saída do flatpak, ou null se falhou.</summary>
+    public static string? UpdateFlatpak(string id) => Sys.Run("flatpak", $"update -y --noninteractive {id}", 600000);
+
     private static bool _remoteReady;
 
     /// <summary>Instala um app do Flathub só para este usuário. Devolve (ok, mensagem curta).</summary>

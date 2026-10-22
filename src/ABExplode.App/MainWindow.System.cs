@@ -239,6 +239,12 @@ public partial class MainWindow
         if (removed.Count > 0) OnVolumes(removed, false);
 
         var usb = ABExplode.Platform.Linux.LinuxDevices.Usb().ToDictionary(d => d.Id);
+        if (usb.Count != _usbNow.Count || usb.Keys.Any(k => !_usbNow.ContainsKey(k)))
+        {
+            // placa plugada/removida: atualiza o diagnóstico do RESET MAKER
+            if (PageMakerPorts.IsVisible) ScanUsb();
+            if (PageMakerDrv.IsVisible) RefreshMakerDevices();
+        }
         // Pendrives e HDs externos já geram aviso de unidade.
         var newUsb = usb.Values.Where(d => !_usbNow.ContainsKey(d.Id) && !d.Storage).ToList();
         var goneUsb = _usbNow.Values.Where(d => !usb.ContainsKey(d.Id) && !d.Storage).ToList();
