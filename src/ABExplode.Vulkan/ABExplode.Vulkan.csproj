@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Benchmarks e stress de GPU em Vulkan (Fase 6 do MIGRACAO-AVALONIA.md): servem ao Linux e rodam também no Windows.
+       Janela pelo GLFW (Silk.NET.Windowing, com as bibliotecas nativas de Windows e Linux no pacote).
+       Shaders: HLSL em Shaders/, compilados para SPIR-V por tools/ShaderBuild; os .spv vão embutidos. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>ABExplode.Vulkan</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Silk.NET.Vulkan" Version="2.22.0" />
+    <PackageReference Include="Silk.NET.Vulkan.Extensions.KHR" Version="2.22.0" />
+    <PackageReference Include="Silk.NET.Windowing" Version="2.22.0" />
+    <PackageReference Include="Silk.NET.Input" Version="2.22.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- WithCulture=false: senão o MSBuild lê o ".PS" de burn.PS.spv como idioma (pachto) e tira o arquivo do assembly -->
+    <EmbeddedResource Include="Shaders\*.spv" LogicalName="Shaders/%(Filename)%(Extension)" WithCulture="false" />
+    <None Include="Shaders\*.hlsl" />
+  </ItemGroup>
+
+</Project>

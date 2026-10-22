@@ -9,7 +9,7 @@
     <AssemblyName>ABExplode</AssemblyName>
     <!-- Versão, Optimize, Nullable etc. vêm do Directory.Build.props.
          Os projetos novos (src\ e tests\) têm csproj próprio e não podem entrar no glob deste. -->
-    <DefaultItemExcludes>$(DefaultItemExcludes);src\**;tests\**</DefaultItemExcludes>
+    <DefaultItemExcludes>$(DefaultItemExcludes);src\**;tests\**;tools\**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>

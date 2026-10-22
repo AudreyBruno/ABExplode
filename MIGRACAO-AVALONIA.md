@@ -387,7 +387,21 @@ Implementações em `Platform.Linux`:
     - **Testes:** a geração do arquivo tem testes.
   - **RESET OC (`LinuxGpuTuning`):** pelo `pkexec`. Na NVIDIA, limite de energia e teto de clock pelo `nvidia-smi`
     (`-pl`, `-lgc`, `-rgc`); na AMD, limite de energia pelo `power1_cap` do amdgpu. Vale até reiniciar, como no Windows.
-- **Próximas etapas:** base Vulkan e stress de GPU; cena de jogo em Vulkan; ray tracing (`VK_KHR_ray_query`).
+- **Etapa 2 (feita, testada no Windows):** base Vulkan e stress de GPU (`src/ABExplode.Vulkan`).
+  - **Silk.NET:** Vulkan, janela GLFW e teclado; o `libglfw.so.3` vai no publish do Linux.
+  - **`VkGpu`:** instância, escolha da GPU (pelo nome do sistema, senão a dedicada; ignora o llvmpipe), dispositivo,
+    swapchain sem vsync e utilidades de buffer, imagem e shader.
+  - **`GpuBurn`:** mesma interface e mesma cena do Direct3D (torus com pelos em camadas, MSAA, blending). Renderiza sem
+    parar fora da tela e copia para a janela a ~60 Hz.
+  - **Shaders:** o mesmo HLSL, com `[[vk::binding]]` e `[[vk::location]]`, compilado para SPIR-V por
+    `tools/ShaderBuild` (DXC do Vortice.Dxc). Os `.spv` entram no git e vão embutidos (`WithCulture=false`: senão o
+    `.PS.spv` vira recurso de idioma). A viewport com altura negativa mantém a matemática do Direct3D.
+  - **Conferido na Intel UHD 750:** imagem igual à do Direct3D. Fica cerca de 18% mais lento no mesmo cenário: a
+    diferença é na GPU, não na fila (6 quadros em voo não mudou).
+  - **`tools/VkTest`:** `burn` (Vulkan) e `d3d` (Direct3D) para comparar.
+  - **No app do Linux:** o stress test (GPU) e o verificador do RESET OC (stress de GPU) usam o `GpuBurn` do Vulkan. A
+    nota de GPU do verificador vem na etapa 3.
+- **Próximas etapas:** cena de jogo em Vulkan (RESET BENCH e nota do verificador); ray tracing (`VK_KHR_ray_query`).
 
 ## Empacotamento
 

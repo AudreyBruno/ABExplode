@@ -9,6 +9,8 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 #if WINDOWS
 using ABExplode.Platform.Windows;
+#else
+using ABExplode.Vulkan; // GpuBurn em Vulkan, com a mesma interface do Direct3D
 #endif
 
 namespace ABExplode.App;
@@ -24,25 +26,14 @@ public partial class MainWindow
     private TimeSpan _stressDuration;
     private double _tempLimit = 90, _gpuTempLimit = 85;
     private float _stressMaxTemp, _gpuMaxTemp;
-#if WINDOWS
     private bool _gpuBurnOn;
-    private readonly GpuBurn _burn = new();
-#else
-#pragma warning disable CS0649 // fica false até o stress de GPU em Vulkan (Fase 6)
-    private bool _gpuBurnOn;
-#pragma warning restore CS0649
-#endif
+    private readonly GpuBurn _burn = new(); // Direct3D 11 no Windows, Vulkan no Linux
 
     private bool TestRunning => _stress.Running || _gpuBurnOn;
 
     private void InitStress()
     {
         _stress = new StressTester(_platform.SystemInfo.FreePhysicalBytes);
-#if !WINDOWS
-        // TODO(Fase 6): stress de GPU em Vulkan.
-        ChkGpu.IsEnabled = false;
-        ToolTip.SetTip(ChkGpu, "Ainda não disponível neste sistema.");
-#endif
     }
 
     private void BtnStress_Click(object? sender, RoutedEventArgs e)
@@ -111,7 +102,6 @@ public partial class MainWindow
         if (cpu || ram) _stress.Start(cpu, ram, fraction);
 
         string gpuDesc = "não";
-#if WINDOWS
         if (gpu)
         {
             string res = CheckedTag(GpuResPanel) ?? "1920x1080";
@@ -129,7 +119,6 @@ public partial class MainWindow
             gpuDesc = $"sim ({(full ? "tela cheia" : res)}, {(msaa > 1 ? $"MSAA {msaa}x" : "sem MSAA")}, " +
                       $"{GpuIntensityPanel.Children.OfType<RadioButton>().First(r => r.IsChecked == true).Content}, limite {_gpuTempLimit:0} °C)";
         }
-#endif
 
         SetStressControls(running: true);
         SetStatus("Rodando", alert: false);
@@ -148,7 +137,6 @@ public partial class MainWindow
         _stress.Stop();
 
         string gpuSummary = "";
-#if WINDOWS
         if (_gpuBurnOn)
         {
             _burn.Stop();
@@ -156,7 +144,6 @@ public partial class MainWindow
             // "Pontuação" no estilo FurMark: frames renderizados e FPS médio.
             gpuSummary = $" · GPU: {_burn.Frames:N0} frames, média {_burn.AverageFps:0} FPS, temp. máx. {_gpuMaxTemp:0.#} °C";
         }
-#endif
         SetStressControls(running: false);
 
         bool aborted = reason.StartsWith("ABORTADO");
@@ -170,9 +157,7 @@ public partial class MainWindow
     {
         SetRunningButton(BtnStress, running, running ? "PARAR" : "INICIAR");
         ChkCpu.IsEnabled = ChkRam.IsEnabled = !running;
-#if WINDOWS
         ChkGpu.IsEnabled = !running;
-#endif
         RamFractionPanel.IsEnabled = !running && ChkRam.IsChecked == true;
         GpuOptions.IsEnabled = GpuTempLimit.IsEnabled = !running && ChkGpu.IsChecked == true;
         TempLimit.IsEnabled = TxtDuration.IsEnabled = !running;
@@ -226,10 +211,8 @@ public partial class MainWindow
         StGpuPower.Text = gPower == null ? "—" : $"{gPower:0.#} W";
         string cap = MainGpuPerfCap();
         StGpuCap.Text = cap.Length > 0 ? $"limitador: {cap}" : "—";
-#if WINDOWS
         StFps.Text = _gpuBurnOn && _burn.Fps > 0 ? $"{_burn.Fps:0}" : "—";
         StFpsAvg.Text = _gpuBurnOn && _burn.AverageFps > 0 ? $"média {_burn.AverageFps:0}" : "média —";
-#endif
 
         if (TestRunning)
         {
@@ -243,10 +226,8 @@ public partial class MainWindow
                 StopStress($"ABORTADO: GPU a {gTemp:0.#} °C atingiu o limite de {_gpuTempLimit:0} °C");
             else if (_stress.MemoryErrors > 0)
                 StopStress($"ABORTADO: {_stress.MemoryErrors} erros de memória detectados");
-#if WINDOWS
             else if (_gpuBurnOn && !_burn.Running)
                 StopStress(_burn.Error != null ? $"ABORTADO: falha na GPU ({_burn.Error})" : "Janela da GPU fechada pelo usuário");
-#endif
             else if (_stressDuration > TimeSpan.Zero && elapsed >= _stressDuration)
                 StopStress("Concluído (tempo esgotado)");
         }

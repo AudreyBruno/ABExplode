@@ -6,6 +6,8 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 #if WINDOWS
 using ABExplode.Platform.Windows;
+#else
+using ABExplode.Vulkan; // stress de GPU em Vulkan
 #endif
 
 namespace ABExplode.App;
@@ -75,14 +77,6 @@ public partial class MainWindow
         }
 #endif
         OcPowerValue.Text = $"{OcPower.Value:0} W";
-#if !WINDOWS
-        // TODO(Fase 6): verificação de GPU (cena + stress) em Vulkan.
-        foreach (var rb in OcTargetPanel.Children.OfType<RadioButton>().Where(r => (string?)r.Tag != "cpu"))
-        {
-            rb.IsEnabled = false;
-            ToolTip.SetTip(rb, "Ainda não disponível neste sistema.");
-        }
-#endif
         BuildOcGuide();
         UpdateOcHistory();
         UpdateRecentErrors();
@@ -232,9 +226,7 @@ public partial class MainWindow
         int nCpuW = 0, nGpuW = 0;
         string? fail = null;
         var stress = new StressTester(_platform.SystemInfo.FreePhysicalBytes);
-#if WINDOWS
-        var burn = new GpuBurn();
-#endif
+        var burn = new GpuBurn(); // Direct3D 11 no Windows, Vulkan no Linux
         try
         {
             if (cpu)
@@ -261,14 +253,12 @@ public partial class MainWindow
             if (fail == null && !ct.IsCancellationRequested)
             {
                 if (cpu) stress.Start(cpu: true, ram: true);
-#if WINDOWS
                 if (gpu)
                     burn.Start(new GpuBurnSettings
                     {
                         Width = 1920, Height = 1080, Msaa = 4, Shells = 128, Iterations = 48,
                         AdapterName = _gpus.Count > 0 ? _gpus[0].Name : ""
                     });
-#endif
                 var sw = Stopwatch.StartNew();
                 while (sw.Elapsed < duration && !ct.IsCancellationRequested)
                 {
@@ -285,13 +275,11 @@ public partial class MainWindow
                     if (cpu && ct1 >= 95) { fail = $"CPU chegou a {ct1:0} °C (limite de segurança 95 °C)"; break; }
                     if (gpu && gt1 >= 88) { fail = $"GPU chegou a {gt1:0} °C (limite de segurança 88 °C)"; break; }
                     if (cpu && stress.MemoryErrors > 0) { fail = $"{stress.MemoryErrors} erros de memória (RAM/EXPO instável)"; break; }
-#if WINDOWS
                     if (gpu && !burn.Running)
                     {
                         fail = burn.Error != null ? $"a GPU falhou ({burn.Error})" : "a janela do teste de GPU foi fechada";
                         break;
                     }
-#endif
                     if ((int)sw.Elapsed.TotalSeconds % 5 == 0 && _platform.HardwareErrors.ErrorsSince(start) is { Total: > 0 } he)
                     {
                         fail = $"o sistema registrou {he.Whea} erros WHEA e {he.GpuResets} reinícios do driver de vídeo";
@@ -304,9 +292,7 @@ public partial class MainWindow
         finally
         {
             stress.Stop();
-#if WINDOWS
             burn.Stop();
-#endif
             _gpuBenchActive = false;
         }
 
