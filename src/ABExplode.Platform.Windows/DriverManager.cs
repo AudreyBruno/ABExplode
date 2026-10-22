@@ -376,20 +376,7 @@ public static class DriverManager
             using (var s = new ManagementObjectSearcher("SELECT Manufacturer, Model FROM Win32_ComputerSystem"))
                 foreach (ManagementObject o in s.Get()) { sys = Str(o, "Manufacturer") ?? ""; sysModel = Str(o, "Model") ?? ""; break; }
 
-            string all = b.Maker + " " + sys;
-            string q = Uri.EscapeDataString(b.Model.Length > 0 && !b.Model.Contains("Default", StringComparison.OrdinalIgnoreCase) ? b.Model : sysModel);
-            if (all.Contains("ASUS", StringComparison.OrdinalIgnoreCase))
-            { b.Brand = "ASUS"; b.SupportUrl = "https://www.asus.com/support/download-center/"; }
-            else if (all.Contains("Micro-Star", StringComparison.OrdinalIgnoreCase) || all.Contains("MSI", StringComparison.OrdinalIgnoreCase))
-            { b.Brand = "MSI"; b.SupportUrl = "https://www.msi.com/search/" + q; }
-            else if (all.Contains("GIGABYTE", StringComparison.OrdinalIgnoreCase))
-            { b.Brand = "Gigabyte"; b.SupportUrl = "https://www.gigabyte.com/Support"; }
-            else if (all.Contains("ASRock", StringComparison.OrdinalIgnoreCase))
-            { b.Brand = "ASRock"; b.SupportUrl = "https://www.asrock.com/support/index.asp"; }
-            else if (all.Contains("Dell", StringComparison.OrdinalIgnoreCase)) { b.Brand = "Dell"; b.SupportUrl = "https://www.dell.com/support/home/"; }
-            else if (all.Contains("LENOVO", StringComparison.OrdinalIgnoreCase)) { b.Brand = "Lenovo"; b.SupportUrl = "https://support.lenovo.com/"; }
-            else if (all.Contains("HP", StringComparison.OrdinalIgnoreCase) || all.Contains("Hewlett", StringComparison.OrdinalIgnoreCase)) { b.Brand = "HP"; b.SupportUrl = "https://support.hp.com/"; }
-            else if (all.Contains("Acer", StringComparison.OrdinalIgnoreCase)) { b.Brand = "Acer"; b.SupportUrl = "https://www.acer.com/support"; }
+            (b.Brand, b.SupportUrl) = BoardSupport.Find(b.Maker, b.Model, sys, sysModel);
             if (b.Maker.Length == 0) b.Maker = sys;
             if (b.Model.Length == 0) b.Model = sysModel;
         }

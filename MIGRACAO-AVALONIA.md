@@ -319,8 +319,20 @@ Implementações em `Platform.Linux`:
     Desativar usa `Hidden=true` na cópia do usuário, como o GNOME e o KDE; nada pede senha. Remover guarda cópia para
     "Restaurar removidos".
   - `Sys.RunAsRootAsync`: um script, uma pedida de senha (pkexec; no Flatpak, fora do sandbox).
-- **Próximas etapas:** Instalar apps (Flatpak/apt/dnf); Drivers; RESET MAKER (portas seriais, grupo dialout, brltty);
-  Biblioteca (abrir jogos pela Steam/Heroic); atalho global do overlay.
+- **Etapa 2 (feita, falta testar no Linux):** Instalar apps e Drivers.
+  - **Instalar apps (`LinuxAppInstaller`):** catálogo pelo Flathub, instalado com `flatpak install --user` (sem senha).
+    Ele tem Steam, Heroic, ProtonUp-Qt, Chrome, Discord, Flameshot, PeaZip, VLC e OBS. Conta como instalado o que já
+    existir pelo Flatpak ou pela distribuição. Sem Flatpak, o botão o instala pelo gerenciador de pacotes.
+  - **Drivers (`LinuxDrivers`):**
+    - **NVIDIA:** proprietário recomendado pelo `ubuntu-drivers` (Ubuntu e derivados) ou `akmod-nvidia` (Fedora com
+      RPM Fusion); avisa quando está no nouveau.
+    - **AMD/Intel:** mostra a versão do Mesa.
+    - **Firmware:** pelo fwupd/LVFS, no lugar do Windows Update.
+    - **Dispositivos:** módulo do kernel de cada um (`lspci -k`), marcado como do kernel, fora do kernel ou proprietário.
+    - **Backup de drivers:** escondido, porque no Linux não se aplica.
+  - O mapeamento "fabricante → página de suporte" foi para o Core (`BoardSupport`), com testes, e serve aos dois sistemas.
+- **Próximas etapas:** RESET MAKER (portas seriais, grupo dialout, brltty); Biblioteca (abrir jogos pela Steam/Heroic);
+  atalho global do overlay.
 
 ## Fase 6: GPU no Linux (a mais pesada)
 

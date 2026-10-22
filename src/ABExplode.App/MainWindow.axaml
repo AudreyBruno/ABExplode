@@ -1266,7 +1266,7 @@
                                         <Button Theme="{StaticResource OutlineButton}" Content="DESMARCAR" Padding="10,4" FontSize="11" Click="BtnAppsNone_Click"/>
                                     </StackPanel>
                                 </Grid>
-                                <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10"
+                                <TextBlock Name="AppsHint" Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10"
                                            Text="Usa o winget, o instalador de pacotes da Microsoft que já vem no Windows 10/11: baixa do site oficial de cada fabricante e confere o arquivo antes de instalar. Os apps são instalados um de cada vez, sem janelas. O que já está instalado aparece marcado como INSTALADO."/>
                                 <ItemsControl Name="AppsList">
                                     <ItemsControl.ItemTemplate>
@@ -1299,7 +1299,7 @@
                         <Grid Margin="0,0,0,20">
                             <StackPanel Margin="0,0,190,0">
                                 <TextBlock Text="RESET DRIVER" Classes="h1"/>
-                                <TextBlock Text="Verifique, baixe e instale drivers · NVIDIA e AMD automáticos, fabricantes pela página oficial" Classes="sub" TextWrapping="Wrap"/>
+                                <TextBlock Name="DrvSubtitle" Text="Verifique, baixe e instale drivers · NVIDIA e AMD automáticos, fabricantes pela página oficial" Classes="sub" TextWrapping="Wrap"/>
                             </StackPanel>
                             <Button Name="BtnDrvScan" Theme="{StaticResource PrimaryButton}" Content="VERIFICAR TUDO" Padding="20,9"
                                     HorizontalAlignment="Right" VerticalAlignment="Top" Click="BtnDrvScan_Click"/>
@@ -1329,7 +1329,7 @@
                                     <Button Name="BtnDrvInstall" Theme="{StaticResource PrimaryButton}" Content="BAIXAR E INSTALAR" Padding="18,8" Margin="0,0,10,8" Click="BtnDrvInstall_Click" IsEnabled="False"/>
                                     <Button Name="BtnDrvGpuPage" Theme="{StaticResource OutlineButton}" Content="ABRIR PÁGINA OFICIAL" Padding="18,8" Margin="0,0,10,8" Click="BtnDrvGpuPage_Click"/>
                                 </WrapPanel>
-                                <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap"
+                                <TextBlock Name="DrvGpuHint" Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap"
                                            Text="NVIDIA: o instalador é baixado do servidor oficial, a assinatura digital é conferida e um ponto de restauração é criado antes de abrir. AMD: o programa procura o instalador na página oficial do seu modelo (RX série 4000 a 9000); se o site bloquear, use ABRIR PÁGINA OFICIAL. Intel: só a página oficial."/>
                             </StackPanel>
                         </Border>
@@ -1340,14 +1340,14 @@
                                 <TextBlock Name="DrvBoard" Margin="0,10,0,0" TextWrapping="Wrap"/>
                                 <Button Name="BtnDrvBoardPage" Theme="{StaticResource OutlineButton}" Content="ABRIR SUPORTE DO FABRICANTE" Padding="18,8" Margin="0,14,0,8"
                                         HorizontalAlignment="Left" Click="BtnDrvBoardPage_Click" IsEnabled="False"/>
-                                <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap"
+                                <TextBlock Name="DrvBoardHint" Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap"
                                            Text="ASUS, MSI, Gigabyte e outros não têm API pública de versões. Abrimos o suporte oficial do fabricante detectado (chipset, áudio, rede, BIOS). Se a página não abrir no seu modelo, digite o modelo mostrado acima na busca do site."/>
                             </StackPanel>
                         </Border>
 
                         <Border Classes="card" Margin="0,0,0,14">
                             <StackPanel>
-                                <TextBlock Text="WINDOWS UPDATE (DRIVERS CERTIFICADOS)" Classes="label"/>
+                                <TextBlock Name="DrvWuLabel" Text="WINDOWS UPDATE (DRIVERS CERTIFICADOS)" Classes="label"/>
                                 <TextBlock Name="DrvWuList" Margin="0,10,0,0" TextWrapping="Wrap" Text="Ainda não pesquisado."/>
                                 <WrapPanel Margin="0,14,0,0">
                                     <Button Name="BtnDrvWuSearch" Theme="{StaticResource OutlineButton}" Content="PROCURAR" Padding="18,8" Margin="0,0,10,8" Click="BtnDrvWuSearch_Click"/>
@@ -1356,7 +1356,7 @@
                             </StackPanel>
                         </Border>
 
-                        <Border Classes="card" Margin="0,0,0,14">
+                        <Border Name="DrvBackupCard" Classes="card" Margin="0,0,0,14">
                             <StackPanel>
                                 <TextBlock Text="BACKUP DOS DRIVERS" Classes="label"/>
                                 <TextBlock Margin="0,10,0,0" TextWrapping="Wrap" Foreground="{DynamicResource Muted}"
