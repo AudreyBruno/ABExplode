@@ -13,7 +13,7 @@ Depois desta rodada, o projeto WPF antigo pode ser removido.
 **Em que testar.** Quanto mais combinações, melhor; a primeira é a principal:
 
 **Família Arch** (ex: Arch Linux puro, EndeavourOS ou CachyOS)
-- [ ] Wayland
+- [x] Wayland
 - [ ] Xorg / X11
 
 **Família Debian/Ubuntu** (ex: Ubuntu, Linux Mint ou Pop!_OS)
@@ -26,7 +26,7 @@ Depois desta rodada, o projeto WPF antigo pode ser removido.
 
 **Placa de vídeo.** Anote qual foi usada em cada teste:
 
-- [ ] NVIDIA com driver proprietário
+- [x] NVIDIA com driver proprietário
 - [ ] NVIDIA com nouveau (só para ver os avisos)
 - [ ] AMD (Mesa)
 - [ ] Intel (Mesa)
@@ -35,8 +35,8 @@ Depois desta rodada, o projeto WPF antigo pode ser removido.
 ## 1. Pacotes e abertura
 
 ### AppImage
-- [ ] Depois de dar permissão de execução, abre com dois cliques no gerenciador de arquivos
-- [ ] Abre pelo terminal: `./ABExplode-*.AppImage`
+- [x] Depois de dar permissão de execução, abre com dois cliques no gerenciador de arquivos
+- [x] Abre pelo terminal: `./ABExplode-*.AppImage`
 - [ ] Sem FUSE (live USB costuma não ter): `./ABExplode-*.AppImage --appimage-extract-and-run`
 
 ### Flatpak
@@ -60,7 +60,7 @@ Depois desta rodada, o projeto WPF antigo pode ser removido.
 - [ ] `./ABExplode --deps` confere e instala pelo terminal
 
 ### Instância única
-- [ ] Abrir o app de novo, com ele já aberto, traz a janela que já estava aberta (não abre outra)
+- [x] Abrir o app de novo, com ele já aberto, traz a janela que já estava aberta (não abre outra)
 
 ## 2. Leitura do sistema (`--diag`)
 
@@ -75,12 +75,12 @@ Depois desta rodada, o projeto WPF antigo pode ser removido.
 ## 3. Páginas
 
 ### Visão geral
-- [ ] Os cartões de CPU, GPU, RAM e disco mostram valores e se atualizam
-- [ ] O gráfico troca entre Temperatura, Carga e Consumo
-- [ ] RODAR BENCHMARK e OTIMIZAR levam às páginas certas
+- [x] Os cartões de CPU, GPU, RAM e disco mostram valores e se atualizam
+- [x] O gráfico troca entre Temperatura, Carga e Consumo
+- [x] RODAR BENCHMARK e OTIMIZAR levam às páginas certas
 
 ### ABExplode
-- [ ] **Sistema:** SO e versão, CPU (modelo, núcleos, caches), placa-mãe e BIOS, módulos de RAM (com ou sem root,
+- [x] **Sistema:** SO e versão, CPU (modelo, núcleos, caches), placa-mãe e BIOS, módulos de RAM (com ou sem root,
   conforme o systemd)
 - [ ] **Sensores:**
   - [ ] temperatura da CPU (k10temp, coretemp ou zenpower)
