@@ -12,10 +12,17 @@ Depois desta rodada, o projeto WPF antigo pode ser removido.
 
 **Em que testar.** Quanto mais combinações, melhor; a primeira é a principal:
 
-- [ ] Ubuntu (ou Mint/Pop!_OS), GNOME, **Wayland**
-- [ ] A mesma distro em **X11** (na tela de login: "Ubuntu em Xorg")
-- [ ] Outra família, se der: Fedora (dnf), Arch/CachyOS (pacman) ou openSUSE (zypper)
-- [ ] Live USB (sem nada instalado: bom para testar as dependências)
+**Família Arch** (ex: Arch Linux puro, EndeavourOS ou CachyOS)
+- [ ] Wayland
+- [ ] Xorg / X11
+
+**Família Debian/Ubuntu** (ex: Ubuntu, Linux Mint ou Pop!_OS)
+- [ ] Wayland
+- [ ] Xorg / X11
+
+**Família Fedora** (Fedora Workstation padrão)
+- [ ] Wayland
+- [ ] Xorg / X11
 
 **Placa de vídeo.** Anote qual foi usada em cada teste:
 
