@@ -47,10 +47,16 @@
                 <TextBlock Name="TitlePage" Foreground="{DynamicResource Faint}" FontSize="13" Margin="16,0,0,0" VerticalAlignment="Center"/>
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Name="BtnTheme" Theme="{StaticResource CaptionButton}" AutomationProperties.Name="Tema" Content="&#xE706;" Click="Theme_Click" ToolTip.Tip="Modo claro"/>
-                <Button Theme="{StaticResource CaptionButton}" Content="&#xE921;" AutomationProperties.Name="Minimizar" Click="Min_Click" ToolTip.Tip="Minimizar"/>
-                <Button Name="BtnMax" Theme="{StaticResource CaptionButton}" AutomationProperties.Name="Maximizar" Content="&#xE922;" Click="Max_Click" ToolTip.Tip="Maximizar"/>
-                <Button Theme="{StaticResource CloseButton}" AutomationProperties.Name="Fechar" Content="&#xE8BB;" Click="Close_Click" ToolTip.Tip="Fechar"/>
+                <Button Name="BtnTheme" Theme="{StaticResource CaptionButton}" AutomationProperties.Name="Tema" Content="&#xF8A1;" FontSize="14" Click="Theme_Click" ToolTip.Tip="Modo claro"/>
+                <Button Theme="{StaticResource CaptionButton}" AutomationProperties.Name="Minimizar" Click="Min_Click" ToolTip.Tip="Minimizar">
+                    <Path Classes="caption" Data="{StaticResource GlyphMinimize}"/>
+                </Button>
+                <Button Name="BtnMax" Theme="{StaticResource CaptionButton}" AutomationProperties.Name="Maximizar" Click="Max_Click" ToolTip.Tip="Maximizar">
+                    <Path Name="MaxGlyph" Classes="caption" Data="{StaticResource GlyphMaximize}"/>
+                </Button>
+                <Button Theme="{StaticResource CloseButton}" AutomationProperties.Name="Fechar" Click="Close_Click" ToolTip.Tip="Fechar">
+                    <Path Classes="caption" Data="{StaticResource GlyphClose}"/>
+                </Button>
             </StackPanel>
 
             <!-- ===== Menu lateral por categorias ===== -->
@@ -88,86 +94,86 @@
                     <ScrollViewer Name="NavScroll" VerticalScrollBarVisibility="Auto" Margin="0,2,0,0">
                         <StackPanel Margin="0,0,0,10">
                             <RadioButton Name="NavDash" Theme="{StaticResource NavItem}" Tag="PageDash" AutomationProperties.Name="Visão geral" IsCheckedChanged="Nav_Checked">
-                                <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE80F;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Visão geral" VerticalAlignment="Center"/></StackPanel>
+                                <StackPanel Orientation="Horizontal"><TextBlock Text="&#xF480;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Visão geral" VerticalAlignment="Center"/></StackPanel>
                             </RadioButton>
 
                             <ToggleButton Name="GrpExplode" Theme="{StaticResource NavGroup}" Content="ABExplode"/>
                             <StackPanel Name="GrpExplodeItems" Margin="10,0,0,4" IsVisible="{Binding #GrpExplode.IsChecked}">
                                 <RadioButton Name="NavSystem" Theme="{StaticResource NavItem}" Tag="PageSystem" AutomationProperties.Name="Sistema" IsCheckedChanged="Nav_Checked">
-                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE7F8;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Sistema" VerticalAlignment="Center"/></StackPanel>
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xF4C3;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Sistema" VerticalAlignment="Center"/></StackPanel>
                                 </RadioButton>
                                 <RadioButton Name="NavSensors" Theme="{StaticResource NavItem}" Tag="PageSensors" AutomationProperties.Name="Sensores" IsCheckedChanged="Nav_Checked">
-                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE9D9;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Sensores" VerticalAlignment="Center"/></StackPanel>
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE9DC;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Sensores" VerticalAlignment="Center"/></StackPanel>
                                 </RadioButton>
                                 <RadioButton Name="NavGpu" Theme="{StaticResource NavItem}" Tag="PageGpu" AutomationProperties.Name="Placa de vídeo" IsCheckedChanged="Nav_Checked">
-                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE7F4;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Placa de vídeo" VerticalAlignment="Center"/></StackPanel>
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xF359;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Placa de vídeo" VerticalAlignment="Center"/></StackPanel>
                                 </RadioButton>
                                 <RadioButton Name="NavDisks" Theme="{StaticResource NavItem}" Tag="PageDisks" AutomationProperties.Name="Discos" IsCheckedChanged="Nav_Checked">
-                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xEDA2;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Discos" VerticalAlignment="Center"/></StackPanel>
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE6E3;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Discos" VerticalAlignment="Center"/></StackPanel>
                                 </RadioButton>
                                 <RadioButton Name="NavEnergy" Theme="{StaticResource NavItem}" Tag="PageEnergy" AutomationProperties.Name="Energia" IsCheckedChanged="Nav_Checked">
-                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE7E8;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Energia" VerticalAlignment="Center"/></StackPanel>
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xF60E;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Energia" VerticalAlignment="Center"/></StackPanel>
                                 </RadioButton>
                                 <RadioButton Name="NavNet" Theme="{StaticResource NavItem}" Tag="PageNet" AutomationProperties.Name="Rede" IsCheckedChanged="Nav_Checked">
-                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE839;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Rede" VerticalAlignment="Center"/></StackPanel>
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xF45A;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Rede" VerticalAlignment="Center"/></StackPanel>
                                 </RadioButton>
                             </StackPanel>
 
                             <ToggleButton Name="GrpGames" Theme="{StaticResource NavGroup}" Content="RESET JOGOS"/>
                             <StackPanel Name="GrpGamesItems" Margin="10,0,0,4" IsVisible="{Binding #GrpGames.IsChecked}">
                                 <RadioButton Theme="{StaticResource NavItem}" Tag="PageLauncher" AutomationProperties.Name="Biblioteca" IsCheckedChanged="Nav_Checked">
-                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE8F1;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Biblioteca" VerticalAlignment="Center"/></StackPanel>
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE762;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Biblioteca" VerticalAlignment="Center"/></StackPanel>
                                 </RadioButton>
                                 <RadioButton Theme="{StaticResource NavItem}" Tag="PageGames" AutomationProperties.Name="FPS estimado" IsCheckedChanged="Nav_Checked">
-                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xEC49;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="FPS estimado" VerticalAlignment="Center"/></StackPanel>
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xF4C7;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="FPS estimado" VerticalAlignment="Center"/></StackPanel>
                                 </RadioButton>
                                 <RadioButton Theme="{StaticResource NavItem}" Tag="PageBottleneck" AutomationProperties.Name="Gargalo" IsCheckedChanged="Nav_Checked">
-                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE9D2;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Gargalo" VerticalAlignment="Center"/></StackPanel>
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE453;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Gargalo" VerticalAlignment="Center"/></StackPanel>
                                 </RadioButton>
                                 <RadioButton Theme="{StaticResource NavItem}" Tag="PageOverlay" AutomationProperties.Name="Overlay" IsCheckedChanged="Nav_Checked">
-                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE81E;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Overlay" VerticalAlignment="Center"/></StackPanel>
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xF4CB;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Overlay" VerticalAlignment="Center"/></StackPanel>
                                 </RadioButton>
                             </StackPanel>
 
                             <ToggleButton Name="GrpPerf" Theme="{StaticResource NavGroup}" Content="RESET DESEMPENHO"/>
                             <StackPanel Name="GrpPerfItems" Margin="10,0,0,4" IsVisible="{Binding #GrpPerf.IsChecked}">
                                 <RadioButton Name="NavBench" Theme="{StaticResource NavItem}" Tag="PageBench" AutomationProperties.Name="Benchmark" IsCheckedChanged="Nav_Checked">
-                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE8B9;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Benchmark" VerticalAlignment="Center"/></StackPanel>
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xF836;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Benchmark" VerticalAlignment="Center"/></StackPanel>
                                 </RadioButton>
                                 <RadioButton Theme="{StaticResource NavItem}" Tag="PageStress" AutomationProperties.Name="Stress test" IsCheckedChanged="Nav_Checked">
-                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE945;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Stress test" VerticalAlignment="Center"/></StackPanel>
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE618;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Stress test" VerticalAlignment="Center"/></StackPanel>
                                 </RadioButton>
                                 <RadioButton Theme="{StaticResource NavItem}" Tag="PageOc" AutomationProperties.Name="Overclock" IsCheckedChanged="Nav_Checked">
-                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xEC4A;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Overclock" VerticalAlignment="Center"/></StackPanel>
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xED9B;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Overclock" VerticalAlignment="Center"/></StackPanel>
                                 </RadioButton>
                             </StackPanel>
 
                             <ToggleButton Name="GrpTools" Theme="{StaticResource NavGroup}" Content="RESET FERRAMENTAS"/>
                             <StackPanel Name="GrpToolsItems" Margin="10,0,0,4" IsVisible="{Binding #GrpTools.IsChecked}">
                                 <RadioButton Theme="{StaticResource NavItem}" Tag="PageOptimize" AutomationProperties.Name="Otimização" IsCheckedChanged="Nav_Checked">
-                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE9F3;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Otimização" VerticalAlignment="Center"/></StackPanel>
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xF201;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Otimização" VerticalAlignment="Center"/></StackPanel>
                                 </RadioButton>
                                 <RadioButton Theme="{StaticResource NavItem}" Tag="PageStartup" AutomationProperties.Name="Inicialização" IsCheckedChanged="Nav_Checked">
-                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE823;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Inicialização" VerticalAlignment="Center"/></StackPanel>
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xF47E;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Inicialização" VerticalAlignment="Center"/></StackPanel>
                                 </RadioButton>
                                 <RadioButton Theme="{StaticResource NavItem}" Tag="PageApps" AutomationProperties.Name="Instalar apps" IsCheckedChanged="Nav_Checked">
-                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE719;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Instalar apps" VerticalAlignment="Center"/></StackPanel>
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xF136;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Instalar apps" VerticalAlignment="Center"/></StackPanel>
                                 </RadioButton>
                                 <RadioButton Theme="{StaticResource NavItem}" Tag="PageDriver" AutomationProperties.Name="Drivers" IsCheckedChanged="Nav_Checked">
-                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE896;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Drivers" VerticalAlignment="Center"/></StackPanel>
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xF150;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Drivers" VerticalAlignment="Center"/></StackPanel>
                                 </RadioButton>
                                 <RadioButton Theme="{StaticResource NavItem}" Tag="PageInteg" AutomationProperties.Name="Integração" IsCheckedChanged="Nav_Checked">
-                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE790;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Integração" VerticalAlignment="Center"/></StackPanel>
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xF2F5;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Integração" VerticalAlignment="Center"/></StackPanel>
                                 </RadioButton>
                             </StackPanel>
 
                             <ToggleButton Name="GrpMaker" Theme="{StaticResource NavGroup}" Content="RESET MAKER"/>
                             <StackPanel Name="GrpMakerItems" Margin="10,0,0,4" IsVisible="{Binding #GrpMaker.IsChecked}">
                                 <RadioButton Theme="{StaticResource NavItem}" Tag="PageMakerPorts" AutomationProperties.Name="Portas COM" IsCheckedChanged="Nav_Checked">
-                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE88E;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Portas COM" VerticalAlignment="Center"/></StackPanel>
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xF83F;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Portas COM" VerticalAlignment="Center"/></StackPanel>
                                 </RadioButton>
                                 <RadioButton Theme="{StaticResource NavItem}" Tag="PageMakerDrv" AutomationProperties.Name="Drivers seriais" IsCheckedChanged="Nav_Checked">
-                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE950;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Drivers seriais" VerticalAlignment="Center"/></StackPanel>
+                                    <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE4AC;" Classes="icon" FontSize="14" Width="28" VerticalAlignment="Center"/><TextBlock Text="Drivers seriais" VerticalAlignment="Center"/></StackPanel>
                                 </RadioButton>
                             </StackPanel>
                         </StackPanel>
@@ -284,7 +290,7 @@
                                                     <TextBlock Grid.Column="2" Text="{Binding Load}" Classes="mono" VerticalAlignment="Center"/>
                                                     <TextBlock Grid.Column="3" Text="{Binding Clock}" Classes="mono" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
                                                     <TextBlock Grid.Column="4" Text="{Binding Power}" Classes="mono" Foreground="{DynamicResource Muted}" VerticalAlignment="Center"/>
-                                                    <Button Grid.Column="5" Theme="{StaticResource CaptionButton}" Width="30" Height="30" Content="&#xE72A;"
+                                                    <Button Grid.Column="5" Theme="{StaticResource CaptionButton}" Width="30" Height="30" Content="&#xF181;"
                                                             HorizontalAlignment="Right" Tag="{Binding Target}" Click="DashGo_Click" ToolTip.Tip="Abrir detalhes"/>
                                                 </Grid>
                                             </Border>

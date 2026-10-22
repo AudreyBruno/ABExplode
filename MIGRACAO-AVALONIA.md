@@ -254,6 +254,12 @@ Implementações em `Platform.Linux`:
   pasta pessoal (o usuário não grava em `/`) e ignora tmpfs/squashfs. O de carregamento usa `~/.cache`, porque `/tmp`
   costuma ser tmpfs.
 - **`ABExplode --diag`:** imprime tudo o que a plataforma leu, sem abrir janela. Serve nos dois sistemas.
+- **Ícones:** a Segoe Fluent Icons só existe no Windows e não pode ser redistribuída. O app embute a **Fluent UI System
+  Icons** (Microsoft, MIT; `Assets/Fonts`, com a licença), igual nos dois sistemas. Os códigos usados no C# ficam em
+  `Glyphs.cs`. Os botões de minimizar, maximizar, restaurar e fechar são desenhos (`GlyphMinimize`... no `Theme.axaml`).
+  A fonte mono tem alternativas do Linux (DejaVu Sans Mono, Noto Sans Mono, Liberation Mono).
+- **Testado num Linux de verdade (22/10):** tudo o que foi implementado funcionou. Só os ícones apareciam quebrados,
+  o que levou à troca da fonte acima.
 - **Dependências (`LinuxDependencies`):** o app detecta apt, dnf, pacman, zypper ou rpm-ostree e instala pelo `pkexec`,
   que abre a janela de senha do sistema.
   - **Antes da janela:** sem sessão gráfica, ou faltando as bibliotecas que a janela usa (libX11, libICE, libSM, libXi,

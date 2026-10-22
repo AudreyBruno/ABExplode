@@ -23,6 +23,7 @@
     <AvaloniaResource Include="..\..\Assets\logo.png" Link="Assets\logo.png" />
     <AvaloniaResource Include="..\..\Assets\logo-dark.png" Link="Assets\logo-dark.png" />
     <AvaloniaResource Include="..\..\Assets\logo-badge.png" Link="Assets\logo-badge.png" />
+    <AvaloniaResource Include="..\..\Assets\Fonts\FluentSystemIcons-Regular.ttf" Link="Assets\Fonts\FluentSystemIcons-Regular.ttf" />
   </ItemGroup>
 
   <ItemGroup>

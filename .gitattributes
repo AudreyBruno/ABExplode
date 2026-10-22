@@ -8,3 +8,4 @@ packaging/linux/*.desktop text eol=lf
 packaging/linux/*.xml text eol=lf
 *.sh text eol=lf
 *.png binary
+*.ttf binary

@@ -22,7 +22,7 @@ public partial class ToastWindow : Window
         _afterFade.Tick += (_, _) => { _afterFade.Stop(); if (Opacity == 0) Hide(); };
     }
 
-    /// <summary>Mostra (ou atualiza, se já visível) o aviso por 5 s. icon: glifo Segoe Fluent Icons.</summary>
+    /// <summary>Mostra (ou atualiza, se já visível) o aviso por 5 s. icon: um dos Glyphs (Fluent UI System Icons).</summary>
     public void Notify(string title, string text, string icon)
     {
         TTitle.Text = title;

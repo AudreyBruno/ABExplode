@@ -78,7 +78,7 @@ public partial class MainWindow : Window
         PropertyChanged += (_, e) =>
         {
             if (e.Property != WindowStateProperty) return;
-            BtnMax.Content = WindowState == WindowState.Maximized ? "" : "";
+            MaxGlyph.Data = (Avalonia.Media.Geometry?)this.FindResource(WindowState == WindowState.Maximized ? "GlyphRestore" : "GlyphMaximize");
         };
         Closed += (_, _) =>
         {
@@ -258,7 +258,7 @@ public partial class MainWindow : Window
     private void UpdateThemeButton()
     {
         bool light = ThemeManager.IsLight;
-        BtnTheme.Content = light ? "" : "";
+        BtnTheme.Content = light ? Glyphs.Moon : Glyphs.Sun;
         ToolTip.SetTip(BtnTheme, light ? "Modo escuro" : "Modo claro");
         using var s = AssetLoader.Open(new Uri(light ? "avares://ABExplode/Assets/logo-dark.png" : "avares://ABExplode/Assets/logo.png"));
         TitleLogo.Source = new Bitmap(s);

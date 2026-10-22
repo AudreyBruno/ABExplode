@@ -140,7 +140,7 @@ public partial class MainWindow
     private void StopStress(string reason)
     {
         if (!TestRunning) return;
-        AddEvent("", "Stress test", reason, reason.StartsWith("ABORTADO") ? "abortado" : "ok");
+        AddEvent(Glyphs.Flash, "Stress test", reason, reason.StartsWith("ABORTADO") ? "abortado" : "ok");
         var errors = _stress.MemoryErrors;
         var passes = _stress.MemoryPasses;
         bool hadRam = _stress.MemoryAllocatedBytes > 0;

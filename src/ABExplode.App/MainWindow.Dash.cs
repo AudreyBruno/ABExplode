@@ -21,7 +21,7 @@ public sealed record DashEvent(string Icon, string Title, string Detail, string 
 public sealed record DashRingItem(IBrush Swatch, string Label, string Value);
 public sealed record DashCheck(string Title, string Detail, bool Ok)
 {
-    public string Glyph => Ok ? "" : "";
+    public string Glyph => Ok ? Glyphs.CheckCircle : Glyphs.Circle;
 }
 
 /// <summary>
@@ -93,19 +93,19 @@ public partial class MainWindow
     {
         foreach (var r in _settings.BenchRuns)
         {
-            if (r.Multi is double m) yield return new DashEvent("", "RESET BENCH", "Render · multi-core", $"{m:N0} pts", r.Date);
-            else if (r.Single is double s) yield return new DashEvent("", "RESET BENCH", "Render · single-core", $"{s:N0} pts", r.Date);
+            if (r.Multi is double m) yield return new DashEvent(Glyphs.Trophy, "RESET BENCH", "Render · multi-core", $"{m:N0} pts", r.Date);
+            else if (r.Single is double s) yield return new DashEvent(Glyphs.Trophy, "RESET BENCH", "Render · single-core", $"{s:N0} pts", r.Date);
         }
         foreach (var r in _settings.BenchRecords)
         {
             var (icon, title) = r.Test switch
             {
-                "gpu" => ("", "Cena de jogo (GPU)"),
-                "sim" => ("", "Simulação de jogo"),
-                "mem" => ("", "Memória e carregamento"),
-                "oc" => ("", "Verificação de estabilidade"),
-                "disk" => ("", "Benchmark de disco"),
-                _ => ("", r.Test)
+                "gpu" => (Glyphs.Desktop, "Cena de jogo (GPU)"),
+                "sim" => (Glyphs.Games, "Simulação de jogo"),
+                "mem" => (Glyphs.Ram, "Memória e carregamento"),
+                "oc" => (Glyphs.TopSpeed, "Verificação de estabilidade"),
+                "disk" => (Glyphs.HardDrive, "Benchmark de disco"),
+                _ => (Glyphs.Trophy, r.Test)
             };
             string first = r.Summary.Split('·')[0].Trim();
             string rest = r.Summary.Contains('·') ? r.Summary[(r.Summary.IndexOf('·') + 1)..].Trim() : "";
@@ -163,14 +163,14 @@ public partial class MainWindow
     {
         var rows = new List<DashComponent>
         {
-            new("", "Processador", GameCatalog.ShortCpuName(_cpuName),
+            new(Glyphs.Chip, "Processador", GameCatalog.ShortCpuName(_cpuName),
                 F(_monitor.CpuTemperature, "0", " °C"), F(_monitor.CpuLoad, "0", " %"), F(CpuClockAvg(), "0", " MHz"),
                 F(_monitor.CpuPower, "0", " W"), "PageSensors"),
         };
         if (_gpus.Count > 0)
         {
             uint? clk = _gpus[0].NvmlHandle != IntPtr.Zero ? Nvml.Clock(_gpus[0].NvmlHandle, Nvml.ClockGraphics) : null;
-            rows.Add(new("", "Placa de vídeo", GameCatalog.ShortGpuName(_gpus[0].Name),
+            rows.Add(new(Glyphs.Desktop, "Placa de vídeo", GameCatalog.ShortGpuName(_gpus[0].Name),
                          F(MainGpuTemp(), "0", " °C"), F(MainGpuLoad(), "0", " %"), clk is uint c ? $"{c} MHz" : "—",
                          F(MainGpuPower(), "0", " W"), "PageGpu"));
         }
@@ -178,11 +178,11 @@ public partial class MainWindow
         if (total > 0)
         {
             double used = total - avail;
-            rows.Add(new("", "Memória RAM", $"{total / 1073741824.0:0} GB instalados", "—", $"{used / total:P0}", "—",
+            rows.Add(new(Glyphs.Ram, "Memória RAM", $"{total / 1073741824.0:0} GB instalados", "—", $"{used / total:P0}", "—",
                          $"{used / 1073741824.0:0.0} GB", "PageSystem"));
         }
         if (SystemDrive() is { } c0)
-            rows.Add(new("", $"Disco {c0.Letter}", c0.Disk.Length > 0 ? c0.Disk : c0.Kind, "—", c0.UsedPercent, "—",
+            rows.Add(new(Glyphs.HardDrive, $"Disco {c0.Letter}", c0.Disk.Length > 0 ? c0.Disk : c0.Kind, "—", c0.UsedPercent, "—",
                          $"{DriveCard.Fmt(c0.Free)} livres", "PageDisks"));
         DashComponents.ItemsSource = rows;
     }

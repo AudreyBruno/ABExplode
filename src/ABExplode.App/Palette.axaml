@@ -28,7 +28,9 @@
     <SolidColorBrush x:Key="SliderThumbBackgroundPressed" Color="#F5F5F5"/>
 
     <FontFamily x:Key="UiFont">Segoe UI Variable Text, Segoe UI</FontFamily>
-    <FontFamily x:Key="Mono">Consolas</FontFamily>
-    <FontFamily x:Key="Icons">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
+    <!-- Consolas no Windows; no Linux, a primeira mono que existir -->
+    <FontFamily x:Key="Mono">Consolas, DejaVu Sans Mono, Noto Sans Mono, Liberation Mono, Ubuntu Mono</FontFamily>
+    <!-- Fluent UI System Icons (MIT), embutida: a Segoe Fluent Icons só existe no Windows. Códigos em Glyphs.cs. -->
+    <FontFamily x:Key="Icons">avares://ABExplode/Assets/Fonts#FluentSystemIcons-Regular</FontFamily>
 
 </ResourceDictionary>

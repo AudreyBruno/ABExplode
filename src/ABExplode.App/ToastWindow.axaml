@@ -13,7 +13,7 @@
     <Border Background="#F2080808" BorderBrush="#40FFFFFF" BorderThickness="1" CornerRadius="4" Padding="16,12" Width="340">
         <Grid ColumnDefinitions="Auto,*">
             <Border Width="34" Height="34" Background="#F5F5F5" CornerRadius="3" VerticalAlignment="Top" Margin="0,2,14,0">
-                <TextBlock Name="TIcon" Text="&#xE88E;" FontFamily="{StaticResource Icons}" FontSize="17"
+                <TextBlock Name="TIcon" Text="&#xF83F;" FontFamily="{StaticResource Icons}" FontSize="17"
                            Foreground="#000000" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Border>
             <StackPanel Grid.Column="1">

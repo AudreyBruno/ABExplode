@@ -54,11 +54,11 @@ public partial class MainWindow
         {
             if (arrived && now.FirstOrDefault(d => d.Letter.Equals(l, StringComparison.OrdinalIgnoreCase)) is { } d)
                 Toast(d.Removable ? "Pendrive conectado" : "Unidade conectada",
-                      $"{d.Title} · {DriveCard.Fmt(d.Free)} livres de {DriveCard.Fmt(d.Total)}" + (d.Disk.Length > 0 ? $"\n{d.Disk}" : ""), "");
+                      $"{d.Title} · {DriveCard.Fmt(d.Free)} livres de {DriveCard.Fmt(d.Total)}" + (d.Disk.Length > 0 ? $"\n{d.Disk}" : ""), Glyphs.Usb);
             else if (!arrived)
             {
                 var old = before.FirstOrDefault(d => d.Letter.Equals(l, StringComparison.OrdinalIgnoreCase));
-                Toast("Unidade removida", old != null ? $"{old.Title} pode ser desconectada." : $"{l} removida.", "");
+                Toast("Unidade removida", old != null ? $"{old.Title} pode ser desconectada." : $"{l} removida.", Glyphs.Usb);
             }
         }
         _drives = now;
@@ -161,9 +161,9 @@ public partial class MainWindow
         added = added.Where(d => !Storage(d)).ToList();
         removed = removed.Where(d => !Storage(d)).ToList();
         if (!volumeJustNow && Best(added) is { } a)
-            Toast("Dispositivo USB conectado", a.Name + (a.Maker != null && !a.Name.Contains(a.Maker) ? $" · {a.Maker}" : ""), "");
+            Toast("Dispositivo USB conectado", a.Name + (a.Maker != null && !a.Name.Contains(a.Maker) ? $" · {a.Maker}" : ""), Glyphs.Usb);
         else if (!volumeJustNow && Best(removed) is { } r)
-            Toast("Dispositivo USB desconectado", r.Name, "");
+            Toast("Dispositivo USB desconectado", r.Name, Glyphs.Usb);
     }
 #else
     // ---------------- Dispositivos (Linux: compara montagens e /sys/bus/usb a cada 2 s) ----------------
@@ -218,7 +218,7 @@ public partial class MainWindow
         }
         if (!await Dialog.Ask(this, "Dependências", text, "INSTALAR", "AGORA NÃO")) return; // lembra na próxima abertura
 
-        Toast("Instalando dependências", string.Join(", ", missing.Select(d => d.Title)), "");
+        Toast("Instalando dependências", string.Join(", ", missing.Select(d => d.Title)), Glyphs.Download);
         var (ok, output) = await ABExplode.Platform.Linux.LinuxDependencies.InstallAsync(missing, pm!);
         if (ok)
             await Dialog.Show(this, "Dependências", "Instalado. Feche e abra o ABExplode para ele usar as ferramentas novas " +
@@ -243,8 +243,8 @@ public partial class MainWindow
         var newUsb = usb.Values.Where(d => !_usbNow.ContainsKey(d.Id) && !d.Storage).ToList();
         var goneUsb = _usbNow.Values.Where(d => !usb.ContainsKey(d.Id) && !d.Storage).ToList();
         _usbNow = usb;
-        if (newUsb.FirstOrDefault() is { } a) Toast("Dispositivo USB conectado", a.Name, "");
-        else if (goneUsb.FirstOrDefault() is { } r) Toast("Dispositivo USB desconectado", r.Name, "");
+        if (newUsb.FirstOrDefault() is { } a) Toast("Dispositivo USB conectado", a.Name, Glyphs.Usb);
+        else if (goneUsb.FirstOrDefault() is { } r) Toast("Dispositivo USB desconectado", r.Name, Glyphs.Usb);
     }
 #endif
 }
