@@ -7,7 +7,7 @@ using Avalonia.Interactivity;
 #if WINDOWS
 using ABExplode.Platform.Windows;
 #else
-using ABExplode.Vulkan; // stress de GPU em Vulkan
+using ABExplode.Vulkan; // stress e cena de jogo em Vulkan
 #endif
 
 namespace ABExplode.App;
@@ -235,7 +235,6 @@ public partial class MainWindow
                 var r = await Task.Run(() => _bench.Run(Environment.ProcessorCount, TimeSpan.Zero, ct), ct);
                 if (!ct.IsCancellationRequested) cpuScore = r.Score;
             }
-#if WINDOWS
             if (gpu && !ct.IsCancellationRequested)
             {
                 OcStatus.Text = "Medindo a nota da GPU (cena de jogo, 30 s)…";
@@ -249,7 +248,6 @@ public partial class MainWindow
                 }
                 _gpuBenchActive = false;
             }
-#endif
             if (fail == null && !ct.IsCancellationRequested)
             {
                 if (cpu) stress.Start(cpu: true, ram: true);

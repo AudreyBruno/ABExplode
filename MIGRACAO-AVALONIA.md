@@ -401,7 +401,19 @@ Implementações em `Platform.Linux`:
   - **`tools/VkTest`:** `burn` (Vulkan) e `d3d` (Direct3D) para comparar.
   - **No app do Linux:** o stress test (GPU) e o verificador do RESET OC (stress de GPU) usam o `GpuBurn` do Vulkan. A
     nota de GPU do verificador vem na etapa 3.
-- **Próximas etapas:** cena de jogo em Vulkan (RESET BENCH e nota do verificador); ray tracing (`VK_KHR_ray_query`).
+- **Etapa 3 (feita, testada no Windows):** cena de jogo do RESET BENCH em Vulkan (`ABExplode.Vulkan.GpuGameBench`).
+  - **Geometria e câmera:** terreno, árvores, água e trajeto foram para o Core (`GameScene`) e servem aos dois sistemas.
+    O Direct3D usa o mesmo código (conferido função por função com a versão anterior: idênticas). Um teste trava a
+    geometria por SHA-256.
+  - **Passes:** mapa de sombras 4096² (com o mesmo bias do Direct3D), cena em HDR (céu, terreno, 40 mil árvores por
+    instancing, água) e pós-processamento (ACES e vinheta). Mesmo HLSL, com um conjunto de descritores de 6 recursos.
+  - **Medição:** fila de 8 quadros; o tempo de frame é o intervalo entre os quadros que a GPU termina, com espera ativa
+    como no Direct3D. A apresentação a ~60 Hz não espera a janela.
+  - **Conferido na Intel UHD 750 (1080p, 15 s):** Direct3D 33,8 FPS e Vulkan 37,8 FPS, com imagem igual no mesmo ponto
+    do trajeto.
+  - **No app do Linux:** o RESET BENCH (cena de jogo) e a nota de GPU do verificador do RESET OC usam o Vulkan. No
+    histórico, a nota sai marcada "Vulkan", porque não é comparável com a do Direct3D.
+- **Próximas etapas:** ray tracing (`VK_KHR_ray_query`).
 
 ## Empacotamento
 

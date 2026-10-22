@@ -15,6 +15,11 @@
     <PackageReference Include="Silk.NET.Input" Version="2.22.0" />
   </ItemGroup>
 
+  <!-- A geometria e a câmera da cena de jogo (GameScene) são as mesmas do Direct3D -->
+  <ItemGroup>
+    <ProjectReference Include="..\ABExplode.Core\ABExplode.Core.csproj" />
+  </ItemGroup>
+
   <ItemGroup>
     <!-- WithCulture=false: senão o MSBuild lê o ".PS" de burn.PS.spv como idioma (pachto) e tira o arquivo do assembly -->
     <EmbeddedResource Include="Shaders\*.spv" LogicalName="Shaders/%(Filename)%(Extension)" WithCulture="false" />
