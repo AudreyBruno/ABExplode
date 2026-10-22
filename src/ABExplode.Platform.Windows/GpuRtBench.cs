@@ -1,36 +1,13 @@
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using ABExplode.Core;
 using Vortice.Direct3D;
 using Vortice.Direct3D12;
 using Vortice.Dxc;
 using Vortice.DXGI;
 
 namespace ABExplode.Platform.Windows;
-
-/// <summary>Uma passada medida do teste de ray tracing.</summary>
-public sealed record RtPass(double AvgFps, double Low1Fps, int Frames);
-
-/// <summary>
-/// Resultado do teste de ray tracing: nota pela MEDIANA das passadas (resiste a uma passada ruim) e variação entre elas,
-/// que diz se o resultado é confiável para comparar.
-/// </summary>
-public sealed record GpuRtResult(IReadOnlyList<RtPass> Passes, int Width, int Height, string Preset, string Adapter, double GigaRaysPerSec)
-{
-    public double MedianFps => Median(Passes.Select(p => p.AvgFps));
-    public double MedianLow1 => Median(Passes.Select(p => p.Low1Fps));
-    /// <summary>(maior − menor) ÷ mediana, em %.</summary>
-    public double VariationPct => Passes.Count < 2 || MedianFps <= 0 ? 0 : (Passes.Max(p => p.AvgFps) - Passes.Min(p => p.AvgFps)) / MedianFps * 100;
-    public bool Reliable => Passes.Count >= 3 && VariationPct < 3;
-    /// <summary>Nota = FPS mediano × 10 (mesma escala da cena de jogo).</summary>
-    public double Score => MedianFps * 10;
-
-    private static double Median(IEnumerable<double> v)
-    {
-        var s = v.OrderBy(x => x).ToArray();
-        return s.Length == 0 ? 0 : s.Length % 2 == 1 ? s[s.Length / 2] : (s[s.Length / 2 - 1] + s[s.Length / 2]) / 2;
-    }
-}
 
 /// <summary>
 /// RESET BENCH · Ray tracing (DXR 1.1, Direct3D 12): usa os núcleos de RT da placa (RTX, Radeon RX 6000+, Arc).
@@ -59,16 +36,6 @@ public sealed class GpuRtBench
     private volatile bool _stop;
     private WndProc? _wndProc;
     public void Cancel() => _stop = true;
-
-    private (uint Spp, uint Bounces) Quality => Preset switch
-    {
-        "normal" => (2u, 2u),
-        "extrema" => (8u, 4u),
-        _ => (4u, 3u),
-    };
-
-    /// <summary>Raios por amostra: 1 de visibilidade/rebatida + 1 sombra + 1 oclusão por rebatida.</summary>
-    private double RaysPerPixel => Quality.Spp * Quality.Bounces * 3.0;
 
     /// <summary>Verifica se a placa tem ray tracing por hardware (DXR 1.1). Retorna null se tiver, senão o motivo.</summary>
     public static string? CheckSupport(string adapterName)
@@ -99,11 +66,7 @@ public sealed class GpuRtBench
         return pick;
     }
 
-    // ------------------------------------------------------------------ cena (CPU)
-
-    [StructLayout(LayoutKind.Sequential)] private struct Vtx { public Vector3 Pos; public Vector3 Nrm; }
-    [StructLayout(LayoutKind.Sequential)] private struct MeshInfo { public uint IndexOffset, VertexOffset, Pad0, Pad1; }
-    [StructLayout(LayoutKind.Sequential)] private struct InstMat { public Vector3 Albedo; public float Metal; public float Rough; public float Emissive; public uint Mesh; public float Pad; }
+    // ------------------------------------------------------------------ estruturas da GPU (a cena está em Core/RtScene)
 
     /// <summary>D3D12_RAYTRACING_INSTANCE_DESC (64 bytes): matriz 3x4, id(24)+máscara(8), contribuição(24)+flags(8), BLAS.</summary>
     [StructLayout(LayoutKind.Sequential)]
@@ -121,183 +84,6 @@ public sealed class GpuRtBench
         public Vector3 CamPos; public float Time;
         public Vector3 SunDir; public uint FrameIndex;
         public uint Width, Height, Spp, Bounces;
-    }
-
-    private sealed class MeshBuilder
-    {
-        public readonly List<Vtx> V = new();
-        public readonly List<uint> I = new();
-        public readonly List<(uint IndexOffset, uint IndexCount, uint VertexOffset, uint VertexCount)> Meshes = new();
-        private int _vStart, _iStart;
-        public void Begin() { _vStart = V.Count; _iStart = I.Count; }
-        public void End() => Meshes.Add(((uint)_iStart, (uint)(I.Count - _iStart), (uint)_vStart, (uint)(V.Count - _vStart)));
-        public uint Add(Vector3 p, Vector3 n) { V.Add(new Vtx { Pos = p, Nrm = Vector3.Normalize(n) }); return (uint)(V.Count - 1 - _vStart); }
-        public void Tri(uint a, uint b, uint c) { I.Add(a); I.Add(b); I.Add(c); }
-    }
-
-    private static void Plane(MeshBuilder b, float size, int n)
-    {
-        b.Begin();
-        for (int z = 0; z <= n; z++)
-            for (int x = 0; x <= n; x++)
-                b.Add(new((x / (float)n - 0.5f) * size, 0, (z / (float)n - 0.5f) * size), Vector3.UnitY);
-        for (int z = 0; z < n; z++)
-            for (int x = 0; x < n; x++)
-            {
-                uint a = (uint)(z * (n + 1) + x), c = a + (uint)(n + 1);
-                b.Tri(a, c, a + 1); b.Tri(a + 1, c, c + 1);
-            }
-        b.End();
-    }
-
-    private static void Sphere(MeshBuilder b, int seg)
-    {
-        b.Begin();
-        int rings = seg / 2;
-        for (int r = 0; r <= rings; r++)
-            for (int s = 0; s <= seg; s++)
-            {
-                float th = MathF.PI * r / rings, ph = 2 * MathF.PI * s / seg;
-                var p = new Vector3(MathF.Sin(th) * MathF.Cos(ph), MathF.Cos(th), MathF.Sin(th) * MathF.Sin(ph));
-                b.Add(p, p);
-            }
-        for (int r = 0; r < rings; r++)
-            for (int s = 0; s < seg; s++)
-            {
-                uint a = (uint)(r * (seg + 1) + s), c = a + (uint)(seg + 1);
-                b.Tri(a, a + 1, c); b.Tri(a + 1, c + 1, c);
-            }
-        b.End();
-    }
-
-    private static void Torus(MeshBuilder b, int seg, int side, float R, float r)
-    {
-        b.Begin();
-        for (int i = 0; i <= seg; i++)
-            for (int j = 0; j <= side; j++)
-            {
-                float u = 2 * MathF.PI * i / seg, v = 2 * MathF.PI * j / side;
-                var c = new Vector3(MathF.Cos(u) * R, 0, MathF.Sin(u) * R);
-                var n = new Vector3(MathF.Cos(u) * MathF.Cos(v), MathF.Sin(v), MathF.Sin(u) * MathF.Cos(v));
-                b.Add(c + n * r, n);
-            }
-        for (int i = 0; i < seg; i++)
-            for (int j = 0; j < side; j++)
-            {
-                uint a = (uint)(i * (side + 1) + j), c = a + (uint)(side + 1);
-                b.Tri(a, c, a + 1); b.Tri(a + 1, c, c + 1);
-            }
-        b.End();
-    }
-
-    private static void Column(MeshBuilder b, int seg)
-    {
-        b.Begin();
-        for (int i = 0; i <= seg; i++)
-        {
-            float a = 2 * MathF.PI * i / seg;
-            // Caneluras: o raio ondula como numa coluna grega (mais triângulos e normais variadas).
-            float rr = 1 + 0.06f * MathF.Cos(a * 12);
-            var n = new Vector3(MathF.Cos(a), 0, MathF.Sin(a));
-            b.Add(new Vector3(MathF.Cos(a) * rr, 0, MathF.Sin(a) * rr), n);
-            b.Add(new Vector3(MathF.Cos(a) * rr, 1, MathF.Sin(a) * rr), n);
-        }
-        for (int i = 0; i < seg; i++) { uint a = (uint)(i * 2); b.Tri(a, a + 1, a + 2); b.Tri(a + 1, a + 3, a + 2); }
-        uint top = b.Add(new Vector3(0, 1, 0), Vector3.UnitY);
-        for (int i = 0; i < seg; i++)
-        {
-            float a0 = 2 * MathF.PI * i / seg, a1 = 2 * MathF.PI * (i + 1) / seg;
-            uint p0 = b.Add(new Vector3(MathF.Cos(a0), 1, MathF.Sin(a0)), Vector3.UnitY);
-            uint p1 = b.Add(new Vector3(MathF.Cos(a1), 1, MathF.Sin(a1)), Vector3.UnitY);
-            b.Tri(top, p1, p0);
-        }
-        b.End();
-    }
-
-    private static void Box(MeshBuilder b)
-    {
-        b.Begin();
-        Vector3[] n = { Vector3.UnitX, -Vector3.UnitX, Vector3.UnitY, -Vector3.UnitY, Vector3.UnitZ, -Vector3.UnitZ };
-        foreach (var f in n)
-        {
-            var u = MathF.Abs(f.Y) > 0.5f ? Vector3.UnitX : Vector3.UnitY;
-            var v = Vector3.Cross(f, u);
-            uint a = b.Add(f - u - v, f), c = b.Add(f + u - v, f), d = b.Add(f + u + v, f), e = b.Add(f - u + v, f);
-            b.Tri(a, c, d); b.Tri(a, d, e);
-        }
-        b.End();
-    }
-
-    private const int MeshGround = 0, MeshSphere = 1, MeshHeroSphere = 2, MeshTorus = 3, MeshColumn = 4, MeshBox = 5;
-    private const int ObjectCount = 4000;
-    private const float World = 220;
-
-    private sealed record Obj(int Mesh, Vector3 Pos, float Scale, Vector3 Scale3, float Spin, Vector3 Axis, InstMat Mat);
-
-    /// <summary>Objetos espalhados com semente fixa: a mesma cena em qualquer PC.</summary>
-    private static List<Obj> BuildObjects()
-    {
-        var rnd = new Random(20261015);
-        float R() => (float)rnd.NextDouble();
-        var list = new List<Obj>
-        {
-            new(MeshGround, Vector3.Zero, 1, Vector3.One, 0, Vector3.UnitY,
-                new InstMat { Albedo = new(0.55f, 0.55f, 0.58f), Metal = 0.15f, Rough = 0.35f, Mesh = MeshGround }),
-        };
-        // Esferas-espelho e douradas grandes no centro (reflexos de reflexos).
-        for (int i = 0; i < 7; i++)
-        {
-            float a = i / 7f * MathF.Tau;
-            var pos = new Vector3(MathF.Cos(a) * 16, 6, MathF.Sin(a) * 16);
-            bool gold = i % 2 == 1;
-            list.Add(new(MeshHeroSphere, pos, 6, new Vector3(6), 0, Vector3.UnitY, new InstMat
-            {
-                Albedo = gold ? new(1.0f, 0.78f, 0.34f) : new(0.95f, 0.95f, 0.97f), Metal = 1, Rough = gold ? 0.12f : 0.0f, Mesh = MeshHeroSphere,
-            }));
-        }
-        while (list.Count < ObjectCount)
-        {
-            var pos = new Vector3((R() - 0.5f) * World, 0, (R() - 0.5f) * World);
-            if (new Vector2(pos.X, pos.Z).Length() < 26) continue; // deixa o centro livre para as esferas grandes
-            int mesh = R() switch { < 0.35f => MeshSphere, < 0.55f => MeshTorus, < 0.75f => MeshColumn, _ => MeshBox };
-            float s = 0.6f + R() * 1.8f;
-            Vector3 s3 = mesh == MeshColumn ? new(s * 0.6f, s * (2 + R() * 3), s * 0.6f) : new(s);
-            pos.Y = mesh switch { MeshSphere => s, MeshTorus => s * 0.35f + 0.6f, MeshBox => s, _ => 0 };
-            float roll = R();
-            var mat = new InstMat
-            {
-                Albedo = Palette(R(), R()),
-                Metal = roll < 0.3f ? 1 : 0, Rough = roll < 0.3f ? R() * 0.35f : 0.6f + R() * 0.4f,
-                Emissive = roll > 0.97f ? 6 + R() * 10 : 0, Mesh = (uint)mesh,
-            };
-            float spin = mesh is MeshTorus or MeshBox && R() < 0.5f ? 0.3f + R() * 1.2f : 0;
-            var axis = Vector3.Normalize(new Vector3(R() - 0.5f, 1, R() - 0.5f));
-            list.Add(new(mesh, pos, s, s3, spin, axis, mat));
-        }
-        return list;
-    }
-
-    /// <summary>Cores saturadas de uma paleta fixa, com brilho variado.</summary>
-    private static Vector3 Palette(float pick, float shade)
-    {
-        Vector3[] p = { new(0.85f, 0.18f, 0.12f), new(0.95f, 0.55f, 0.08f), new(0.12f, 0.45f, 0.85f), new(0.1f, 0.65f, 0.4f),
-                        new(0.9f, 0.85f, 0.75f), new(0.45f, 0.2f, 0.7f), new(0.08f, 0.08f, 0.1f), new(0.75f, 0.75f, 0.78f) };
-        return p[(int)(pick * p.Length) % p.Length] * (0.55f + shade * 0.45f);
-    }
-
-    private static Matrix4x4 ObjMatrix(Obj o, float t) =>
-        Matrix4x4.CreateScale(o.Scale3) *
-        (o.Spin != 0 ? Matrix4x4.CreateFromAxisAngle(o.Axis, t * o.Spin) : Matrix4x4.Identity) *
-        Matrix4x4.CreateTranslation(o.Pos);
-
-    /// <summary>Câmera em trajeto fixo pelo tempo da passada (0..1): mesma sequência de imagens em qualquer placa.</summary>
-    private static (Vector3 Eye, Vector3 Target) CameraAt(float t)
-    {
-        float a = t * MathF.Tau * 0.75f + 0.4f;
-        float r = 40 + 26 * MathF.Sin(t * MathF.PI);
-        var eye = new Vector3(MathF.Cos(a) * r, 12 + 10 * (0.5f + 0.5f * MathF.Sin(t * MathF.Tau * 1.5f)), MathF.Sin(a) * r);
-        var target = new Vector3(MathF.Cos(a + 0.6f) * 6, 3, MathF.Sin(a + 0.6f) * 6);
-        return (eye, target);
     }
 
     // ------------------------------------------------------------------ shader (HLSL SM 6.5, raios inline)
@@ -518,17 +304,11 @@ void Main(uint3 id : SV_DispatchThreadID)
             }
 
             // ---- Geometria ----
-            var mb = new MeshBuilder();
-            Plane(mb, World + 60, 96);
-            Sphere(mb, 32);
-            Sphere(mb, 160);            // esfera grande, ~25 mil triângulos
-            Torus(mb, 48, 24, 1, 0.35f);
-            Column(mb, 48);
-            Box(mb);
+            var mb = RtScene.BuildMeshes();
             var vb = ToGpu(mb.V.ToArray());
             var ib = ToGpu(mb.I.ToArray());
-            var meshInfo = ToGpu(mb.Meshes.Select(m => new MeshInfo { IndexOffset = m.IndexOffset, VertexOffset = m.VertexOffset }).ToArray());
-            var objects = BuildObjects();
+            var meshInfo = ToGpu(mb.Meshes.Select(m => new RtMeshInfo { IndexOffset = m.IndexOffset, VertexOffset = m.VertexOffset }).ToArray());
+            var objects = RtScene.BuildObjects();
             var mats = ToGpu(objects.Select(o => o.Mat).ToArray());
 
             // ---- BLAS: uma por malha, montada uma vez ----
@@ -537,7 +317,7 @@ void Main(uint3 id : SV_DispatchThreadID)
             {
                 var (io, ic, vo, vc) = mb.Meshes[m];
                 var geo = new RaytracingGeometryDescription(new RaytracingGeometryTrianglesDescription(
-                    new GpuVirtualAddressAndStride(vb.GPUVirtualAddress + vo * (ulong)Marshal.SizeOf<Vtx>(), (ulong)Marshal.SizeOf<Vtx>()),
+                    new GpuVirtualAddressAndStride(vb.GPUVirtualAddress + vo * (ulong)Marshal.SizeOf<RtVertex>(), (ulong)Marshal.SizeOf<RtVertex>()),
                     Format.R32G32B32_Float, vc, 0, ib.GPUVirtualAddress + io * 4UL, Format.R32_UInt, ic), RaytracingGeometryFlags.Opaque);
                 var inputs = new BuildRaytracingAccelerationStructureInputs
                 {
@@ -593,9 +373,9 @@ void Main(uint3 id : SV_DispatchThreadID)
             queue.Signal(fence, ++fenceValue);
             WaitGpu(fenceValue);
 
-            var (spp, bounces) = Quality;
-            var proj = Matrix4x4.CreatePerspectiveFieldOfView(MathF.PI / 3, Width / (float)Height, 0.1f, 2000);
-            var sunDir = Vector3.Normalize(new Vector3(-0.4f, -0.75f, -0.35f));
+            var (spp, bounces) = RtScene.Quality(Preset);
+            var proj = RtScene.Projection(Width, Height);
+            var sunDir = RtScene.SunDir;
             var frameFence = new ulong[InFlight];
             var passes = new List<RtPass>();
             var inst = new InstanceDesc[objects.Count];
@@ -637,7 +417,7 @@ void Main(uint3 id : SV_DispatchThreadID)
                     // Câmera e objetos pelo tempo da passada: a mesma cena no mesmo instante em qualquer PC.
                     float t = (float)(clock.Elapsed.TotalSeconds / duration.TotalSeconds);
                     float secs = (float)clock.Elapsed.TotalSeconds;
-                    var (eye, target) = CameraAt(t);
+                    var (eye, target) = RtScene.CameraAt(t);
                     var vp = Matrix4x4.CreateLookAt(eye, target, Vector3.UnitY) * proj;
                     Matrix4x4.Invert(vp, out var inv);
                     var cbData = new FrameCB
@@ -649,7 +429,7 @@ void Main(uint3 id : SV_DispatchThreadID)
                     for (int i = 0; i < objects.Count; i++)
                     {
                         var o = objects[i];
-                        var m = ObjMatrix(o, secs);
+                        var m = RtScene.ObjMatrix(o, secs);
                         inst[i] = new InstanceDesc
                         {
                             M00 = m.M11, M01 = m.M21, M02 = m.M31, M03 = m.M41,
@@ -721,7 +501,7 @@ void Main(uint3 id : SV_DispatchThreadID)
 
             if (_stop) { Cancelled = true; return null; }
             var result = new GpuRtResult(passes, Width, Height, Preset, adapterName, 0);
-            double grays = result.MedianFps * Width * Height * RaysPerPixel / 1e9;
+            double grays = result.MedianFps * Width * Height * RtScene.RaysPerPixel(Preset) / 1e9;
             return result with { GigaRaysPerSec = grays };
         }
         catch (Exception ex)

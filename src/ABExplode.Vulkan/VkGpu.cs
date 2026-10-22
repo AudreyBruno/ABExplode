@@ -44,6 +44,12 @@ internal sealed unsafe class VkGpu : IDisposable
     public string AdapterName = "";
     public PhysicalDeviceMemoryProperties MemProps;
     public PhysicalDeviceLimits Limits;
+    /// <summary>Bits válidos dos timestamps da fila (0 = a fila não mede tempo).</summary>
+    public uint TimestampBits;
+
+    // Ray tracing (só com rayQuery: true)
+    public KhrAccelerationStructure? KhrAs;
+    public ulong ScratchAlignment = 256;
 
     // Swapchain
     public SwapchainKHR Swapchain;
@@ -58,7 +64,12 @@ internal sealed unsafe class VkGpu : IDisposable
         if (r != Result.Success) throw new InvalidOperationException($"Vulkan: {what} falhou ({r}).");
     }
 
-    public VkGpu(IWindow window, string adapterName)
+    /// <summary>Extensões de ray tracing com raios inline (VK_KHR_ray_query), as mesmas do DXR 1.1.</summary>
+    internal static readonly string[] RayQueryExtensions =
+        { KhrAccelerationStructure.ExtensionName, "VK_KHR_ray_query", "VK_KHR_deferred_host_operations" };
+
+    /// <param name="rayQuery">Pede ray tracing por hardware: só aceita GPU com <see cref="RayQueryExtensions"/>.</param>
+    public VkGpu(IWindow window, string adapterName, bool rayQuery = false)
     {
         if (window.VkSurface == null) throw new InvalidOperationException("Esta janela não tem suporte a Vulkan (driver de vídeo sem Vulkan?).");
 
@@ -67,7 +78,7 @@ internal sealed unsafe class VkGpu : IDisposable
         var app = new ApplicationInfo
         {
             SType = StructureType.ApplicationInfo, PApplicationName = appName, ApplicationVersion = 1,
-            PEngineName = appName, EngineVersion = 1, ApiVersion = Vk.Version11,
+            PEngineName = appName, EngineVersion = 1, ApiVersion = rayQuery ? Vk.Version12 : Vk.Version11,
         };
         byte** ext = window.VkSurface.GetRequiredExtensions(out uint extCount);
         var ici = new InstanceCreateInfo
@@ -90,10 +101,12 @@ internal sealed unsafe class VkGpu : IDisposable
         {
             Vk.GetPhysicalDeviceProperties(d, out var props);
             string name = SilkMarshal.PtrToString((nint)props.DeviceName) ?? "GPU";
-            if (props.DeviceType == PhysicalDeviceType.Cpu) continue; // llvmpipe: renderizador por software
+            if (props.DeviceType == PhysicalDeviceType.Cpu && !AllowSoftware) continue; // llvmpipe: renderizador por software
+            if (rayQuery && !HasRayQuery(Vk, d)) continue;
             if (FindQueueFamily(d) is uint fam) candidates.Add((d, name, props.DeviceType, fam));
         }
-        if (candidates.Count == 0) throw new InvalidOperationException("Nenhuma GPU com Vulkan que consiga desenhar nesta janela.");
+        if (candidates.Count == 0)
+            throw rayQuery ? new NotSupportedException(NoRayQuery) : new InvalidOperationException("Nenhuma GPU com Vulkan que consiga desenhar nesta janela.");
         static bool Same(string a, string b) => a.Length > 0 && b.Length > 0 &&
             (a.Contains(b, StringComparison.OrdinalIgnoreCase) || b.Contains(a, StringComparison.OrdinalIgnoreCase) ||
              Strip(a).Contains(Strip(b), StringComparison.OrdinalIgnoreCase) || Strip(b).Contains(Strip(a), StringComparison.OrdinalIgnoreCase));
@@ -107,21 +120,44 @@ internal sealed unsafe class VkGpu : IDisposable
         Vk.GetPhysicalDeviceMemoryProperties(Physical, out MemProps);
         Vk.GetPhysicalDeviceProperties(Physical, out var chosen);
         Limits = chosen.Limits;
+        uint nf = 0;
+        Vk.GetPhysicalDeviceQueueFamilyProperties(Physical, ref nf, null);
+        var families = new QueueFamilyProperties[nf];
+        fixed (QueueFamilyProperties* p = families) Vk.GetPhysicalDeviceQueueFamilyProperties(Physical, ref nf, p);
+        TimestampBits = families[QueueFamily].TimestampValidBits;
+        if (rayQuery)
+        {
+            var asProps = new PhysicalDeviceAccelerationStructurePropertiesKHR { SType = StructureType.PhysicalDeviceAccelerationStructurePropertiesKhr };
+            var props2 = new PhysicalDeviceProperties2 { SType = StructureType.PhysicalDeviceProperties2, PNext = &asProps };
+            Vk.GetPhysicalDeviceProperties2(Physical, &props2);
+            ScratchAlignment = Math.Max(1u, asProps.MinAccelerationStructureScratchOffsetAlignment);
+        }
 
         // ---- Dispositivo e fila ----
         float prio = 1f;
         var qci = new DeviceQueueCreateInfo { SType = StructureType.DeviceQueueCreateInfo, QueueFamilyIndex = QueueFamily, QueueCount = 1, PQueuePriorities = &prio };
-        var swapExt = (byte*)SilkMarshal.StringToPtr(KhrSwapchain.ExtensionName);
+        var extNames = new[] { KhrSwapchain.ExtensionName }.Concat(rayQuery ? RayQueryExtensions : Array.Empty<string>()).ToArray();
+        var devExt = (byte**)SilkMarshal.StringArrayToPtr(extNames);
         var features = new PhysicalDeviceFeatures();
+        // Ray tracing: estruturas de aceleração, raios inline, endereço de buffer (a GPU lê a geometria pelo endereço) e
+        // layout escalar (os buffers do shader têm o formato das structs do C#)
+        var rq = new PhysicalDeviceRayQueryFeaturesKHR { SType = StructureType.PhysicalDeviceRayQueryFeaturesKhr, RayQuery = true };
+        var asf = new PhysicalDeviceAccelerationStructureFeaturesKHR { SType = StructureType.PhysicalDeviceAccelerationStructureFeaturesKhr, PNext = &rq, AccelerationStructure = true };
+        var v12 = new PhysicalDeviceVulkan12Features { SType = StructureType.PhysicalDeviceVulkan12Features, PNext = &asf, BufferDeviceAddress = true, ScalarBlockLayout = true };
         var dci = new DeviceCreateInfo
         {
-            SType = StructureType.DeviceCreateInfo, QueueCreateInfoCount = 1, PQueueCreateInfos = &qci,
-            EnabledExtensionCount = 1, PpEnabledExtensionNames = &swapExt, PEnabledFeatures = &features,
+            SType = StructureType.DeviceCreateInfo, PNext = rayQuery ? &v12 : null, QueueCreateInfoCount = 1, PQueueCreateInfos = &qci,
+            EnabledExtensionCount = (uint)extNames.Length, PpEnabledExtensionNames = devExt, PEnabledFeatures = &features,
         };
         Check(Vk.CreateDevice(Physical, in dci, null, out Device), "criar o dispositivo");
-        SilkMarshal.Free((nint)swapExt);
+        SilkMarshal.Free((nint)devExt);
         Vk.GetDeviceQueue(Device, QueueFamily, 0, out Queue);
         if (!Vk.TryGetDeviceExtension(Instance, Device, out KhrSwapchain)) throw new InvalidOperationException("Vulkan sem VK_KHR_swapchain.");
+        if (rayQuery)
+        {
+            if (!Vk.TryGetDeviceExtension(Instance, Device, out KhrAccelerationStructure kas)) throw new NotSupportedException(NoRayQuery);
+            KhrAs = kas;
+        }
 
         var pci = new CommandPoolCreateInfo
         {
@@ -129,6 +165,33 @@ internal sealed unsafe class VkGpu : IDisposable
             Flags = CommandPoolCreateFlags.ResetCommandBufferBit,
         };
         Check(Vk.CreateCommandPool(Device, in pci, null, out Pool), "criar o command pool");
+    }
+
+    /// <summary>Só para teste: ABEXPLODE_VK_SOFTWARE=1 aceita o Vulkan por software (lavapipe), para conferir o ray tracing sem placa com RT.</summary>
+    internal static bool AllowSoftware => Environment.GetEnvironmentVariable("ABEXPLODE_VK_SOFTWARE") == "1";
+
+    internal const string NoRayQuery =
+        "Esta placa não tem ray tracing por hardware no Vulkan (VK_KHR_ray_query). Precisa de RTX 20 ou mais nova, Radeon RX 6000 " +
+        "ou mais nova, ou Intel Arc, com driver atualizado (no Linux: driver NVIDIA proprietário ou Mesa 22 ou mais novo).";
+
+    /// <summary>A GPU tem Vulkan 1.2, as extensões de ray query e os recursos ligados?</summary>
+    internal static bool HasRayQuery(Vk vk, PhysicalDevice d)
+    {
+        vk.GetPhysicalDeviceProperties(d, out var props);
+        if (props.ApiVersion < Vk.Version12) return false;
+        uint n = 0;
+        vk.EnumerateDeviceExtensionProperties(d, (byte*)null, ref n, null);
+        var exts = new ExtensionProperties[n];
+        fixed (ExtensionProperties* p = exts) vk.EnumerateDeviceExtensionProperties(d, (byte*)null, ref n, p);
+        var names = new HashSet<string>();
+        foreach (var e in exts) names.Add(SilkMarshal.PtrToString((nint)e.ExtensionName) ?? "");
+        if (!RayQueryExtensions.All(names.Contains)) return false;
+        var rq = new PhysicalDeviceRayQueryFeaturesKHR { SType = StructureType.PhysicalDeviceRayQueryFeaturesKhr };
+        var asf = new PhysicalDeviceAccelerationStructureFeaturesKHR { SType = StructureType.PhysicalDeviceAccelerationStructureFeaturesKhr, PNext = &rq };
+        var v12 = new PhysicalDeviceVulkan12Features { SType = StructureType.PhysicalDeviceVulkan12Features, PNext = &asf };
+        var f2 = new PhysicalDeviceFeatures2 { SType = StructureType.PhysicalDeviceFeatures2, PNext = &v12 };
+        vk.GetPhysicalDeviceFeatures2(d, &f2);
+        return rq.RayQuery && asf.AccelerationStructure && v12.BufferDeviceAddress && v12.ScalarBlockLayout;
     }
 
     private uint? FindQueueFamily(PhysicalDevice d)
@@ -207,7 +270,13 @@ internal sealed unsafe class VkGpu : IDisposable
         Check(Vk.CreateBuffer(Device, in bci, null, out b.Buffer), "criar buffer");
         Vk.GetBufferMemoryRequirements(Device, b.Buffer, out var req);
         var want = hostVisible ? MemoryPropertyFlags.HostVisibleBit | MemoryPropertyFlags.HostCoherentBit : MemoryPropertyFlags.DeviceLocalBit;
-        var mai = new MemoryAllocateInfo { SType = StructureType.MemoryAllocateInfo, AllocationSize = req.Size, MemoryTypeIndex = MemoryType(req.MemoryTypeBits, want) };
+        // Buffer lido pelo endereço (geometria e estruturas do ray tracing): a memória precisa ter endereço de GPU
+        var flags = new MemoryAllocateFlagsInfo { SType = StructureType.MemoryAllocateFlagsInfo, Flags = (MemoryAllocateFlags)2 }; // VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
+        var mai = new MemoryAllocateInfo
+        {
+            SType = StructureType.MemoryAllocateInfo, AllocationSize = req.Size, MemoryTypeIndex = MemoryType(req.MemoryTypeBits, want),
+            PNext = (usage & BufferUsageFlags.ShaderDeviceAddressBit) != 0 ? &flags : null,
+        };
         Check(Vk.AllocateMemory(Device, in mai, null, out b.Memory), "alocar memória");
         Vk.BindBufferMemory(Device, b.Buffer, b.Memory, 0);
         if (hostVisible)
@@ -217,6 +286,13 @@ internal sealed unsafe class VkGpu : IDisposable
             b.Mapped = ptr;
         }
         return b;
+    }
+
+    /// <summary>Endereço do buffer na GPU (precisa de BufferUsageFlags.ShaderDeviceAddressBit).</summary>
+    public ulong Address(GpuBuffer b)
+    {
+        var info = new BufferDeviceAddressInfo { SType = StructureType.BufferDeviceAddressInfo, Buffer = b.Buffer };
+        return Vk.GetBufferDeviceAddress(Device, in info);
     }
 
     /// <summary>Buffer só da GPU preenchido com os dados (cópia por um buffer temporário visível pela CPU).</summary>
@@ -284,11 +360,23 @@ internal sealed unsafe class VkGpu : IDisposable
     /// <summary>Grava e executa um comando avulso, esperando terminar (cópias de inicialização).</summary>
     public void OneShot(Action<CommandBuffer> record)
     {
+        var cmd = BeginOnce();
+        record(cmd);
+        SubmitOnce(cmd);
+    }
+
+    /// <summary>Começa um comando avulso; <see cref="SubmitOnce"/> executa e espera.</summary>
+    public CommandBuffer BeginOnce()
+    {
         var ai = new CommandBufferAllocateInfo { SType = StructureType.CommandBufferAllocateInfo, CommandPool = Pool, Level = CommandBufferLevel.Primary, CommandBufferCount = 1 };
         Vk.AllocateCommandBuffers(Device, in ai, out var cmd);
         var bi = new CommandBufferBeginInfo { SType = StructureType.CommandBufferBeginInfo, Flags = CommandBufferUsageFlags.OneTimeSubmitBit };
         Vk.BeginCommandBuffer(cmd, in bi);
-        record(cmd);
+        return cmd;
+    }
+
+    public void SubmitOnce(CommandBuffer cmd)
+    {
         Vk.EndCommandBuffer(cmd);
         var si = new SubmitInfo { SType = StructureType.SubmitInfo, CommandBufferCount = 1, PCommandBuffers = &cmd };
         Vk.QueueSubmit(Queue, 1, in si, default);

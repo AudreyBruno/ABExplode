@@ -4,8 +4,34 @@ using D3D = ABExplode.Platform.Windows;
 // VkTest burn|d3d [segundos] [shells] [iterations] [msaa]
 //   burn: stress de GPU em Vulkan (o do Linux); d3d: o mesmo teste em Direct3D 11 (o do Windows), para comparar.
 //   game|d3dgame [segundos] [largura] [altura]: cena de jogo do RESET BENCH em Vulkan / Direct3D 11.
+//   rt|d3drt [segundos] [largura] [altura] [preset]: ray tracing em Vulkan (ray query) / DXR 1.1, uma passada sem aquecimento.
 string mode = args.Length > 0 ? args[0] : "burn";
 int I(int i, int def) => args.Length > i && int.TryParse(args[i], out int v) ? v : def;
+
+if (mode is "rt" or "d3drt")
+{
+    var pass = TimeSpan.FromSeconds(I(1, 20));
+    int w = I(2, 1920), h = I(3, 1080);
+    string preset = args.Length > 4 ? args[4] : "alta";
+    string? why = mode == "rt" ? Vk.GpuRtBench.CheckSupport("") : D3D.GpuRtBench.CheckSupport("");
+    Console.WriteLine($"Suporte [{mode}]: {why ?? "sim"}");
+    ABExplode.Core.GpuRtResult? r;
+    string? err;
+    if (mode == "rt")
+    {
+        var b = new Vk.GpuRtBench { Width = w, Height = h, Preset = preset, Passes = 1, Warmup = TimeSpan.Zero, PassDuration = pass };
+        r = b.Run(); err = b.Error ?? (b.Cancelled ? "cancelado" : null);
+    }
+    else
+    {
+        var b = new D3D.GpuRtBench { Width = w, Height = h, Preset = preset, Passes = 1, Warmup = TimeSpan.Zero, PassDuration = pass };
+        r = b.Run(); err = b.Error ?? (b.Cancelled ? "cancelado" : null);
+    }
+    Console.WriteLine(r is { } x
+        ? $"OK [{mode}] · {w}x{h} · {preset} · {x.MedianFps:0.0} FPS · 1% low {x.MedianLow1:0.0} · {x.Passes[0].Frames} frames · {x.GigaRaysPerSec:0.00} Grays/s · {x.Adapter}"
+        : $"ERRO [{mode}]: {err ?? "?"}");
+    return r is null ? 1 : 0;
+}
 
 if (mode is "game" or "d3dgame")
 {

@@ -12,7 +12,7 @@ using Avalonia.Threading;
 #if WINDOWS
 using ABExplode.Platform.Windows;
 #else
-using ABExplode.Vulkan; // cena de jogo em Vulkan, com a mesma interface do Direct3D
+using ABExplode.Vulkan; // cena de jogo e ray tracing em Vulkan, com a mesma interface do Direct3D e do DXR
 #endif
 
 namespace ABExplode.App;
@@ -279,7 +279,7 @@ public partial class MainWindow
         return t;
     }
 
-    // ---------------- Cena de jogo (Direct3D 11 no Windows, Vulkan no Linux) e ray tracing (DXR: só Windows) ----------------
+    // ---------------- Cena de jogo (Direct3D 11 no Windows, Vulkan no Linux) e ray tracing (DXR no Windows, Vulkan no Linux) ----------------
 
     private GpuGameBench? _gpuBench;
 
@@ -336,7 +336,6 @@ public partial class MainWindow
         SaveBenchRecord("gpu", r.Score, $"{r.Score:N0} pts · {r.AvgFps:0} FPS · {r.Height}p" + (OperatingSystem.IsWindows() ? "" : " · Vulkan"));
     }
 
-#if WINDOWS
     private GpuRtBench? _rtBench;
 
     private async void BtnRtBench_Click(object? sender, RoutedEventArgs e)
@@ -405,12 +404,8 @@ public partial class MainWindow
             rows.Add(new($"Passada {i + 1}", $"{r.Passes[i].AvgFps:0.0} FPS · 1% low {r.Passes[i].Low1Fps:0.0}"));
         RtResult.ItemsSource = rows;
         SaveBenchRecord($"rt:{r.Preset}:{r.Height}",
-                        r.Score, $"{r.Score:N0} pts · {r.MedianFps:0} FPS · {PresetName(r.Preset)} {r.Height}p" + (r.Reliable ? "" : " · instável"));
+                        r.Score, $"{r.Score:N0} pts · {r.MedianFps:0} FPS · {PresetName(r.Preset)} {r.Height}p" + (r.Reliable ? "" : " · instável") + (OperatingSystem.IsWindows() ? "" : " · Vulkan"));
     }
-#else
-    // TODO(Fase 6, etapa 4): ray tracing em Vulkan (VK_KHR_ray_query).
-    private void BtnRtBench_Click(object? sender, RoutedEventArgs e) => RtStatus.Text = "Ainda não disponível neste sistema.";
-#endif
 
     private static string PresetName(string p) => p switch { "normal" => "Normal", "extrema" => "Extrema", _ => "Alta" };
 

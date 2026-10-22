@@ -1898,7 +1898,7 @@
                         </ScrollViewer>
                     </Grid>
 
-                    <!-- ===== Ray tracing (GPU, DXR 1.1) ===== -->
+                    <!-- ===== Ray tracing (GPU: DXR 1.1 no Windows, VK_KHR_ray_query no Linux) ===== -->
                     <Grid Name="BenchPanelRt" Grid.Row="2" ColumnDefinitions="*,16,310" IsVisible="False">
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <StackPanel>
@@ -1906,7 +1906,7 @@
                                     <StackPanel>
                                         <TextBlock Text="CIDADE DE OBJETOS · RAY TRACING POR HARDWARE" Classes="label"/>
                                         <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource Muted}"
-                                                   Text="Direct3D 12 com DXR 1.1: usa os núcleos de ray tracing da placa (RTX 20 ou mais nova, Radeon RX 6000 ou mais nova, Intel Arc). 4 mil objetos em materiais fosco, metal e espelho; por pixel, path tracing com sombras suaves, oclusão de ambiente, reflexos de reflexos e iluminação indireta. A estrutura de aceleração é refeita a cada frame, com objetos girando, como nos jogos. Abre numa janela própria; ESC cancela."/>
+                                                   Text="Raios por hardware (Direct3D 12 com DXR 1.1 no Windows, Vulkan com ray query no Linux): usa os núcleos de ray tracing da placa (RTX 20 ou mais nova, Radeon RX 6000 ou mais nova, Intel Arc). 4 mil objetos em materiais fosco, metal e espelho; por pixel, path tracing com sombras suaves, oclusão de ambiente, reflexos de reflexos e iluminação indireta. A estrutura de aceleração é refeita a cada frame, com objetos girando, como nos jogos. Abre numa janela própria; ESC cancela."/>
                                         <Grid Margin="0,22,0,0">
                                             <StackPanel>
                                                 <TextBlock Text="FPS AGORA" Classes="label"/>

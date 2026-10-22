@@ -413,7 +413,23 @@ Implementações em `Platform.Linux`:
     do trajeto.
   - **No app do Linux:** o RESET BENCH (cena de jogo) e a nota de GPU do verificador do RESET OC usam o Vulkan. No
     histórico, a nota sai marcada "Vulkan", porque não é comparável com a do Direct3D.
-- **Próximas etapas:** ray tracing (`VK_KHR_ray_query`).
+- **Etapa 4 (feita, falta testar numa placa com RT):** ray tracing do RESET BENCH em Vulkan (`ABExplode.Vulkan.GpuRtBench`).
+  - **Cena:** malhas, 4 mil objetos, câmera e presets foram para o Core (`RtScene`), junto com o resultado
+    (`GpuRtResult`, `RtPass`). O DXR usa o mesmo código (conferido função por função com a versão anterior). Um teste
+    trava a cena por SHA-256 e o tamanho das structs lidas pelo shader.
+  - **Vulkan:** `VK_KHR_acceleration_structure` + `VK_KHR_ray_query` (o equivalente do DXR 1.1 inline), Vulkan 1.2 com
+    endereço de buffer e layout escalar. Uma BLAS por malha, montada uma vez; TLAS refeita a cada frame com os objetos
+    girando. Mesmo HLSL do DXR, num compute shader. Tempo de frame pelos timestamps da GPU, como no DXR.
+  - **Placa sem RT:** `CheckSupport` diz o que é preciso (RTX 20+, RX 6000+, Arc; no Linux, driver NVIDIA ou Mesa 22+).
+  - **Conferido no Windows:** na Intel UHD 750 os dois (DXR e Vulkan) recusam com a mensagem. O caminho de ray tracing
+    rodou no lavapipe (Vulkan por software do Mesa) com imagem correta: reflexos, sombras suaves e oclusão. O
+    `ABEXPLODE_VK_SOFTWARE=1` aceita o renderizador por software, só para esse teste.
+  - **`tools/VkTest`:** `rt` (Vulkan) e `d3drt` (DXR).
+  - **No app do Linux:** o RESET BENCH (ray tracing) usa o Vulkan; no histórico a nota sai marcada "Vulkan".
+  - **`tools/ShaderBuild`:** a linha `// options:` passa opções extras ao DXC por arquivo (o ray query pede
+    `-fspv-target-env=vulkan1.2` e `-fvk-use-scalar-layout`).
+- **Fase 6 completa no código.** Falta o teste no Linux (stress, cena de jogo, ray tracing numa placa com RT, MangoHud e
+  RESET OC).
 
 ## Empacotamento
 
