@@ -20,6 +20,8 @@ internal static class Program
 #else
         // Ferramentas que completam as leituras: ABExplode --deps confere e instala
         if (args.Contains("--deps")) { Environment.ExitCode = LinuxStartup.CheckTools(); return; }
+        // Instância única: com o app já aberto, só avisa a janela (traz para a frente ou liga/desliga o overlay)
+        if (ABExplode.Platform.Linux.LinuxInstance.Send(args.Contains("--toggle-overlay") ? "toggle-overlay" : "show")) return;
         // Sem sessão gráfica ou sem as bibliotecas da janela, explica e oferece instalar em vez de fechar com erro
         if (!LinuxStartup.CheckGui()) { Environment.ExitCode = 1; return; }
         try { BuildAvaloniaApp().StartWithClassicDesktopLifetime(args); }

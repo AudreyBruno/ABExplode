@@ -344,7 +344,22 @@ Implementações em `Platform.Linux`:
     - **Programas com a porta aberta:** pelos descritores em `/proc`; no Flatpak, pelo `fuser` do sistema.
     - **Limpar cache:** `~/.arduino15`, nativa e Flatpak.
   - As telas se atualizam quando uma placa é plugada ou removida.
-- **Próximas etapas:** Biblioteca (abrir jogos pela Steam/Heroic); atalho global do overlay.
+- **Etapa 4 (feita, falta testar no Linux):** Biblioteca e atalho do overlay.
+  - **Biblioteca (`LinuxGameLauncher`):**
+    - **Abrir:** Steam e Heroic pelo endereço da loja (`xdg-open steam://`, `heroic://`); binários do Linux direto;
+      `.exe` pelo Wine.
+    - **Acompanhar:** acha o processo pela pasta do jogo na linha de comando, o que cobre o Proton.
+    - **Perfil:** "Alto desempenho" vira o perfil de energia Desempenho durante o jogo; "GPU dedicada" vira o PRIME
+      offload (`__NV_PRIME_RENDER_OFFLOAD` ou `DRI_PRIME`); a prioridade vai pelo `gamemoderun`. "Tela cheia" fica
+      escondido.
+    - **Opções da Steam:** no mesmo `localconfig.vdf`, com os prefixos antes do `%command%`.
+    - **Compartilhado:** `GameArgs` foi para o Platform, com testes, e serve aos dois sistemas.
+  - **Instância única no Linux (`LinuxInstance`):** por um socket Unix em `$XDG_RUNTIME_DIR`; abrir de novo traz a
+    janela.
+  - **Atalho do overlay:** `ABExplode --toggle-overlay` liga e desliga o overlay da instância aberta. No Wayland um app
+    não pode pegar teclas globais, então o atalho fica no sistema: no GNOME o app cria Ctrl+Shift+O pelo `gsettings`;
+    nos outros, mostra o comando para colar nas configurações de teclado.
+- **Fase 5 concluída no código.** Falta o teste no Linux das quatro etapas. Depois dele, o projeto WPF da raiz pode sair.
 
 ## Fase 6: GPU no Linux (a mais pesada)
 

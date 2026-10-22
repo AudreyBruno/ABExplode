@@ -6,6 +6,8 @@ using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 #if WINDOWS
 using ABExplode.Platform.Windows;
+#else
+using ABExplode.Platform.Linux;
 #endif
 
 namespace ABExplode.App;
@@ -35,6 +37,9 @@ public partial class MainWindow
     {
         if (_launcherInited) return;
         _launcherInited = true;
+#if !WINDOWS
+        LinuxLauncherTexts();
+#endif
         foreach (var (label, token, hint) in ExtraPresets)
         {
             var b = new Button
@@ -68,7 +73,7 @@ public partial class MainWindow
             ApplyGameFilter();
             var byStore = _libGames.GroupBy(g => g.Store).Select(x => $"{x.Key} {x.Count()}");
             LGameCount.Text = _libGames.Count == 0
-                ? "Nenhum jogo encontrado. Use + ADICIONAR .EXE para incluir um à mão."
+                ? $"Nenhum jogo encontrado. Use {BtnAddExe.Content} para incluir um à mão."
                 : $"{_libGames.Count} jogos · {string.Join(" · ", byStore)}";
         }
         catch (Exception ex) { LGameCount.Text = "Falhou: " + ex.Message; }
@@ -92,6 +97,12 @@ public partial class MainWindow
     private async void BtnScanGames_Click(object? sender, RoutedEventArgs e) => await ScanGamesAsync();
 
     /// <summary>Escolhe um arquivo pela janela do sistema; null se cancelar.</summary>
+    // No Linux o jogo pode ser um binário sem extensão, um .sh, um .AppImage ou um .exe (Wine): qualquer arquivo.
+    private static string GameFileTitle => OperatingSystem.IsWindows() ? "Escolha o .exe do jogo" : "Escolha o executável do jogo";
+    private static (string Name, string[] Patterns) GameFileFilter =>
+        OperatingSystem.IsWindows() ? ("Programas (*.exe)", new[] { "*.exe" }) : ("Todos os arquivos", new[] { "*" });
+    private static string[] HelperPatterns => OperatingSystem.IsWindows() ? new[] { "*.exe", "*.bat", "*.cmd", "*.lnk" } : new[] { "*" };
+
     private async Task<string?> PickFileAsync(string title, string filterName, string[] patterns, string? startDir = null)
     {
         var start = startDir != null && Directory.Exists(startDir) ? await StorageProvider.TryGetFolderFromPathAsync(startDir) : null;
@@ -105,7 +116,7 @@ public partial class MainWindow
 
     private async void BtnAddExe_Click(object? sender, RoutedEventArgs e)
     {
-        string? exe = await PickFileAsync("Escolha o .exe do jogo", "Programas (*.exe)", new[] { "*.exe" });
+        string? exe = await PickFileAsync(GameFileTitle, GameFileFilter.Name, GameFileFilter.Patterns);
         if (exe == null) return;
         if (!_settings.CustomGames.Any(c => c.Exe.Equals(exe, StringComparison.OrdinalIgnoreCase)))
         {
@@ -228,7 +239,7 @@ public partial class MainWindow
     {
         if (_lg == null || _lp == null) return;
         var (g, p) = (_lg, _lp);
-        string? exe = await PickFileAsync("Escolha o .exe do jogo", "Programas (*.exe)", new[] { "*.exe" }, g.InstallDir);
+        string? exe = await PickFileAsync(GameFileTitle, GameFileFilter.Name, GameFileFilter.Patterns, g.InstallDir);
         if (exe == null) return;
         p.ExePath = exe;
         try { _settings.Save(); } catch { }
@@ -241,8 +252,7 @@ public partial class MainWindow
     {
         if (_lp == null) return;
         var p = _lp;
-        string? path = await PickFileAsync("Programa para abrir junto com o jogo", "Programas e scripts",
-                                           new[] { "*.exe", "*.bat", "*.cmd", "*.lnk" });
+        string? path = await PickFileAsync("Programa para abrir junto com o jogo", "Programas e scripts", HelperPatterns);
         if (path == null) return;
         p.Helpers.Add(new HelperProgram { Path = path, CloseWithGame = LHelperClose.IsChecked == true });
         try { _settings.Save(); } catch { }
@@ -327,12 +337,94 @@ public partial class MainWindow
         }
     }
 #else
-    // TODO(Fase 5): iniciar jogos e opções da Steam no Linux (Steam/Proton, Lutris).
-    private void CancelLaunch() { }
-    private static string? FindMainExe(string dir, string name) => null;
-    private static string BuildLaunchArgs(GameProfile p) => "";
-    private static string? SteamLaunchOptions(string appId) => null;
-    private void BtnSteamApply_Click(object? sender, RoutedEventArgs e) => LStatus.Text = "Ainda não disponível neste sistema.";
-    private void BtnPlay_Click(object? sender, RoutedEventArgs e) => LStatus.Text = "Ainda não disponível neste sistema.";
+    // ---------------- Linux: executável, argumentos, Steam (localconfig.vdf) e iniciar o jogo ----------------
+
+    private CancellationTokenSource? _launchCts;
+    private bool _launcherTexts;
+
+    /// <summary>Para de acompanhar o jogo iniciado (ao fechar o app).</summary>
+    private void CancelLaunch() => _launchCts?.Cancel();
+
+    /// <summary>Textos do perfil no Linux (o que cada opção vira aqui).</summary>
+    private void LinuxLauncherTexts()
+    {
+        if (_launcherTexts) return;
+        _launcherTexts = true;
+        BtnAddExe.Content = "+ ADICIONAR JOGO";
+        BtnPickExe.Content = "ESCOLHER O EXECUTÁVEL";
+        LChkPlan.Content = "Perfil de energia Desempenho enquanto joga (volta ao normal depois)";
+        LChkGpu.Content = "Usar a placa de vídeo dedicada (notebooks com duas placas: PRIME offload)";
+        LChkFso.IsVisible = false; // não existe no Linux
+        LPerfHint.Text = "Prioridade e perfil de energia valem só durante o jogo. A prioridade usa o GameMode (gamemoderun), que precisa estar " +
+                         "instalado (RESET OTIMIZA). Na Steam, prioridade e placa dedicada viram prefixos antes do %command% nas opções de " +
+                         "inicialização; jogos de Windows rodam pelo Proton da própria Steam.";
+    }
+
+    private static string? FindMainExe(string dir, string name) => LinuxGameLauncher.FindMainExe(dir, name);
+
+    // Na Steam do Linux os prefixos (gamemoderun, PRIME) entram antes do %command%; nos outros, só os argumentos.
+    private string BuildLaunchArgs(GameProfile p)
+    {
+        LinuxLauncherTexts();
+        return _lg?.IsSteam == true ? LinuxGameLauncher.BuildSteamOptions(p) : GameArgs.Build(p);
+    }
+
+    private static string? SteamLaunchOptions(string appId) => LinuxGameLauncher.GetLaunchOptions(appId);
+
+    private async void BtnSteamApply_Click(object? sender, RoutedEventArgs e)
+    {
+        var g = _lg;
+        if (g == null || !g.IsSteam || _lp == null) return;
+        string opts = LinuxGameLauncher.BuildSteamOptions(_lp);
+        BtnSteamApply.IsEnabled = false;
+        try
+        {
+            if (LinuxGameLauncher.SteamRunning)
+            {
+                bool yes = await Dialog.Ask(this, "RESET JOGOS · Steam",
+                    "A Steam precisa ser fechada para gravar as opções de inicialização (senão ela as sobrescreve ao sair).\n\n" +
+                    "Fechar a Steam agora? Jogos abertos serão encerrados. É feito um backup do arquivo antes de alterar.");
+                if (!yes) return;
+                LStatus.Text = "Fechando a Steam…";
+                if (!await LinuxGameLauncher.ShutdownSteamAsync()) { LStatus.Text = "A Steam não fechou. Feche-a manualmente e tente de novo."; return; }
+            }
+            string? err = await Task.Run(() => LinuxGameLauncher.SetLaunchOptions(g.Id, opts));
+            LStatus.Text = err ?? (opts.Length > 0 ? $"Opções gravadas na Steam: {opts}. Clique em JOGAR (a Steam abre sozinha)." : "Opções da Steam limpas para este jogo.");
+            LSteamNow.Text = "Opções atuais na Steam: " + (LinuxGameLauncher.GetLaunchOptions(g.Id) is { Length: > 0 } cur ? cur : "(nenhuma)");
+        }
+        finally { BtnSteamApply.IsEnabled = true; }
+    }
+
+    private async void BtnPlay_Click(object? sender, RoutedEventArgs e)
+    {
+        if (_launchCts != null) { _launchCts.Cancel(); return; }
+        var g = _lg;
+        var p = _lp;
+        if (g == null || p == null) return;
+
+        _launchCts = new CancellationTokenSource();
+        BtnPlay.Content = "PARAR ACOMPANHAMENTO";
+        try
+        {
+            await LinuxGameLauncher.RunAsync(g, p,
+                t => Dispatcher.UIThread.Post(() => LStatus.Text = t),
+                exe => Dispatcher.UIThread.Post(() =>
+                {
+                    if (!string.Equals(p.ExePath, exe, StringComparison.Ordinal))
+                    {
+                        p.ExePath = exe;
+                        try { _settings.Save(); } catch { }
+                        if (_lg == g) LExeText.Text = "Executável: " + exe;
+                    }
+                }),
+                _launchCts.Token);
+        }
+        finally
+        {
+            _launchCts?.Dispose();
+            _launchCts = null;
+            BtnPlay.Content = "JOGAR";
+        }
+    }
 #endif
 }

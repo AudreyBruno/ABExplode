@@ -41,12 +41,33 @@ public partial class MainWindow
             if (TryGetPlatformHandle()?.Handle is IntPtr h) UnregisterHotKey(h, HotkeyId);
         };
 #else
-        // TODO(Fase 5): atalho global no Linux (X11: XGrabKey; Wayland: portal GlobalShortcuts) e FPS pelo MangoHud.
-        OvHotkeyText.Text = "Atalho global ainda não disponível neste sistema: ligue e desligue por aqui.";
+        // No Wayland o app não pode capturar teclas: o atalho é do sistema e chama "ABExplode --toggle-overlay" (instância única).
+        // TODO(Fase 6): FPS pelo MangoHud.
+        string cmd = ABExplode.Platform.Linux.LinuxInstance.ToggleCommand();
+        bool auto = ABExplode.Platform.Linux.LinuxInstance.CanCreateShortcut;
+        OvHotkeyText.Text = auto
+            ? "Atalho Ctrl + Shift + O: o Linux não deixa um app pegar teclas globais, então o atalho fica nas configurações de teclado " +
+              "do sistema. O botão abaixo cria nelas."
+            : "Atalho: o Linux não deixa um app pegar teclas globais. Crie um atalho personalizado nas configurações de teclado do " +
+              $"sistema (por exemplo Ctrl + Shift + O) com o comando:\n{cmd}";
+        BtnOvShortcut.IsVisible = auto;
         OvFpsHelp.Text = "A detecção de FPS deste sistema chega numa próxima versão.";
 #endif
         UpdateOverlayStatus(null);
     }
+
+#if WINDOWS
+    private void BtnOvShortcut_Click(object? sender, RoutedEventArgs e) { } // o atalho global do Windows é registrado sozinho
+#else
+    private async void BtnOvShortcut_Click(object? sender, RoutedEventArgs e)
+    {
+        string? err = ABExplode.Platform.Linux.LinuxInstance.CreateGnomeShortcut();
+        await Dialog.Show(this, "Overlay", err == null
+            ? "Atalho criado: Ctrl + Shift + O liga e desliga o overlay, com o ABExplode aberto. Ele aparece em Configurações › Teclado › Atalhos personalizados."
+            : $"Não foi possível criar o atalho ({err}). Crie à mão em Configurações › Teclado › Atalhos personalizados, com o comando:\n\n" +
+              ABExplode.Platform.Linux.LinuxInstance.ToggleCommand());
+    }
+#endif
 
     private void ToggleOverlay() => ChkOverlay.IsChecked = ChkOverlay.IsChecked != true;
 

@@ -181,6 +181,17 @@ public partial class MainWindow
         _devPoll.Tick += (_, _) => PollDevices();
         _devPoll.Start();
         Opened += async (_, _) => { await Task.Delay(1500); await CheckLinuxToolsAsync(); };
+        // Instância única: as próximas aberturas e o atalho do overlay (ABExplode --toggle-overlay) chegam por aqui
+        _instance = ABExplode.Platform.Linux.LinuxInstance.Listen(cmd => Dispatcher.UIThread.Post(() => OnInstanceCommand(cmd)));
+    }
+
+    private ABExplode.Platform.Linux.LinuxInstance? _instance;
+
+    private void OnInstanceCommand(string cmd)
+    {
+        if (cmd == "toggle-overlay") { ToggleOverlay(); return; }
+        if (WindowState == Avalonia.Controls.WindowState.Minimized) WindowState = Avalonia.Controls.WindowState.Normal;
+        Activate();
     }
 
     /// <summary>
@@ -227,7 +238,11 @@ public partial class MainWindow
             await Dialog.Show(this, "Dependências", $"A instalação não terminou:\n\n{output}\n\nTente pelo terminal:\n{how}");
     }
 
-    private void CloseDevices() => _devPoll?.Stop();
+    private void CloseDevices()
+    {
+        _devPoll?.Stop();
+        _instance?.Dispose();
+    }
 
     private void PollDevices()
     {

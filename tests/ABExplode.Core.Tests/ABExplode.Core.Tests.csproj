@@ -13,6 +13,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\ABExplode.Core\ABExplode.Core.csproj" />
+    <!-- O que é comum aos dois sistemas e não depende de hardware (GameArgs...) -->
+    <ProjectReference Include="..\..\src\ABExplode.Platform\ABExplode.Platform.csproj" />
     <Using Include="Xunit" />
     <Using Include="ABExplode.Core" />
   </ItemGroup>

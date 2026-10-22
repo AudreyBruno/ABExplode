@@ -397,7 +397,7 @@
                             <TextBox Name="LGameSearch" PlaceholderText="Buscar jogo…" TextChanged="LGameSearch_Changed" Margin="0,0,0,8"/>
                             <WrapPanel>
                                 <Button Name="BtnScanGames" Theme="{StaticResource OutlineButton}" Content="ATUALIZAR LISTA" Padding="14,8" Margin="0,0,8,0" Click="BtnScanGames_Click"/>
-                                <Button Theme="{StaticResource OutlineButton}" Content="+ ADICIONAR .EXE" Padding="14,8" Click="BtnAddExe_Click"/>
+                                <Button Name="BtnAddExe" Theme="{StaticResource OutlineButton}" Content="+ ADICIONAR .EXE" Padding="14,8" Click="BtnAddExe_Click"/>
                             </WrapPanel>
                         </StackPanel>
                         <ListBox Name="LGameList" Grid.Row="2" ItemContainerTheme="{StaticResource ListNavItem}" Background="Transparent"
@@ -442,10 +442,10 @@
                                     <CheckBox Name="LChkFso" Content="Desativar otimizações de tela cheia do Windows" Margin="0,0,0,12" Click="LProfile_Changed"/>
                                     <TextBlock Name="LExeText" Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8"/>
                                     <WrapPanel>
-                                        <Button Theme="{StaticResource OutlineButton}" Content="ESCOLHER O .EXE" Padding="14,8" Margin="0,0,8,0" Click="BtnPickExe_Click"/>
+                                        <Button Name="BtnPickExe" Theme="{StaticResource OutlineButton}" Content="ESCOLHER O .EXE" Padding="14,8" Margin="0,0,8,0" Click="BtnPickExe_Click"/>
                                         <Button Theme="{StaticResource OutlineButton}" Content="PERFIL PARA MAIS FPS" Padding="14,8" Click="BtnRecommended_Click"/>
                                     </WrapPanel>
-                                    <TextBlock Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0"
+                                    <TextBlock Name="LPerfHint" Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,0"
                                                Text="Prioridade e plano de energia valem só durante o jogo. As opções de GPU e tela cheia são gravadas para o .exe do jogo no Windows (o programa descobre o .exe sozinho; se errar, escolha o certo)."/>
                                 </StackPanel>
                             </Border>
@@ -727,6 +727,9 @@
                                 <TextBlock Name="OvHotkeyText" Foreground="{DynamicResource Muted}" Margin="46,6,0,0" TextWrapping="Wrap">
                                     <Run Text="Atalho global: "/><Run Text="Ctrl + Shift + O" FontFamily="{StaticResource Mono}" Foreground="{DynamicResource Fg}"/><Run Text=" liga e desliga, inclusive dentro do jogo."/>
                                 </TextBlock>
+                                <!-- Linux: o atalho é das configurações de teclado do sistema (cria no GNOME; nos outros mostra o comando) -->
+                                <Button Name="BtnOvShortcut" Theme="{StaticResource OutlineButton}" Content="CRIAR O ATALHO CTRL+SHIFT+O" Padding="14,6" FontSize="11"
+                                        Margin="46,10,0,0" HorizontalAlignment="Left" IsVisible="False" Click="BtnOvShortcut_Click"/>
                             </StackPanel>
                         </Border>
 
