@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <AssemblyName>ABExplode</AssemblyName>
+    <!-- Versão, Optimize, Nullable etc. vêm do Directory.Build.props.
+         Os projetos novos (src\ e tests\) têm csproj próprio e não podem entrar no glob deste. -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);src\**;tests\**;tools\**</DefaultItemExcludes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\logo.png" />
+    <Resource Include="Assets\app.ico" />
+    <Resource Include="Assets\logo-badge.png" />
+    <Resource Include="Assets\logo-dark.png" />
+  </ItemGroup>
+
+  <!-- iCUE SDK da Corsair (RESET INTEGRAÇÃO): se a DLL estiver em Native\, ela vai junto do .exe. Não é versionada no git. -->
+  <ItemGroup>
+    <None Include="Native\iCUESDK.x64_2019.dll" Condition="Exists('Native\iCUESDK.x64_2019.dll')" Link="iCUESDK.x64_2019.dll" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!-- O app WPF é só a interface: a lógica está em Core, o que muda por sistema em Platform (interfaces)
+       e a implementação Windows em Platform.Windows (MIGRACAO-AVALONIA.md, Fases 1 e 2).
+       Os drivers embutidos do RESET MAKER e os pacotes (LHM, WMI, ETW, Vortice) também estão em Platform.Windows. -->
+  <ItemGroup>
+    <ProjectReference Include="src\ABExplode.Core\ABExplode.Core.csproj" />
+    <ProjectReference Include="src\ABExplode.Platform\ABExplode.Platform.csproj" />
+    <ProjectReference Include="src\ABExplode.Platform.Windows\ABExplode.Platform.Windows.csproj" />
+    <Using Include="ABExplode.Core" />
+    <Using Include="ABExplode.Platform" />
+    <Using Include="ABExplode.Platform.Windows" />
+  </ItemGroup>
+
+</Project>

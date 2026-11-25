@@ -1,0 +1,429 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:core="clr-namespace:ABExplode.Core;assembly=ABExplode.Core"
+        xmlns:local="clr-namespace:ABExplode.App">
+
+    <!-- Convertido do Theme.xaml do app WPF: estilos com template viram ControlTheme (Theme="{StaticResource ...}"),
+         estilos de texto e cartão viram classes (Classes="h1"). As cores vêm do Palette.axaml (DynamicResource). -->
+
+    <Styles.Resources>
+
+        <!-- ===== Botões ===== -->
+        <ControlTheme x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource Fg}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Ink}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Fg}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="28,11"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Name="b" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="10" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter Name="PART_ContentPresenter" Content="{TemplateBinding Content}"
+                                          Foreground="{TemplateBinding Foreground}"
+                                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+            <Style Selector="^:pointerover /template/ Border#b"><Setter Property="Opacity" Value="0.85"/></Style>
+            <Style Selector="^:pressed /template/ Border#b"><Setter Property="Opacity" Value="0.7"/></Style>
+            <Style Selector="^:disabled /template/ Border#b"><Setter Property="Opacity" Value="0.3"/></Style>
+        </ControlTheme>
+
+        <ControlTheme x:Key="OutlineButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Fg}"/>
+        </ControlTheme>
+
+        <ControlTheme x:Key="CaptionButton" TargetType="Button">
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource Muted}"/>
+            <Setter Property="FontFamily" Value="{StaticResource Icons}"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Name="b" Background="{TemplateBinding Background}">
+                        <ContentPresenter Name="PART_ContentPresenter" Content="{TemplateBinding Content}"
+                                          Foreground="{TemplateBinding Foreground}"
+                                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+            <Style Selector="^:pointerover">
+                <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+            </Style>
+            <Style Selector="^:pointerover /template/ Border#b">
+                <Setter Property="Background" Value="{DynamicResource Hover}"/>
+            </Style>
+        </ControlTheme>
+
+        <!-- Desenhos dos botões da janela (10x10, traço de 1 px): iguais em qualquer sistema, sem depender de fonte -->
+        <StreamGeometry x:Key="GlyphMinimize">M0,5.5 L10,5.5</StreamGeometry>
+        <StreamGeometry x:Key="GlyphMaximize">M0.5,0.5 L9.5,0.5 L9.5,9.5 L0.5,9.5 Z</StreamGeometry>
+        <StreamGeometry x:Key="GlyphRestore">M2.5,0.5 L9.5,0.5 L9.5,7.5 M0.5,2.5 L7.5,2.5 L7.5,9.5 L0.5,9.5 Z</StreamGeometry>
+        <StreamGeometry x:Key="GlyphClose">M0.5,0.5 L9.5,9.5 M9.5,0.5 L0.5,9.5</StreamGeometry>
+
+        <ControlTheme x:Key="CloseButton" TargetType="Button" BasedOn="{StaticResource CaptionButton}">
+            <Style Selector="^:pointerover">
+                <Setter Property="Foreground" Value="{DynamicResource Ink}"/>
+            </Style>
+            <Style Selector="^:pointerover /template/ Border#b">
+                <Setter Property="Background" Value="{DynamicResource Fg}"/>
+            </Style>
+        </ControlTheme>
+
+        <!-- ===== Navegação lateral ===== -->
+        <ControlTheme x:Key="NavItem" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{DynamicResource Muted}"/>
+            <Setter Property="FontSize" Value="13.5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="GroupName" Value="Nav"/>
+            <Setter Property="Margin" Value="12,1"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <!-- "Pílula" arredondada no item selecionado -->
+                    <Border Name="bg" Background="Transparent" Height="38" CornerRadius="12">
+                        <ContentPresenter Name="PART_ContentPresenter" Content="{TemplateBinding Content}"
+                                          Foreground="{TemplateBinding Foreground}" Margin="14,0,10,0" VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+            <Style Selector="^:pointerover"><Setter Property="Foreground" Value="{DynamicResource Fg}"/></Style>
+            <Style Selector="^:pointerover /template/ Border#bg"><Setter Property="Background" Value="{DynamicResource Hover}"/></Style>
+            <Style Selector="^:checked">
+                <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+            </Style>
+            <Style Selector="^:checked /template/ Border#bg"><Setter Property="Background" Value="{DynamicResource Hover}"/></Style>
+        </ControlTheme>
+
+        <!-- Categoria recolhível do menu lateral: clica e mostra/esconde as sub-abas -->
+        <ControlTheme x:Key="NavGroup" TargetType="ToggleButton">
+            <Setter Property="Foreground" Value="{DynamicResource Muted}"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="12,6,12,1"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Name="bg" Background="Transparent" Height="36" CornerRadius="12">
+                        <DockPanel Margin="14,0,12,0">
+                            <TextBlock Name="chev" DockPanel.Dock="Right" Text="&#xF2A3;" FontFamily="{StaticResource Icons}" FontSize="10"
+                                       Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center" RenderTransform="rotate(-90deg)"/>
+                            <ContentPresenter Name="PART_ContentPresenter" Content="{TemplateBinding Content}"
+                                              Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center"/>
+                        </DockPanel>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+            <Style Selector="^:pointerover"><Setter Property="Foreground" Value="{DynamicResource Fg}"/></Style>
+            <Style Selector="^:pointerover /template/ Border#bg"><Setter Property="Background" Value="{DynamicResource Hover}"/></Style>
+            <Style Selector="^:checked"><Setter Property="Foreground" Value="{DynamicResource Fg}"/></Style>
+            <Style Selector="^:checked /template/ TextBlock#chev"><Setter Property="RenderTransform" Value="rotate(0deg)"/></Style>
+        </ControlTheme>
+
+        <!-- ===== Chips (filtros / opções) ===== -->
+        <ControlTheme x:Key="Chip" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{DynamicResource Muted}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0,0,6,6"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Name="b" BorderBrush="{DynamicResource LineStrong}" BorderThickness="1" CornerRadius="14"
+                            Padding="13,5" Background="Transparent">
+                        <ContentPresenter Name="PART_ContentPresenter" Content="{TemplateBinding Content}"
+                                          Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+            <Style Selector="^:pointerover"><Setter Property="Foreground" Value="{DynamicResource Fg}"/></Style>
+            <Style Selector="^:pointerover /template/ Border#b"><Setter Property="BorderBrush" Value="{DynamicResource Fg}"/></Style>
+            <Style Selector="^:checked"><Setter Property="Foreground" Value="{DynamicResource Ink}"/></Style>
+            <Style Selector="^:checked /template/ Border#b">
+                <Setter Property="Background" Value="{DynamicResource Fg}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource Fg}"/>
+            </Style>
+            <Style Selector="^:disabled /template/ Border#b"><Setter Property="Opacity" Value="0.35"/></Style>
+        </ControlTheme>
+
+        <!-- ===== CheckBox como interruptor (tema padrão de todos os CheckBox) ===== -->
+        <ControlTheme x:Key="{x:Type CheckBox}" TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <StackPanel Name="root" Orientation="Horizontal" Background="Transparent">
+                        <Border Name="track" Width="36" Height="20" CornerRadius="10" BorderThickness="1"
+                                BorderBrush="{DynamicResource LineStrong}" Background="Transparent" VerticalAlignment="Center">
+                            <Ellipse Name="knob" Width="12" Height="12" Margin="4,0" HorizontalAlignment="Left"
+                                     Fill="{DynamicResource Muted}"/>
+                        </Border>
+                        <ContentPresenter Name="PART_ContentPresenter" Content="{TemplateBinding Content}"
+                                          Foreground="{TemplateBinding Foreground}" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter>
+            <Style Selector="^:pointerover /template/ Border#track"><Setter Property="BorderBrush" Value="{DynamicResource Fg}"/></Style>
+            <Style Selector="^:checked /template/ Border#track">
+                <Setter Property="Background" Value="{DynamicResource Fg}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource Fg}"/>
+            </Style>
+            <Style Selector="^:checked /template/ Ellipse#knob">
+                <Setter Property="Fill" Value="{DynamicResource Ink}"/>
+                <Setter Property="HorizontalAlignment" Value="Right"/>
+            </Style>
+            <Style Selector="^:disabled /template/ StackPanel#root"><Setter Property="Opacity" Value="0.35"/></Style>
+        </ControlTheme>
+
+        <!-- ===== Itens de lista ===== -->
+        <ControlTheme x:Key="ListNavItem" TargetType="ListBoxItem">
+            <Setter Property="Foreground" Value="{DynamicResource Muted}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Name="b" Background="Transparent" Padding="14,10" CornerRadius="10" Margin="0,0,0,2">
+                        <ContentPresenter Name="PART_ContentPresenter" Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          Foreground="{TemplateBinding Foreground}"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+            <Style Selector="^:pointerover"><Setter Property="Foreground" Value="{DynamicResource Fg}"/></Style>
+            <Style Selector="^:pointerover /template/ Border#b"><Setter Property="Background" Value="{DynamicResource Hover}"/></Style>
+            <Style Selector="^:selected"><Setter Property="Foreground" Value="{DynamicResource Ink}"/></Style>
+            <Style Selector="^:selected /template/ Border#b"><Setter Property="Background" Value="{DynamicResource Fg}"/></Style>
+        </ControlTheme>
+
+        <!-- Cartão com selo de veredito, motivos e métricas (Discos, Energia, Rede) -->
+        <DataTemplate x:Key="HealthCard" x:DataType="core:DiskHealthCard">
+            <Border Classes="card" Margin="0,0,0,14">
+                <StackPanel>
+                    <Grid>
+                        <StackPanel Margin="0,0,130,0">
+                            <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding Meta}" Foreground="{DynamicResource Muted}" FontSize="12" Margin="0,3,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <Border Classes="verdict" Classes.alert="{Binding IsAlert}" HorizontalAlignment="Right" VerticalAlignment="Top">
+                            <TextBlock Text="{Binding VerdictText}" FontSize="11" FontWeight="SemiBold"/>
+                        </Border>
+                    </Grid>
+                    <TextBlock Text="{Binding Reasons}" TextWrapping="Wrap" Margin="0,12,0,12"/>
+                    <ItemsControl ItemsSource="{Binding Metrics}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate><UniformGrid Columns="2"/></ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <!-- KeyValuePair<string, string>: binding por reflexão -->
+                            <DataTemplate x:CompileBindings="False">
+                                <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0" Padding="0,8,16,8">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Key}" Foreground="{DynamicResource Muted}" FontSize="11"/>
+                                        <TextBlock Text="{Binding Value}" Classes="mono" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
+        <!-- Linha "rótulo ........ valor" (KeyValuePair<string, string>: binding por reflexão) -->
+        <DataTemplate x:Key="KeyValueRow" x:CompileBindings="False">
+            <Grid Margin="0,3">
+                <TextBlock Text="{Binding Key}" Foreground="{DynamicResource Muted}"/>
+                <TextBlock Text="{Binding Value}" Classes="mono" HorizontalAlignment="Right"/>
+            </Grid>
+        </DataTemplate>
+
+        <!-- Amostra de cor redonda (Integração) -->
+        <ControlTheme x:Key="Swatch" TargetType="Button">
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Margin" Value="0,0,8,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource LineStrong}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Name="b" CornerRadius="15" Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"/>
+                </ControlTemplate>
+            </Setter>
+            <Style Selector="^:pointerover /template/ Border#b"><Setter Property="BorderBrush" Value="{DynamicResource Fg}"/></Style>
+        </ControlTheme>
+
+        <!-- Item de lista sem destaque (registro do Stress test) -->
+        <ControlTheme x:Key="PlainItem" TargetType="ListBoxItem">
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <ContentPresenter Name="PART_ContentPresenter" Content="{TemplateBinding Content}"
+                                      ContentTemplate="{TemplateBinding ContentTemplate}" Margin="0,2"/>
+                </ControlTemplate>
+            </Setter>
+        </ControlTheme>
+
+        <!-- Medidor horizontal: rótulo, valor e barra (Fraction 0..1) — históricos de benchmark -->
+        <DataTemplate x:Key="Meter" x:DataType="local:MeterItem">
+            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" Margin="0,0,0,12">
+                <TextBlock Text="{Binding Label}" Foreground="{DynamicResource Muted}" Margin="0,0,12,0"/>
+                <TextBlock Grid.Column="1" Text="{Binding Value}" Classes="mono" HorizontalAlignment="Right" TextTrimming="CharacterEllipsis"/>
+                <ProgressBar Grid.Row="1" Grid.ColumnSpan="2" Classes="bar" Height="4" MinHeight="4" Margin="0,6,0,0" Value="{Binding Fraction}"/>
+            </Grid>
+        </DataTemplate>
+
+        <!-- Linha de resultado com explicação (Memória e carregamento, Disco) -->
+        <DataTemplate x:Key="MemRowTemplate" x:DataType="local:MemRow">
+            <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1" Padding="0,12">
+                <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Margin="0,0,16,0">
+                        <TextBlock Text="{Binding Label}" FontSize="14"/>
+                        <TextBlock Text="{Binding Hint}" Foreground="{DynamicResource Faint}" FontSize="11" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    <TextBlock Grid.Column="1" Text="{Binding Value}" Classes="mono" FontSize="20" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+    </Styles.Resources>
+
+    <!-- Desenho dentro de um botão da janela: traço na cor do botão (muda no hover como o texto) -->
+    <Style Selector="Button > Path.caption">
+        <Setter Property="Width" Value="10"/>
+        <Setter Property="Height" Value="10"/>
+        <Setter Property="StrokeThickness" Value="1"/>
+        <Setter Property="Stroke" Value="{Binding $parent[Button].Foreground}"/>
+    </Style>
+
+    <!-- ===== Barra de progresso fina (0..1) ===== -->
+    <Style Selector="ProgressBar.bar">
+        <Setter Property="Minimum" Value="0"/>
+        <Setter Property="Maximum" Value="1"/>
+        <Setter Property="Height" Value="3"/>
+        <Setter Property="MinHeight" Value="3"/>
+        <Setter Property="CornerRadius" Value="0"/>
+        <Setter Property="Background" Value="{DynamicResource Line}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+    </Style>
+
+    <!-- ===== TextBox (PlaceholderText = texto de ajuda) ===== -->
+    <Style Selector="TextBox">
+        <Setter Property="Background" Value="{DynamicResource Bg}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource LineStrong}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="10"/>
+        <Setter Property="CaretBrush" Value="{DynamicResource Fg}"/>
+        <Setter Property="SelectionBrush" Value="#666666"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Padding" Value="8,7"/>
+        <Setter Property="PlaceholderForeground" Value="{DynamicResource Faint}"/>
+    </Style>
+    <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
+        <Setter Property="Background" Value="{DynamicResource Bg}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource LineStrong}"/>
+    </Style>
+    <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+        <Setter Property="Background" Value="{DynamicResource Bg}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Fg}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+
+    <!-- ===== Tabelas (Sensores) ===== -->
+    <Style Selector="TextBlock.colHeader">
+        <Setter Property="Foreground" Value="{DynamicResource Muted}"/>
+        <Setter Property="FontSize" Value="10.5"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+    <Style Selector="Border.sensorRow">
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    <Style Selector="Border.sensorRow:pointerover">
+        <Setter Property="Background" Value="{DynamicResource Panel}"/>
+    </Style>
+
+    <!-- Item da "Saúde do PC": ✓ preenchido quando ok -->
+    <Style Selector="TextBlock.check">
+        <Setter Property="Foreground" Value="{DynamicResource Faint}"/>
+    </Style>
+    <Style Selector="TextBlock.check.ok">
+        <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+    </Style>
+
+    <!-- ===== Tipografia ===== -->
+    <Style Selector="TextBlock.h1">
+        <Setter Property="FontSize" Value="26"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+    </Style>
+    <Style Selector="TextBlock.sub">
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Foreground" Value="{DynamicResource Muted}"/>
+        <Setter Property="Margin" Value="0,4,0,0"/>
+    </Style>
+    <Style Selector="TextBlock.label">
+        <Setter Property="FontSize" Value="10.5"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource Muted}"/>
+        <Setter Property="Margin" Value="0,0,0,8"/>
+    </Style>
+    <Style Selector="TextBlock.big">
+        <Setter Property="FontSize" Value="22"/>
+        <Setter Property="FontFamily" Value="{StaticResource Mono}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+    </Style>
+    <Style Selector="TextBlock.hero">
+        <Setter Property="FontSize" Value="34"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+    </Style>
+    <Style Selector="TextBlock.navHeader">
+        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{DynamicResource Faint}"/>
+        <Setter Property="Margin" Value="26,18,0,6"/>
+    </Style>
+    <Style Selector="TextBlock.mono">
+        <Setter Property="FontFamily" Value="{StaticResource Mono}"/>
+    </Style>
+    <Style Selector="TextBlock.icon">
+        <Setter Property="FontFamily" Value="{StaticResource Icons}"/>
+    </Style>
+
+    <!-- ===== Cartão ===== -->
+    <Style Selector="Border.card">
+        <Setter Property="Background" Value="{DynamicResource Card}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Line}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="Padding" Value="20"/>
+    </Style>
+
+    <!-- Selo do veredito (Discos, Energia, Rede): alerta = preenchido -->
+    <Style Selector="Border.verdict">
+        <Setter Property="BorderBrush" Value="{DynamicResource Fg}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="12,4"/>
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    <Style Selector="Border.verdict.alert">
+        <Setter Property="Background" Value="{DynamicResource Fg}"/>
+    </Style>
+    <Style Selector="Border.verdict > TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Fg}"/>
+    </Style>
+    <Style Selector="Border.verdict.alert > TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Ink}"/>
+    </Style>
+
+</Styles>

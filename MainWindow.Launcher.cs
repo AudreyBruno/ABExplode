@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
 
-namespace ResetExplode;
+namespace ABExplode;
 
 /// <summary>Aba RESET JOGOS: lista os jogos instalados, guarda um perfil por jogo e inicia aplicando o perfil.</summary>
 public partial class MainWindow
@@ -56,7 +56,7 @@ public partial class MainWindow
         try
         {
             var custom = _settings.CustomGames.ToList();
-            _libGames = await Task.Run(() => GameLibrary.Scan(custom));
+            _libGames = await Task.Run(() => _platform.Games.Scan(custom));
             ApplyGameFilter();
             var byStore = _libGames.GroupBy(g => g.Store).Select(x => $"{x.Key} {x.Count()}");
             LGameCount.Text = _libGames.Count == 0

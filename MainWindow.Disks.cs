@@ -6,7 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
 
-namespace ResetExplode;
+namespace ABExplode;
 
 /// <summary>Saúde dos discos, benchmark de disco (RESET BENCH) e exportação de relatório.</summary>
 public partial class MainWindow
@@ -24,7 +24,7 @@ public partial class MainWindow
         try
         {
             var sensors = _monitor.Rows.ToList();
-            var cards = await Task.Run(() => DiskHealth.Read(sensors));
+            var cards = await Task.Run(() => _platform.DiskHealth.Read(sensors));
             DiskCards.ItemsSource = cards;
             int bad = cards.Count(c => c.Verdict is DiskVerdict.Warning or DiskVerdict.Critical);
             DiskHealthStatus.Text = cards.Count == 0
@@ -137,7 +137,7 @@ public partial class MainWindow
             Title = "Exportar relatório",
             Filter = "Relatório HTML (*.html)|*.html|Dados JSON (*.json)|*.json",
             DefaultExt = ".html",
-            FileName = $"RESET-EXPLODE-relatorio-{DateTime.Now:yyyyMMdd-HHmm}",
+            FileName = $"ABExplode-relatorio-{DateTime.Now:yyyyMMdd-HHmm}",
         };
         if (dlg.ShowDialog(this) != true) return;
         string path = dlg.FileName;
@@ -162,9 +162,9 @@ public partial class MainWindow
                 Sensors = sensorsSnapshot.Select(s => new ReportSensor(s.Hardware, s.Category, s.Name, s.Value, s.Min, s.Max)).ToList(),
                 Benchmarks = BuildBenchList(),
             };
-            var disks = await Task.Run(() => DiskHealth.Read(sensorsSnapshot));
+            var disks = await Task.Run(() => _platform.DiskHealth.Read(sensorsSnapshot));
             data.Disks.AddRange(disks.Select(d => new ReportDisk(d.Title, d.Meta, d.VerdictText, d.Reasons, d.Metrics)));
-            var power = await Task.Run(() => BatteryInfo.Read(sensorsSnapshot));
+            var power = await Task.Run(() => _platform.SystemInfo.Battery(sensorsSnapshot));
             data.Power.AddRange(power.Select(d => new ReportDisk(d.Title, d.Meta, d.VerdictText, d.Reasons, d.Metrics)));
             if (_lastNet != null)
                 data.Network.AddRange(_lastNet.Select(d => new ReportDisk(d.Title, d.Meta, d.VerdictText, d.Reasons, d.Metrics)));
@@ -177,7 +177,7 @@ public partial class MainWindow
         }
         catch (Exception ex)
         {
-            MessageBox.Show(this, "Não foi possível gerar o relatório:\n" + ex.Message, "RESET EXPLODE", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(this, "Não foi possível gerar o relatório:\n" + ex.Message, "ABExplode", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
         finally
         {

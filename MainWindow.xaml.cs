@@ -7,13 +7,13 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using LibreHardwareMonitor.Hardware;
 
-namespace ResetExplode;
+namespace ABExplode;
 
 public partial class MainWindow : Window
 {
-    private readonly SensorMonitor _monitor;
+    private readonly IPlatform _platform;
+    private readonly ISensorSource _monitor;
     private readonly DispatcherTimer _timer;
     private readonly ICollectionView _view;
     private string? _category;   // filtro por chip (null = todos)
@@ -24,7 +24,7 @@ public partial class MainWindow : Window
     private GpuInfo? _gpu;
 
     // Stress test
-    private readonly StressTester _stress = new();
+    private readonly StressTester _stress;
     private readonly List<double> _tempHistory = new();
     private const int HistoryLength = 300; // 5 min a 1 amostra/s
     private DateTime _stressStart;
@@ -34,7 +34,7 @@ public partial class MainWindow : Window
 
     // Jogos
     private readonly AppSettings _settings = AppSettings.Load();
-    private readonly HowManyFpsClient _fpsApi = new();
+    private readonly HowManyFpsClient _fpsApi = new(AppSettings.Folder);
     private List<GameRow> _gameRows = new();
     private ListCollectionView? _gameView;
     private CancellationTokenSource? _gameFetch;
@@ -43,7 +43,7 @@ public partial class MainWindow : Window
 
     // Gargalo + overlay
     public sealed record MeterItem(string Label, string Value, double Fraction);
-    private readonly FrameMonitor _frames = new();
+    private readonly IFrameSource _frames;
     private BottleneckSession? _bnSession;
     private double _balanceRatio = 1;
     private OverlayWindow? _overlay;
@@ -77,15 +77,18 @@ public partial class MainWindow : Window
     private Brush Muted => (Brush)FindResource("Muted");
     private Brush Card => (Brush)FindResource("Card");
 
-    public MainWindow()
+    public MainWindow(IPlatform platform)
     {
+        _platform = platform;
+        _frames = platform.CreateFrameSource();
+        _stress = new StressTester(platform.SystemInfo.FreePhysicalBytes);
         InitializeComponent();
         ThemeManager.Apply(_settings.LightTheme);
         UpdateThemeButton();
         ShowPage("PageDash");
 
         // Sensores: a lista começa vazia e é preenchida quando a detecção do hardware termina (LoadHardwareAsync).
-        _monitor = new SensorMonitor();
+        _monitor = _platform.CreateSensors();
         _view = CollectionViewSource.GetDefaultView(_monitor.Rows);
         _view.GroupDescriptions.Add(new PropertyGroupDescription(nameof(SensorRow.Hardware)));
         SensorGrid.ItemsSource = _view;
@@ -146,7 +149,7 @@ public partial class MainWindow : Window
         {
             try
             {
-                var info = await Task.Run(SystemInfoCollector.Collect);
+                var info = await Task.Run(_platform.SystemInfo.Collect);
                 InfoCategories.ItemsSource = info;
                 InfoCategories.SelectedIndex = 0;
                 SystemSub.Text = $"{Environment.MachineName} · {info.Count} categorias";
@@ -168,7 +171,7 @@ public partial class MainWindow : Window
 
         async Task LoadGpu()
         {
-            try { _gpus = await Task.Run(GpuInfoCollector.Collect); }
+            try { _gpus = await Task.Run(_platform.Gpu.Collect); }
             catch { _gpus = new(); }
             for (int i = 0; i < _gpus.Count && _gpus.Count > 1; i++)
             {
@@ -196,12 +199,12 @@ public partial class MainWindow : Window
     {
         if (!_monitor.IsOpen) return; // ainda detectando: não acusar falta de sensor antes da hora
         var p = _monitor.DiagnoseCpuSensors();
-        CpuSensorWarn.Visibility = p == SensorMonitor.CpuSensorProblem.None ? Visibility.Collapsed : Visibility.Visible;
+        CpuSensorWarn.Visibility = p == CpuSensorProblem.None ? Visibility.Collapsed : Visibility.Visible;
         CpuSensorWarnText.Text = p switch
         {
-            SensorMonitor.CpuSensorProblem.NotElevated => "Sem permissão de administrador.",
-            SensorMonitor.CpuSensorProblem.PawnIOMissing => "Falta o driver PawnIO.",
-            SensorMonitor.CpuSensorProblem.ReadFailed => "O driver não respondeu.",
+            CpuSensorProblem.NotElevated => "Sem permissão de administrador.",
+            CpuSensorProblem.PawnIOMissing => "Falta o driver PawnIO.",
+            CpuSensorProblem.ReadFailed => "O driver não respondeu.",
             _ => ""
         };
     }
@@ -209,10 +212,10 @@ public partial class MainWindow : Window
     private void BtnFixCpuSensors_Click(object sender, RoutedEventArgs e)
     {
         var p = _monitor.DiagnoseCpuSensors();
-        string why = SensorMonitor.Explain(p);
-        if (p != SensorMonitor.CpuSensorProblem.PawnIOMissing)
+        string why = _monitor.Explain(p);
+        if (p != CpuSensorProblem.PawnIOMissing)
         {
-            MessageBox.Show(why, "RESET EXPLODE", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(why, "ABExplode", MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
 
@@ -224,17 +227,17 @@ public partial class MainWindow : Window
             MessageBox.Show(why + "\n\nO instalador de pacotes do Windows (winget) não foi encontrado neste PC. " +
                             "Atualize o \"Instalador de Aplicativo\" pela Microsoft Store e use o botão de novo, " +
                             "ou instale o PawnIO (autor: namazso) manualmente.",
-                            "RESET EXPLODE", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            "ABExplode", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 
         var r = MessageBox.Show(why + "\n\nInstalar o PawnIO agora? Vai abrir uma janela com o instalador do Windows (winget). " +
-                                "Quando terminar, feche o RESET EXPLODE e abra de novo.",
-                                "RESET EXPLODE", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                                "Quando terminar, feche o ABExplode e abra de novo.",
+                                "ABExplode", MessageBoxButton.YesNo, MessageBoxImage.Question);
         if (r != MessageBoxResult.Yes) return;
         System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("cmd.exe",
             "/k winget install --id namazso.PawnIO -e --accept-package-agreements --accept-source-agreements" +
-            " && echo. && echo Pronto! Feche esta janela e reabra o RESET EXPLODE.")
+            " && echo. && echo Pronto! Feche esta janela e reabra o ABExplode.")
         { UseShellExecute = true });
     }
 
@@ -311,7 +314,7 @@ public partial class MainWindow : Window
 
     private async void RefreshDrives()
     {
-        _drives = await Task.Run(DriveMap.Read);
+        _drives = await Task.Run(_platform.SystemInfo.Drives);
         DriveCards.ItemsSource = _drives;
         long total = _drives.Sum(d => d.Total), free = _drives.Sum(d => d.Free);
         DrivesSummary.Text = $"{_drives.Count} unidades · {DriveCard.Fmt(free)} livres de {DriveCard.Fmt(total)}";
@@ -363,7 +366,7 @@ public partial class MainWindow : Window
     {
         if (arrived) await Task.Delay(800); // o sistema de arquivos leva um instante para montar
         var before = _drives;
-        var now = await Task.Run(DriveMap.Read);
+        var now = await Task.Run(_platform.SystemInfo.Drives);
         foreach (var l in letters)
         {
             if (arrived && now.FirstOrDefault(d => d.Letter.Equals(l, StringComparison.OrdinalIgnoreCase)) is { } d)
@@ -380,7 +383,7 @@ public partial class MainWindow : Window
         // Discos físicos (lista abaixo dos cartões) também mudam com pendrive/HD externo.
         if (InfoCategories.ItemsSource is IEnumerable<InfoNode> cats && cats.FirstOrDefault(c => c.Header == "Armazenamento") is { } storage)
         {
-            await Task.Run(() => SystemInfoCollector.RefreshDisks(storage));
+            await Task.Run(() => _platform.SystemInfo.RefreshDisks(storage));
             if (InfoCategories.SelectedItem == storage) { InfoDetails.ItemsSource = null; InfoDetails.ItemsSource = storage.Children; }
         }
         if (DrivesPanel.IsVisible) RefreshDrives();
@@ -442,7 +445,7 @@ public partial class MainWindow : Window
         // Barra lateral: GPU principal (dedicada = primeira da lista).
         if (_gpus.Count > 0)
         {
-            var load = _monitor.Rows.FirstOrDefault(r => r.Hardware == _gpus[0].Name && r.Type == SensorType.Load
+            var load = _monitor.Rows.FirstOrDefault(r => r.Hardware == _gpus[0].Name && r.Type == SensorKind.Load
                                                          && r.Name == "GPU Core");
             SideGpuTemp.Text = MainGpuTemp() is float t ? $"{t:0.#} °C" : "—";
             SideGpuLoad.Text = load?.RawValue is float l ? $"{l:0} %" : "—";
@@ -454,12 +457,7 @@ public partial class MainWindow : Window
 
     private void InitGames()
     {
-        try
-        {
-            using var s = new System.Management.ManagementObjectSearcher("SELECT Name FROM Win32_Processor");
-            foreach (System.Management.ManagementObject mo in s.Get()) { _cpuName = mo["Name"]?.ToString()?.Trim() ?? ""; break; }
-        }
-        catch { }
+        _cpuName = _platform.SystemInfo.CpuName();
         _gpuName = _gpus.Count > 0 ? _gpus[0].Name : "";
         _gpuIdx = GameCatalog.GpuPerf(_gpuName) ?? 50;
         _cpuIdx = GameCatalog.CpuPerf(_cpuName) ?? 80;
@@ -600,7 +598,7 @@ public partial class MainWindow : Window
     private void UpdateBottleneck()
     {
         var frames = _frames.GetForegroundStats();
-        var s = BottleneckAnalyzer.Sample(_monitor, _gpus.FirstOrDefault(), frames);
+        var s = BottleneckSampler.Sample(_monitor, _gpus.FirstOrDefault(), frames);
         var lim = s.Classify();
 
         if (PageBottleneck.IsVisible || _bnSession != null)
@@ -840,7 +838,7 @@ public partial class MainWindow : Window
 
     private void UpdateRamStatus()
     {
-        var (total, avail) = Optimizer.MemoryStatus();
+        var (total, avail) = _platform.SystemInfo.MemoryStatus();
         if (total == 0) return;
         double used = total - avail;
         OptRamText.Text = $"{used / 1073741824.0:0.0} de {total / 1073741824.0:0.0} GB · {used / total:P0}";
@@ -945,8 +943,8 @@ public partial class MainWindow : Window
 
     private bool RequireAdmin()
     {
-        if (SensorMonitor.IsElevated) return true;
-        MessageBox.Show("Esta ação precisa do RESET EXPLODE aberto como administrador.", "RESET EXPLODE",
+        if (_platform.IsElevated) return true;
+        MessageBox.Show("Esta ação precisa do ABExplode aberto como administrador.", "ABExplode",
                         MessageBoxButton.OK, MessageBoxImage.Warning);
         return false;
     }
@@ -1015,11 +1013,11 @@ public partial class MainWindow : Window
     {
         if (_settings.TweakBackup.Count == 0)
         {
-            MessageBox.Show("Nenhum ajuste foi alterado pelo RESET EXPLODE ainda.", "RESET OTIMIZA",
+            MessageBox.Show("Nenhum ajuste foi alterado pelo ABExplode ainda.", "RESET OTIMIZA",
                             MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
-        var r = MessageBox.Show("Voltar todos os ajustes do Windows para como estavam antes do RESET EXPLODE alterá-los?",
+        var r = MessageBox.Show("Voltar todos os ajustes do Windows para como estavam antes do ABExplode alterá-los?",
                                 "RESET OTIMIZA", MessageBoxButton.YesNo, MessageBoxImage.Question);
         if (r != MessageBoxResult.Yes) return;
         bool restart = _tweaks.Any(t => t.NeedsRestart && _settings.TweakBackup.ContainsKey(t.Id));
@@ -1478,20 +1476,20 @@ public partial class MainWindow : Window
         }
         if ((cpu || ram) && _monitor.CpuTemperature == null)
         {
-            string why = SensorMonitor.IsPawnIOInstalled
+            string why = _monitor.IsCpuDriverInstalled
                 ? ""
                 : "\n\nCausa provável: o driver PawnIO não está instalado. Instale com:\n" +
-                  "winget install namazso.PawnIO\ne reabra o RESET EXPLODE.";
+                  "winget install namazso.PawnIO\ne reabra o ABExplode.";
             var r = MessageBox.Show("Nenhum sensor de temperatura da CPU foi encontrado, então o corte automático " +
                                     "por temperatura da CPU NÃO funcionará. Continuar mesmo assim?" + why,
-                                    "RESET EXPLODE", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                                    "ABExplode", MessageBoxButton.YesNo, MessageBoxImage.Warning);
             if (r != MessageBoxResult.Yes) return;
         }
         if (gpu && MainGpuTemp() == null)
         {
             var r = MessageBox.Show("Nenhum sensor de temperatura da GPU foi encontrado, então o corte automático " +
                                     "por temperatura da GPU NÃO funcionará. Continuar mesmo assim?",
-                                    "RESET EXPLODE", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                                    "ABExplode", MessageBoxButton.YesNo, MessageBoxImage.Warning);
             if (r != MessageBoxResult.Yes) return;
         }
 
@@ -1583,7 +1581,7 @@ public partial class MainWindow : Window
     private float? MainGpuTemp()
     {
         if (_gpus.Count == 0) return null;
-        var temps = _monitor.Rows.Where(r => r.Hardware == _gpus[0].Name && r.Type == SensorType.Temperature).ToList();
+        var temps = _monitor.Rows.Where(r => r.Hardware == _gpus[0].Name && r.Type == SensorKind.Temperature).ToList();
         return (temps.FirstOrDefault(r => r.Name == "GPU Core") ?? temps.FirstOrDefault())?.RawValue;
     }
 
@@ -1593,7 +1591,7 @@ public partial class MainWindow : Window
         if (_gpus.Count == 0) return null;
         var g = _gpus[0];
         if (g.NvmlHandle != IntPtr.Zero && Nvml.PowerUsageMw(g.NvmlHandle) is uint mw) return mw / 1000f;
-        return _monitor.Rows.FirstOrDefault(r => r.Hardware == g.Name && r.Type == SensorType.Power)?.RawValue;
+        return _monitor.Rows.FirstOrDefault(r => r.Hardware == g.Name && r.Type == SensorKind.Power)?.RawValue;
     }
 
     private string MainGpuPerfCap()

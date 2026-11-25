@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Roda os testes de GPU em Vulkan fora do app, para conferir no Windows o que o Linux vai usar.
+       Uso: VkTest burn|d3d [segundos] [shells] [iterations] [msaa] -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!-- No Windows compara com o GpuBurn do Direct3D (modo d3d) -->
+    <TargetFramework>net10.0-windows</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ABExplode.Vulkan\ABExplode.Vulkan.csproj" />
+    <ProjectReference Include="..\..\src\ABExplode.Platform.Windows\ABExplode.Platform.Windows.csproj" />
+  </ItemGroup>
+
+</Project>

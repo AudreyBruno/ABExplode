@@ -2,9 +2,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using LibreHardwareMonitor.Hardware;
 
-namespace ResetExplode;
+namespace ABExplode;
 
 /// <summary>
 /// Visão geral: painel de blocos com gráfico de área (CPU × GPU), desempenho, tabela de componentes, anéis de
@@ -31,7 +30,7 @@ public partial class MainWindow
     // ---------------- coleta (a cada segundo, mesmo com a página fechada) ----------------
 
     private float? MainGpuLoad() => _gpus.Count == 0 ? null :
-        _monitor.Rows.FirstOrDefault(r => r.Hardware == _gpus[0].Name && r.Type == SensorType.Load && r.Name == "GPU Core")?.RawValue;
+        _monitor.Rows.FirstOrDefault(r => r.Hardware == _gpus[0].Name && r.Type == SensorKind.Load && r.Name == "GPU Core")?.RawValue;
 
     /// <summary>
     /// Clock da CPU para exibição: média só dos núcleos que estão trabalhando (carga ≥ 10%), como o Gerenciador de Tarefas.
@@ -44,10 +43,10 @@ public partial class MainWindow
         var loads = new Dictionary<int, float>();
         foreach (var r in _monitor.Rows)
         {
-            if (r.HardwareType != HardwareType.Cpu || r.RawValue is not float v) continue;
-            if (r.Type == SensorType.Clock && v > 0 && System.Text.RegularExpressions.Regex.Match(r.Name, @"^(?:[PE]-)?Core #(\d+)$") is { Success: true } mc)
+            if (r.HardwareType != HardwareKind.Cpu || r.RawValue is not float v) continue;
+            if (r.Type == SensorKind.Clock && v > 0 && System.Text.RegularExpressions.Regex.Match(r.Name, @"^(?:[PE]-)?Core #(\d+)$") is { Success: true } mc)
                 clocks.Add((int.Parse(mc.Groups[1].Value), v));
-            else if (r.Type == SensorType.Load && System.Text.RegularExpressions.Regex.Match(r.Name, @"^CPU Core #(\d+)$") is { Success: true } ml)
+            else if (r.Type == SensorKind.Load && System.Text.RegularExpressions.Regex.Match(r.Name, @"^CPU Core #(\d+)$") is { Success: true } ml)
                 loads[int.Parse(ml.Groups[1].Value)] = v;
         }
         if (clocks.Count == 0) return (null, null);
@@ -150,7 +149,7 @@ public partial class MainWindow
                          F(MainGpuTemp(), "0", " °C"), F(MainGpuLoad(), "0", " %"), clk is uint c ? $"{c} MHz" : "—",
                          F(MainGpuPower(), "0", " W"), "PageGpu"));
         }
-        var (total, avail) = Optimizer.MemoryStatus();
+        var (total, avail) = _platform.SystemInfo.MemoryStatus();
         if (total > 0)
         {
             double used = total - avail;
@@ -299,7 +298,7 @@ public partial class MainWindow
 
     private void UpdateDashRings()
     {
-        var (total, avail) = Optimizer.MemoryStatus();
+        var (total, avail) = _platform.SystemInfo.MemoryStatus();
         double ram = total > 0 ? (double)(total - avail) / total : 0;
         double? vram = null;
         if (_gpus.Count > 0 && _gpus[0].NvmlHandle != IntPtr.Zero && Nvml.MemoryInfo(_gpus[0].NvmlHandle) is Nvml.Memory m && m.Total > 0)
@@ -360,11 +359,11 @@ public partial class MainWindow
         if (_monitor.IsOpen) // enquanto detecta o hardware, ainda não dá para saber
         {
             var sensors = _monitor.DiagnoseCpuSensors();
-            list.Add(Item(sensors == SensorMonitor.CpuSensorProblem.None, "Sensores da CPU",
-                          "Temperatura e consumo disponíveis.", SensorMonitor.Explain(sensors).Split('.')[0] + "."));
+            list.Add(Item(sensors == CpuSensorProblem.None, "Sensores da CPU",
+                          "Temperatura e consumo disponíveis.", _monitor.Explain(sensors).Split('.')[0] + "."));
         }
 
-        var errs = OcCheck.ErrorsSince(DateTime.Now.AddDays(-7));
+        var errs = _platform.HardwareErrors.ErrorsSince(DateTime.Now.AddDays(-7));
         list.Add(Item(errs.Error == null && errs.Total == 0, "Sem erros de hardware",
                       "Nenhum WHEA ou reinício do driver de vídeo em 7 dias.",
                       errs.Error != null ? "Não foi possível ler o registro do Windows."

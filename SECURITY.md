@@ -1,7 +1,7 @@
 # Política de segurança
 
-Obrigado por ajudar a manter o RESET EXPLODE seguro. O programa roda como administrador e mexe em drivers, serviços e
-configurações do Windows, então levamos relatos de segurança a sério.
+Obrigado por ajudar a manter o ABExplode seguro. O programa roda como administrador (no Linux, usa o pkexec para as
+ações de administrador) e mexe em drivers, serviços e configurações do sistema, então levamos relatos de segurança a sério.
 
 ## Como reportar uma vulnerabilidade
 
@@ -26,4 +26,9 @@ Apenas a **versão mais recente** publicada em [Releases](../../releases/latest)
 
 O executável ainda **não é assinado digitalmente** e usa funções administrativas do Windows (sensores, drivers, ajustes de
 sistema), o que pode gerar falsos positivos em alguns antivírus. Para conferir o arquivo que você baixou, compare o hash
-SHA-256 (`Get-FileHash .\ResetExplode.exe`) com o arquivo `SHA256SUMS.txt` anexado à release. O código-fonte completo está neste repositório.
+SHA-256 com o arquivo `SHA256SUMS.txt` anexado à release, que lista todos os arquivos (Windows e Linux):
+
+- Windows (PowerShell): `Get-FileHash .\ABExplode.exe`
+- Linux: `sha256sum ABExplode-x86_64.AppImage`
+
+O código-fonte completo está neste repositório.

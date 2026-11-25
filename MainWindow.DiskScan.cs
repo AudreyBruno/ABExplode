@@ -1,7 +1,7 @@
 using System.Windows;
 using System.Windows.Threading;
 
-namespace ResetExplode;
+namespace ABExplode;
 
 /// <summary>Teste de setores defeituosos (leitura apenas) na página de discos.</summary>
 public partial class MainWindow

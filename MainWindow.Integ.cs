@@ -4,9 +4,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
-using LibreHardwareMonitor.Hardware;
 
-namespace ResetExplode;
+namespace ABExplode;
 
 /// <summary>Item da lista de dispositivos de iluminação (caixa de seleção + nome).</summary>
 public sealed class LightDeviceVm
@@ -151,7 +150,7 @@ public partial class MainWindow
                 if (_cue.State != 6)
                 {
                     LightStatus.Text = "Não consegui conectar ao iCUE (" + (err != 0 ? CorsairSdk.ErrorText(err) : CorsairSdk.StateText(_cue.State)) + "). " +
-                        "Abra o iCUE, vá em Configurações e ative o SDK (Enable SDK). Se o iCUE estiver em outra conta do Windows ou com permissão maior que a do ResetExplode, a conexão também falha.";
+                        "Abra o iCUE, vá em Configurações e ative o SDK (Enable SDK). Se o iCUE estiver em outra conta do Windows ou com permissão maior que a do ABExplode, a conexão também falha.";
                     return;
                 }
             }
@@ -273,9 +272,9 @@ public partial class MainWindow
     {
         if (_lightBusy) return;
         var ok = MessageBox.Show(this,
-            "O RESET EXPLODE vai baixar o SDK oficial da Corsair (github.com/CorsairOfficial/cue-sdk), extrair somente o arquivo " +
+            "O ABExplode vai baixar o SDK oficial da Corsair (github.com/CorsairOfficial/cue-sdk), extrair somente o arquivo " +
             "iCUESDK.x64_2019.dll para a pasta\n" + CorsairSdkInstaller.TargetPath + "\ne conferir a assinatura digital dele.\n\nContinuar?",
-            "RESET EXPLODE · SDK da Corsair", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            "ABExplode · SDK da Corsair", MessageBoxButton.YesNo, MessageBoxImage.Question);
         if (ok != MessageBoxResult.Yes) return;
 
         _lightBusy = true;
@@ -388,8 +387,8 @@ public partial class MainWindow
 
     private float? GpuTemperature()
     {
-        var r = _monitor.Rows.Where(x => (x.HardwareType is HardwareType.GpuNvidia or HardwareType.GpuAmd or HardwareType.GpuIntel)
-                                         && x.Type == SensorType.Temperature && x.RawValue is > 0).ToList();
+        var r = _monitor.Rows.Where(x => (x.HardwareType is HardwareKind.GpuNvidia or HardwareKind.GpuAmd or HardwareKind.GpuIntel)
+                                         && x.Type == SensorKind.Temperature && x.RawValue is > 0).ToList();
         return (r.FirstOrDefault(x => x.Name.Contains("Core")) ?? r.FirstOrDefault())?.RawValue;
     }
 

@@ -3,7 +3,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
 
-namespace ResetExplode;
+namespace ABExplode;
 
 public sealed record SurfaceScanResult(string Drive, bool Full, long ScannedBytes, long TotalBytes, long BadSectors,
                                        int SlowReads, double AvgMBs, List<(long Offset, long Length)> BadRanges, bool Cancelled);

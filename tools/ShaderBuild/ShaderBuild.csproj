@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Compila os shaders HLSL de src/ABExplode.Vulkan/Shaders para SPIR-V (DXC, -spirv), gerando os .spv que vão embutidos.
+       Rodar depois de mudar um .hlsl: dotnet run (com a opção project apontando para tools/ShaderBuild)
+       Fica fora da solution: não faz parte do app, só gera arquivos que entram no git. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Vortice.Dxc" Version="3.8.3" />
+  </ItemGroup>
+
+</Project>

@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Threading;
 
-namespace ResetExplode;
+namespace ABExplode;
 
 /// <summary>Páginas Energia (bateria e fonte) e Rede (diagnóstico de lag).</summary>
 public partial class MainWindow
@@ -19,7 +19,7 @@ public partial class MainWindow
         try
         {
             var sensors = _monitor.Rows.ToList();
-            var cards = await Task.Run(() => BatteryInfo.Read(sensors));
+            var cards = await Task.Run(() => _platform.SystemInfo.Battery(sensors));
             EnergyCards.ItemsSource = cards;
             bool hasBattery = cards.Count > 1;
             EnergyStatus.Text = (hasBattery ? "Bateria detectada" : "Nenhuma bateria (PC de mesa)") + $" · lido às {DateTime.Now:HH:mm:ss}";

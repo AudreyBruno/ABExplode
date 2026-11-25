@@ -1,0 +1,39 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:core="using:ABExplode.Core"
+        x:Class="ABExplode.App.OverlayWindow"
+        Title="ABExplode overlay" WindowDecorations="None" TransparencyLevelHint="Transparent" Background="Transparent"
+        Topmost="True" ShowInTaskbar="False" ShowActivated="False" CanResize="False" Focusable="False"
+        SizeToContent="WidthAndHeight" UseLayoutRounding="True">
+    <!-- Sempre escuro: aparece por cima do jogo -->
+    <LayoutTransformControl Name="ScaleHost">
+        <LayoutTransformControl.LayoutTransform>
+            <ScaleTransform ScaleX="1" ScaleY="1"/>
+        </LayoutTransformControl.LayoutTransform>
+        <Border Background="#C8000000" BorderBrush="#33FFFFFF" BorderThickness="1" CornerRadius="4" Padding="12,9">
+            <StackPanel TextElement.FontFamily="{StaticResource Mono}" TextElement.FontSize="12" TextElement.Foreground="#F5F5F5">
+                <!-- FPS em destaque (cada parte aparece só se escolhida na aba Overlay) -->
+                <StackPanel Name="OFpsRow" Orientation="Horizontal">
+                    <TextBlock Name="OFps" Text="—" FontSize="24" FontWeight="Bold"/>
+                    <TextBlock Name="OFpsUnit" Text=" FPS" Foreground="#8C8C8C" VerticalAlignment="Bottom" Margin="0,0,0,4"/>
+                    <TextBlock Name="OFrameTime" Foreground="#8C8C8C" VerticalAlignment="Bottom" Margin="12,0,0,4"/>
+                </StackPanel>
+                <TextBlock Name="OLow" Text="1% low —" Foreground="#8C8C8C"/>
+                <!-- Gráfico de frametime -->
+                <Canvas Name="OGraph" Width="190" Height="30" Margin="0,6,0,4" ClipToBounds="True" HorizontalAlignment="Left"/>
+                <!-- Linhas de sensores: GPU, VRAM, CPU, RAM... montadas pelo que foi escolhido -->
+                <ItemsControl Name="ORows" Margin="0,2,0,0">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="core:OverlayLine">
+                            <Grid ColumnDefinitions="44,*">
+                                <TextBlock Text="{Binding Label}" Foreground="#8C8C8C"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Value}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Name="OGame" Foreground="#5A5A5A" FontSize="10" Margin="0,5,0,0"/>
+            </StackPanel>
+        </Border>
+    </LayoutTransformControl>
+</Window>

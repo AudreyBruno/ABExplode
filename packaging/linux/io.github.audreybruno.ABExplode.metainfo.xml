@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.audreybruno.ABExplode</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <name>ABExplode</name>
+  <summary>Diagnóstico de hardware, sensores e benchmarks</summary>
+  <description>
+    <p>
+      Informações do sistema, sensores em tempo real, placa de vídeo no estilo GPU-Z, saúde dos discos,
+      RESET BENCH (CPU, memória e disco), FPS estimado em jogos e detector de gargalo.
+    </p>
+  </description>
+  <launchable type="desktop-id">io.github.audreybruno.ABExplode.desktop</launchable>
+  <url type="homepage">https://github.com/AudreyBruno/ABExplode</url>
+  <developer id="io.github.audreybruno">
+    <name>AudreyBruno</name>
+  </developer>
+  <releases>
+    <release version="0.16.0" date="2026-10-21"/>
+  </releases>
+  <content_rating type="oars-1.1"/>
+</component>
