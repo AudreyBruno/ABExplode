@@ -4,8 +4,9 @@ name: Publicar
 # Ao criar uma tag (ex.: v0.12), gera também uma release fixa dessa versão.
 # O app publicado é o Avalonia (src/ABExplode.App); o WPF da raiz não é mais publicado.
 # Arquivos da release:
-#   Windows: ABExplode.exe e ABExplode.zip (com o LEIA-ME)
+#   Windows: ABExplode.exe e ABExplode.zip (com o LEIA-ME); ABExplode-x86.exe e ABExplode-x86.zip (32 bits, experimental)
 #   Linux:   ABExplode-x86_64.AppImage, ABExplode.flatpak e ABExplode-linux-x64.tar.gz (executável avulso + LEIA-ME)
+#   SHA256SUMS.txt com o hash de todos os arquivos acima
 # Cada sistema é montado num job; o último junta tudo e cria a release, então ela só sai se todos derem certo.
 on:
   push:
@@ -33,18 +34,25 @@ jobs:
       - name: Publicar (arquivo único, com o .NET embutido)
         run: dotnet publish src/ABExplode.App/ABExplode.App.csproj -c Release -f net10.0-windows -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -o dist -nologo
 
-      - name: Montar pacote
+      - name: Publicar versão de 32 bits (Windows x86, experimental)
+        run: dotnet publish src/ABExplode.App/ABExplode.App.csproj -c Release -f net10.0-windows -r win-x86 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -o dist32 -nologo
+
+      - name: Montar pacotes
         shell: pwsh
         run: |
           Copy-Item LEIA-ME.txt dist/LEIA-ME.txt
           Compress-Archive -Path dist/ABExplode.exe, dist/LEIA-ME.txt -DestinationPath ABExplode.zip
+          Copy-Item dist32/ABExplode.exe dist32/ABExplode-x86.exe
+          Compress-Archive -Path dist32/ABExplode-x86.exe, dist/LEIA-ME.txt -DestinationPath ABExplode-x86.zip
 
       - uses: actions/upload-artifact@v4
         with:
           name: release-windows
           path: |
             ABExplode.zip
+            ABExplode-x86.zip
             dist/ABExplode.exe
+            dist32/ABExplode-x86.exe
           retention-days: 1
 
   linux:
@@ -131,7 +139,10 @@ jobs:
       - name: Arquivos da release
         run: |
           mv assets/dist/ABExplode.exe assets/ABExplode.exe
-          rmdir assets/dist
+          mv assets/dist32/ABExplode-x86.exe assets/ABExplode-x86.exe
+          rmdir assets/dist assets/dist32
+          # SHA-256 de cada arquivo, para quem quiser conferir o que baixou (veja SECURITY.md)
+          (cd assets && sha256sum * > ../SHA256SUMS.txt) && mv SHA256SUMS.txt assets/
           ls -l assets
 
       - name: Atualizar release "latest"

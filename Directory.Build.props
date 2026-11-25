@@ -3,7 +3,7 @@
   <!-- Configuração comum a todos os projetos: o app WPF atual (ABExplode.csproj) e os novos em src\ (migração para Avalonia). -->
   <PropertyGroup>
     <Product>ABExplode</Product>
-    <Version>0.16.0</Version>
+    <Version>0.17.0</Version>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
