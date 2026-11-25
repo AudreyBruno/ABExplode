@@ -34,7 +34,8 @@ Assim há sempre um app funcionando.
 - Criar a solution e os projetos vazios, com `Directory.Build.props` comum (versão, `Optimize=true`, `AllowUnsafeBlocks`).
 - Configurar CI (GitHub Actions) com build em `windows-latest` e `ubuntu-latest`.
 - **Pronto quando:** `dotnet build` passa nos dois sistemas.
-- **Status: feita.** `ABExplode.sln`, `Directory.Build.props`, projetos em `src\` e `.github/workflows/build.yml`.
+- **Status: feita.** `ABExplode.sln`, `Directory.Build.props`, projetos em `src\` e `.github/workflows/build.yml`
+  (depois removido: o único workflow agora é o `publicar.yml`, que compila e publica os dois sistemas a cada push na `main`).
   O app Avalonia (`ABExplode.App`) tem dois alvos: `net10.0-windows` (usa Platform.Windows) e `net10.0` (usa Platform.Linux).
   O app WPF continua na raiz, igual, e o `publicar.yml` não mudou.
 
@@ -274,7 +275,7 @@ Implementações em `Platform.Linux`:
 ### Como testar no Linux
 
 1. **Gerar:** `dotnet publish src/ABExplode.App/ABExplode.App.csproj -c Release -f net10.0 -r linux-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -o dist-linux`
-   (ou baixar o artefato do `build.yml`).
+   (ou baixar da release "latest", gerada pelo `publicar.yml` a cada push na `main`).
 2. **Pacotes que completam as leituras:** `pciutils` (lspci), `smartmontools`, `lm-sensors` e, se quiser, `vulkan-tools`.
    Driver NVIDIA proprietário para os dados da NVIDIA.
 3. **Rodar:**
@@ -445,9 +446,8 @@ Implementações em `Platform.Linux`:
     isso, os comandos do sistema (lspci, smartctl, journalctl, pkexec, df e as montagens) rodam fora do sandbox pelo
     `flatpak-spawn --host` (`Sys.InFlatpak`). Por essa permissão ele não serve para o Flathub, só para distribuir por
     conta própria.
-  - **Versões de desenvolvimento:** o `build.yml` gera as três em todo push fora da `main`, como artefatos.
-    Instalar o Flatpak: `flatpak install --user ABExplode-*.flatpak` (precisa do remoto flathub para baixar o runtime).
-  - **Release oficial (`publicar.yml`):** em todo push na `main` (release "latest") e em tags `v*`. Um job por sistema
+  - Instalar o Flatpak: `flatpak install --user ABExplode-*.flatpak` (precisa do remoto flathub para baixar o runtime).
+  - **Release oficial (`publicar.yml`, o único workflow):** em todo push na `main` (release "latest"). Um job por sistema
     (Windows, Linux, Flatpak no contêiner); o último junta os arquivos e cria a release, que só sai se todos derem
     certo. Arquivos: `ABExplode.exe`, `ABExplode.zip`, `ABExplode-x86_64.AppImage`, `ABExplode.flatpak` e
     `ABExplode-linux-x64.tar.gz`. O `LEIA-ME.txt` ganhou a parte do Linux (como abrir cada formato, pkexec, MangoHud,

@@ -3,8 +3,8 @@ using System.Reflection;
 namespace ABExplode.App;
 
 /// <summary>
-/// Versão do app. As builds de desenvolvimento (branches fora da main, no build.yml) recebem
-/// InformationalVersion "dev-&lt;branch&gt;-&lt;commit&gt;", e aí a tela mostra isso no lugar da versão normal.
+/// Versão do app. Uma build publicada com -p:InformationalVersion="dev-&lt;branch&gt;-&lt;commit&gt;"
+/// mostra isso na tela no lugar da versão normal (a CI não gera mais builds de desenvolvimento).
 /// </summary>
 internal static class AppVersion
 {
