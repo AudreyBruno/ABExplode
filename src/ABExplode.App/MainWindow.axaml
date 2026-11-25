@@ -2086,6 +2086,19 @@
                                                 HorizontalAlignment="Stretch" Click="BtnDiskBench_Click"/>
                                     </StackPanel>
                                 </Border>
+                                <Border Classes="card" Margin="0,0,0,12">
+                                    <StackPanel>
+                                        <TextBlock Text="SETORES DEFEITUOSOS" Classes="label"/>
+                                        <WrapPanel Name="DiskScanPanel">
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="DiskScan" Content="Rápido (10%)" Tag="quick" IsChecked="True"/>
+                                            <RadioButton Theme="{StaticResource Chip}" GroupName="DiskScan" Content="Completo" Tag="full"/>
+                                        </WrapPanel>
+                                        <TextBlock Foreground="{DynamicResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,12,0,12"
+                                                   Text="Só lê a unidade escolhida acima (não grava nada) e anota setores ilegíveis e leituras muito lentas. O modo completo de um disco grande pode levar horas; dá para cancelar."/>
+                                        <Button Name="BtnDiskScan" Theme="{StaticResource PrimaryButton}" Content="VERIFICAR"
+                                                HorizontalAlignment="Stretch" Click="BtnDiskScan_Click"/>
+                                    </StackPanel>
+                                </Border>
                                 <Border Classes="card">
                                     <StackPanel>
                                         <TextBlock Text="HISTÓRICO" Classes="label"/>
