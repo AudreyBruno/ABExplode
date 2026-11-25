@@ -7,6 +7,8 @@ otimização (limpeza de memória e ajustes para jogos) e stress test de CPU / R
 
 REQUISITOS (WINDOWS)
 - Windows 10 ou 11, 64 bits. Não precisa instalar o .NET (já vem dentro do .exe).
+  Para Windows de 32 bits, use o ABExplode-x86.exe (experimental: sensores de CPU, ray tracing e
+  iluminação Corsair podem não funcionar).
 - Para temperatura e consumo da CPU, instale o driver PawnIO (uma vez só):
       winget install namazso.PawnIO
 - Aceite o pedido de administrador ao abrir (necessário para ler os sensores).
@@ -38,3 +40,5 @@ OBSERVAÇÕES
   ~/.config/ABExplode (no Flatpak, ~/.var/app/io.github.audreybruno.ABExplode/config/ABExplode).
 - As notas de GPU do Benchmark no Linux são em Vulkan e não se comparam com as do Windows (Direct3D).
 - Use os stress tests com o limite de temperatura ligado e boa ventilação.
+- Para conferir se o arquivo baixado é o original, compare o hash SHA-256 dele com o SHA256SUMS.txt
+  da release. Windows (PowerShell): Get-FileHash .\ABExplode.exe   Linux: sha256sum ABExplode-x86_64.AppImage
