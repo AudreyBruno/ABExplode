@@ -223,6 +223,7 @@ public partial class MainWindow : Window
         switch (page)
         {
             case "PageDash": UpdateDashboard(); break;
+            case "PageStress": UpdateStressHardware(); break;
             case "PageSensors": ApplySensorFilter(); break;
             case "PageGpu": UpdateGpuPage(); break;
             case "PageLauncher": InitLauncher(); break;

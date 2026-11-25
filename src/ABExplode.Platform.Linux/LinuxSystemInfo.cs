@@ -39,6 +39,7 @@ internal sealed class LinuxSystemInfo : ISystemInfo
         if (os.GetValueOrDefault("VERSION_ID") is string ver) n.Add("Versão", ver);
         n.Add("Kernel", Sys.Or(Sys.Read("/proc/sys/kernel/osrelease")));
         n.Add("Arquitetura", RuntimeInformation.OSArchitecture.ToString().ToLowerInvariant());
+        n.Add("Data de instalação", InstallDate());
         string desktop = Environment.GetEnvironmentVariable("XDG_CURRENT_DESKTOP") ?? "";
         string session = Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") ?? "";
         if (desktop.Length > 0 || session.Length > 0)
@@ -53,15 +54,44 @@ internal sealed class LinuxSystemInfo : ISystemInfo
     private static string DmiDate(string? s) =>
         s != null && DateTime.TryParseExact(s, "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var d) ? d.ToString("dd/MM/yyyy") : Sys.Or(s);
 
+    /// <summary>
+    /// Data de instalação: a data de criação (birth time) da raiz "/", que é de quando o sistema de arquivos foi formatado
+    /// na instalação. Sistemas de arquivos sem birth time devolvem 0; aí tenta a pasta do instalador do Debian/Ubuntu.
+    /// </summary>
+    private static string InstallDate()
+    {
+        foreach (var path in new[] { "/", "/var/log/installer" })
+        {
+            if (Sys.Run("stat", $"-c %W {path}") is string s && long.TryParse(s.Trim(), out long t) && t > 0)
+                return DateTimeOffset.FromUnixTimeSeconds(t).LocalDateTime.ToString("dd/MM/yyyy");
+        }
+        return "—";
+    }
+
+    // Valores de DMI que o Sys.Dmi ainda deixa passar e não dizem nada.
+    private static string? DmiUseful(string name) =>
+        Sys.Dmi(name) is string v && !v.Contains("System Version", StringComparison.OrdinalIgnoreCase) &&
+        !v.Contains("System SKU", StringComparison.OrdinalIgnoreCase) && !v.Contains("To be filled", StringComparison.OrdinalIgnoreCase)
+            ? v.Trim() : null;
+
     private static void CollectBoard(InfoNode n)
     {
+        // Modelo do computador/notebook (ex.: Acer Nitro AN515-57): em notebooks a placa-mãe só mostra um código interno.
+        var machine = n.Add("Computador / notebook");
+        string? maker = DmiUseful("sys_vendor"), model = DmiUseful("product_name"), version = DmiUseful("product_version"),
+                family = DmiUseful("product_family"), sku = DmiUseful("product_sku");
+        if (maker != null) machine.Add("Fabricante", maker);
+        if (model != null) machine.Add("Modelo", model);
+        if (version != null) machine.Add("Versão do produto", version);
+        if (family != null) machine.Add("Família", family);
+        if (sku != null) machine.Add("SKU", sku);
+        if (machine.Children.Count == 0) machine.Add("Modelo", "O fabricante não informa o modelo na BIOS");
+
         var board = n.Add("Placa-mãe");
         board.Add("Fabricante", Sys.Or(Sys.Dmi("board_vendor")));
         board.Add("Modelo", Sys.Or(Sys.Dmi("board_name")));
         board.Add("Versão", Sys.Or(Sys.Dmi("board_version")));
         board.Add("Nº de série", Sys.Dmi("board_serial") ?? (Sys.IsRoot ? "—" : "— (só como root)"));
-        if (Sys.Dmi("product_name") is string product && product != Sys.Dmi("board_name"))
-            board.Add("Produto", $"{Sys.Dmi("sys_vendor")} {product}".Trim());
         var bios = n.Add("BIOS");
         bios.Add("Fabricante", Sys.Or(Sys.Dmi("bios_vendor")));
         bios.Add("Versão", Sys.Or(Sys.Dmi("bios_version")));

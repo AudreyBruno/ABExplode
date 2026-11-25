@@ -122,6 +122,7 @@ public partial class MainWindow
 
         SetStressControls(running: true);
         SetStatus("Rodando", alert: false);
+        UpdateStressHardware();
         Log($"Iniciado · CPU {(cpu ? $"sim (limite {_tempLimit:0} °C)" : "não")} · RAM {(ram ? $"sim ({fraction:P0} da livre)" : "não")} · " +
             $"GPU {gpuDesc} · {(minutes > 0 ? $"{minutes:0.##} min" : "sem limite de tempo")}");
     }
@@ -233,6 +234,15 @@ public partial class MainWindow
         }
 
         if (PageStress.IsVisible) DrawChart();
+    }
+
+    /// <summary>Linha com CPU, GPU e RAM da máquina no topo do registro, para constar em capturas de tela.</summary>
+    private void UpdateStressHardware()
+    {
+        var (total, _) = _platform.SystemInfo.MemoryStatus();
+        string gpus = _gpus.Count > 0 ? string.Join(" + ", _gpus.Select(g => g.Name)) : "—";
+        string ram = total > 0 ? $"{total / 1073741824.0:0.#} GB" : "—";
+        StressHw.Text = $"CPU: {(_cpuName.Length > 0 ? _cpuName : "—")}  ·  GPU: {gpus}  ·  RAM: {ram}";
     }
 
     private void Log(string msg)

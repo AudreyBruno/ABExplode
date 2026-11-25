@@ -801,7 +801,7 @@
                 </ScrollViewer>
 
                 <!-- ===== STRESS TEST ===== -->
-                <Grid Name="PageStress" Margin="36,30,36,30" RowDefinitions="Auto,Auto,Auto,*,110" IsVisible="False">
+                <Grid Name="PageStress" Margin="36,30,36,30" RowDefinitions="Auto,Auto,Auto,*,10,170" IsVisible="False">
                     <Grid.Styles>
                         <Style Selector="Border.stat">
                             <Setter Property="Margin" Value="4,0"/>
@@ -957,7 +957,7 @@
                     </UniformGrid>
 
                     <!-- Gráfico -->
-                    <Border Grid.Row="3" Classes="card" Margin="0,0,0,14" Padding="18,14,18,12" MinHeight="140">
+                    <Border Grid.Row="3" Classes="card" Margin="0" Padding="18,14,18,12" MinHeight="140">
                         <DockPanel>
                             <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
                                 <TextBlock Text="TEMPERATURAS — ÚLTIMOS 5 MIN" Classes="label" Margin="0"/>
@@ -974,10 +974,17 @@
                         </DockPanel>
                     </Border>
 
+                    <!-- Divisória: arraste para aumentar ou diminuir o registro -->
+                    <GridSplitter Grid.Row="4" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                                  ResizeDirection="Rows" ResizeBehavior="PreviousAndNext" Background="Transparent"
+                                  Cursor="SizeNorthSouth" ToolTip.Tip="Arraste para redimensionar o registro"/>
+
                     <!-- Registro -->
-                    <Border Grid.Row="4" Classes="card" Padding="18,14,10,10">
+                    <Border Grid.Row="5" Classes="card" Padding="18,14,10,10" MinHeight="90">
                         <DockPanel>
                             <TextBlock DockPanel.Dock="Top" Text="REGISTRO" Classes="label"/>
+                            <TextBlock Name="StressHw" DockPanel.Dock="Top" Foreground="{DynamicResource Muted}" FontSize="12"
+                                       TextWrapping="Wrap" Margin="0,0,0,8"/>
                             <ListBox Name="StressLog" FontFamily="{StaticResource Mono}" FontSize="12" Background="Transparent"
                                      Foreground="{DynamicResource Muted}" ItemContainerTheme="{StaticResource PlainItem}"/>
                         </DockPanel>
