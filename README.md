@@ -1,4 +1,4 @@
-# ABExplode — v0.16
+# ABExplode — v0.17
 
 > Baseado no [RESET EXPLODE](https://github.com/GustavoReset/ResetExplode), de Gustavo (GustavoReset), licença MIT.
 
@@ -8,13 +8,16 @@
 > **Contribuições:** este projeto não aceita pull requests. Fique à vontade para fazer um *fork* e modificar a sua própria cópia
 > (licença [MIT](LICENSE): mantenha o aviso de copyright).
 
-## Novidades da v0.16
-- **Inicialização** (RESET FERRAMENTAS): veja, desative ou remova os programas que abrem junto com o Windows, com opção de desfazer.
-- **Instalar apps** (RESET FERRAMENTAS): Steam, Chrome, Discord, Lightshot, 7-Zip, WinRAR e VLC de uma vez depois de formatar, pelo winget.
-- **RESET MAKER** (nova categoria): Portas COM (fantasmas e números COM presos, que saiu de Otimização) e Drivers seriais
-  (CH340, CP2102, FTDI, Prolific e Arduino: diagnóstico, reinstalar, trocar ou remover versão do driver, Arduino IDE).
-- **Abertura mais rápida**: a janela aparece em ~0,5 s (antes ~4,6 s); o hardware é lido em paralelo, em segundo plano.
-- **Overlay corrigido**: fica por cima de jogos em janela sem borda como GTA V e Cyberpunk 2077 e segue o monitor do jogo.
+## Novidades da v0.17
+- **Clock da CPU pelos núcleos ativos** (#13): Visão Geral, overlay e RESET BENCH mostram o clock dos núcleos com carga a partir de 10%,
+  como o Gerenciador de Tarefas, em vez da média de todos (que caía por causa dos núcleos parados).
+- **Teste de setores defeituosos** (#7, RESET BENCH › Disco): só leitura, modo rápido (10%) ou completo, com cancelamento.
+  No Linux lê a partição direto e precisa do app aberto como root.
+- **Stress test** (#7): registro redimensionável (arraste a divisória) com CPU, GPU e RAM da máquina no topo.
+- **Sistema** (#7): data de instalação do sistema e bloco "Computador / notebook" (fabricante, modelo, família, SKU), no Windows e no Linux.
+- **Janela maximizada** (#7): não fica atrás da barra de tarefas, em qualquer lado da tela.
+- **Windows 32 bits** (#6): as releases trazem também `ABExplode-x86.exe` (experimental).
+- **Segurança** (#5): [SECURITY.md](SECURITY.md) com canal privado para relatar vulnerabilidades e `SHA256SUMS.txt` em cada release.
 
 Detalhes em [NOVIDADES.md](NOVIDADES.md) (o mesmo texto vai nas notas da release).
 
@@ -30,7 +33,7 @@ App WPF (.NET 10) com:
   Sensores ao vivo da GPU + P-state, PerfCap, NVENC/NVDEC. Fontes: NVML (NVIDIA), DXGI/Direct3D 12, WMI/PnP, registro e banco de specs em `GpuSpecDb.cs`.
 - **Stress test**: carga de CPU em todos os threads (FPU + inteiros) e/ou RAM (grava e verifica padrões em 40–80% da memória livre).
   Para sozinho quando a temperatura da CPU atinge o limite configurado, quando o tempo acaba ou se aparecer erro de memória.
-  Mostra temperatura atual/máxima, carga, consumo, gráfico dos últimos 5 min e um log dos eventos.
+  Mostra temperatura atual/máxima, carga, consumo, gráfico dos últimos 5 min e um log dos eventos (redimensionável, com CPU, GPU e RAM no topo).
 - **Stress de GPU** (inspirado no FurMark, `GpuBurn.cs`): torus com pelos renderizado por *shells* em Direct3D 11 (Vortice),
   com overdraw massivo, cadeia de FMAs no pixel shader e alpha blending, sem limite de FPS, numa janela própria.
   Opções: resolução (720p/1080p/1440p/tela cheia), MSAA (off/4x/8x), intensidade (Normal/Alta/Extrema) e limite de temperatura da GPU.
@@ -45,7 +48,7 @@ App WPF (.NET 10) com:
 - **Overlay de jogos** (estilo RTSS/Afterburner, `OverlayWindow.xaml`): FPS, frametime, 1% low, gráfico de frametime, GPU/CPU/RAM/VRAM.
   Janela transparente, sempre no topo e que ignora cliques; atalho global **Ctrl+Shift+O**. **Itens escolhidos pelo usuário** (`OverlayMetrics.cs`,
   `MainWindow.Overlay.cs`): FPS/frametime/1% low/gráfico, GPU (uso, temperatura, hotspot, clocks do núcleo e da memória, consumo, tensão,
-  ventoinha, PerfCap), VRAM, CPU (uso, núcleo mais ocupado, temperatura, clock médio e máximo, consumo), RAM, nome do jogo e hora. Volta para o topo a cada troca de janela ativa
+  ventoinha, PerfCap), VRAM, CPU (uso, núcleo mais ocupado, temperatura, clock dos núcleos ativos e máximo, consumo), RAM, nome do jogo e hora. Volta para o topo a cada troca de janela ativa
   (jogos em janela sem borda também se marcam como "sempre no topo") e fica no monitor do jogo. Não aparece em tela cheia exclusiva. O FPS de qualquer jogo é medido via ETW
   (eventos Present de DXGI/D3D9, como o PresentMon, `FrameMonitor.cs`), sem injetar nada no jogo.
 - **RESET BENCH** (`BenchRenderer.cs`): benchmark de CPU no princípio do Cinebench, com renderizador próprio. Path tracer monocromático
@@ -68,6 +71,8 @@ App WPF (.NET 10) com:
     lido sem cache do Windows, com passada prévia para o antivírus e 8 threads. Arquivos temporários apagados no final.
   - *Disco* (`DiskBench.cs`): leitura e escrita sequencial (1 MB) e aleatória 4K (QD1 e QD32), sem cache do Windows
     (`FILE_FLAG_NO_BUFFERING`), em arquivo temporário de 512 MB / 1 GB / 4 GB na unidade escolhida; apagado no final. Histórico dos últimos resultados.
+  - *Setores defeituosos* (`DiskSurfaceScan.cs`): lê a unidade direto (sem cache e sem gravar nada) em blocos de 4 MB, refaz setor a setor
+    os blocos com erro e conta setores ilegíveis e leituras lentas (> 0,7 s). Modo rápido (amostra de 10%) ou completo.
 - **RESET OC** (`MainWindow.Oc.cs`, `OcCheck.cs`): ajuste de limite de energia e travamento de clock da GPU NVIDIA (via NVML) com botão de restaurar,
   e **verificação de estabilidade** de overclock (CPU, GPU ou ambos; 5/15/30 min) com limites de segurança de temperatura, leitura de erros
   de hardware (WHEA, reset de driver de vídeo), veredito, histórico e guia de BIOS conforme a placa-mãe e a CPU.
@@ -154,9 +159,13 @@ Para levar a outro PC: dê dois cliques em `publicar.bat`. Ele gera `..\ABExplod
 sem caminhos do seu usuário) + `LEIA-ME.txt`. No outro PC só é preciso instalar o PawnIO. Rode de novo após cada alteração no código.
 
 ### Baixar a versão mais recente
-A cada push na `main`, o GitHub Actions (`.github/workflows/publicar.yml`) gera o `ABExplode.exe` e atualiza a release
-**latest** (aba *Releases* do repositório), com o `.exe` e um `.zip`. É só baixar de lá, sem compilar.
-Ao criar uma tag (`git tag v0.12` e `git push --tags`), também sai uma release fixa dessa versão.
+A cada push na `main`, o GitHub Actions (`.github/workflows/publicar.yml`, o único workflow) gera o app e atualiza a release
+**latest** (aba *Releases* do repositório). É só baixar de lá, sem compilar:
+- Windows: `ABExplode.exe` e `.zip`; `ABExplode-x86.exe` e `.zip` para 32 bits (experimental).
+- Linux: `ABExplode-x86_64.AppImage`, `ABExplode.flatpak` e `ABExplode-linux-x64.tar.gz`.
+- `SHA256SUMS.txt` com o hash de todos os arquivos, para conferir o download (veja [SECURITY.md](SECURITY.md)).
+
+Para gerar a versão de 32 bits localmente: `publicar.bat x86`.
 
 ## Observações
 - Se algum sensor não aparecer, depende do suporte da biblioteca à sua placa-mãe.
@@ -176,6 +185,8 @@ Ao criar uma tag (`git tag v0.12` e `git push --tags`), também sai uma release 
 - ✔ Abertura rápida: janela na hora, hardware carregado em paralelo (v0.16)
 - ✔ Instalar apps essenciais pós-formatação pelo winget (v0.16)
 - ✔ RESET MAKER: portas COM e drivers seriais CH340/CP210x/FTDI/Prolific/Arduino (v0.16)
+- ✔ Clock da CPU pelos núcleos ativos, teste de setores defeituosos, modelo do notebook e data de instalação (v0.17)
+- ✔ Versão de 32 bits do Windows (experimental), `SECURITY.md` e hashes SHA-256 nas releases (v0.17)
 
 ## Próximas ideias
 - Relatório em CSV e com gráficos
